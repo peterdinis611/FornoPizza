@@ -1148,7 +1148,235 @@ html[data-theme="dark"] .theme-icon-moon {
 
 .menu-tags {
   justify-content: flex-start;
-  margin: -0.4rem 0 1.8rem;
+  margin: 0;
+}
+
+.kiln-ledger {
+  padding-bottom: 4.5rem;
+}
+
+.ledger-mast {
+  position: relative;
+  padding: 2.6rem 0 0.4rem;
+}
+
+.ledger-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(5.2rem, 16vw, 10.5rem);
+  line-height: 0.74;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+.ledger-mast .lede {
+  max-width: 34rem;
+  margin: 1.2rem 0 0;
+}
+
+.ledger-count {
+  margin: 1.1rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.ledger-count strong {
+  margin-right: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--tomato);
+  vertical-align: -0.28rem;
+}
+
+.ledger-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(12rem, 0.75fr);
+  gap: 1.2rem 2.4rem;
+  align-items: end;
+  margin: 2rem 0 1.4rem;
+  padding: 0 0 1.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.ledger-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  margin: 0 0 1.6rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+}
+
+.ledger-filter a {
+  color: var(--tomato);
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.peel-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.peel-lead,
+.peel-row {
+  display: flex;
+  flex-direction: column;
+  transform-style: preserve-3d;
+}
+
+.peel-lead {
+  padding: 0.4rem 0 2.2rem;
+  margin-bottom: 0.3rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.peel-lead a {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(13rem, 22rem) minmax(0, 1fr) auto;
+  gap: 0.6rem 1.8rem;
+  align-items: end;
+  color: inherit;
+}
+
+.peel-lead .pie-mark {
+  grid-row: 1 / span 2;
+  width: min(100%, 24rem);
+  margin: -10% 0 -8% -10%;
+  transform: rotate(-11deg);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.peel-lead:hover .pie-mark {
+  transform: rotate(-4deg) scale(1.04);
+}
+
+.peel-lead .row-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding-bottom: 0.4rem;
+}
+
+.peel-lead .fire-stamp {
+  position: static;
+  transform: rotate(-7deg);
+  margin-bottom: 0.2rem;
+}
+
+.peel-lead strong {
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 8vw, 6.4rem);
+  font-weight: 800;
+  line-height: 0.8;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+}
+
+.peel-lead em,
+.peel-row em {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+}
+
+.peel-lead .price {
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  align-self: end;
+  padding-bottom: 0.35rem;
+}
+
+.peel-lead .peel-add {
+  align-self: start;
+  margin: 0.9rem 0 0;
+}
+
+.peel-stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.peel-stamps i {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tomato);
+  border: 1px solid color-mix(in srgb, var(--tomato) 55%, transparent);
+  padding: 0.12rem 0.4rem 0.08rem;
+}
+
+.peel-row {
+  border-bottom: 1px solid var(--line);
+}
+
+.peel-row:nth-child(even) {
+  padding-left: 3.2rem;
+}
+
+.peel-row a {
+  display: grid;
+  grid-template-columns: 3rem 7.2rem minmax(0, 1fr) auto;
+  gap: 0.6rem 1rem;
+  align-items: center;
+  padding: 0.85rem 0 0.35rem;
+  color: inherit;
+}
+
+.peel-row .pie-mark {
+  width: 7.4rem;
+  margin-left: -0.4rem;
+  transform: rotate(9deg);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.peel-row:hover .pie-mark {
+  transform: rotate(2deg) scale(1.08);
+}
+
+.peel-row strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  font-weight: 700;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+}
+
+.peel-row .price {
+  font-size: 1.7rem;
+}
+
+.peel-row .peel-add {
+  align-self: start;
+  margin: 0 0 1rem 11.2rem;
+  min-height: 2.45rem;
+  padding: 0 1.05rem;
+  font-size: 0.7rem;
+}
+
+.peel-lead a:hover strong,
+.peel-row a:hover strong {
+  color: var(--tomato);
+}
+
+.ledger-empty {
+  padding: 2rem 0 4rem;
 }
 
 .order-path,
@@ -1821,6 +2049,14 @@ html.has-motion .char {
   transform: translateY(110%);
 }
 
+html.has-motion .kiln-ledger .ledger-copy,
+html.has-motion .kiln-ledger .ledger-tools,
+html.has-motion .kiln-ledger .ledger-count,
+html.has-motion .kiln-ledger .peel-lead,
+html.has-motion .kiln-ledger .peel-row {
+  opacity: 0;
+}
+
 html.has-motion [data-reveal],
 html.has-motion [data-scroll],
 html.has-motion .oven-mouth,
@@ -1934,6 +2170,21 @@ html.has-cursor .ember-cursor {
     margin: 0;
   }
 
+  .peel-lead a {
+    grid-template-columns: 1fr;
+    gap: 0.4rem 1rem;
+  }
+
+  .peel-lead .pie-mark {
+    grid-row: auto;
+    width: min(78vw, 22rem);
+    margin: -6% auto 0.4rem;
+  }
+
+  .peel-lead .price {
+    justify-self: start;
+  }
+
   .kiln-fault {
     grid-template-columns: 1fr;
     min-height: 0;
@@ -1948,7 +2199,8 @@ html.has-cursor .ember-cursor {
 
   .shop-find,
   .delivery-sheet,
-  .shop-foot-grid {
+  .shop-foot-grid,
+  .ledger-tools {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -2045,8 +2297,40 @@ html.has-cursor .ember-cursor {
   .letter-form,
   .delivery-sheet,
   .voices,
-  .shop-foot-grid {
+  .shop-foot-grid,
+  .ledger-tools {
     grid-template-columns: 1fr;
+  }
+
+  .peel-row:nth-child(even) {
+    padding-left: 0;
+  }
+
+  .peel-row a {
+    grid-template-columns: 5.8rem minmax(0, 1fr);
+    grid-template-areas:
+      "pie copy"
+      "pie price";
+  }
+
+  .peel-row .index {
+    display: none;
+  }
+
+  .peel-row .pie-mark {
+    grid-area: pie;
+  }
+
+  .peel-row .row-copy {
+    grid-area: copy;
+  }
+
+  .peel-row .price {
+    grid-area: price;
+  }
+
+  .peel-row .peel-add {
+    margin-left: 0;
   }
 
   .detail-grid,
@@ -2099,7 +2383,12 @@ html.has-cursor .ember-cursor {
   html.has-motion [data-reveal],
   html.has-motion [data-scroll],
   html.has-motion .oven-mouth,
-  html.has-motion .oven-seal {
+  html.has-motion .oven-seal,
+  html.has-motion .kiln-ledger .ledger-copy,
+  html.has-motion .kiln-ledger .ledger-tools,
+  html.has-motion .kiln-ledger .ledger-count,
+  html.has-motion .kiln-ledger .peel-lead,
+  html.has-motion .kiln-ledger .peel-row {
     opacity: 1;
     transform: none;
   }

@@ -1,6 +1,10 @@
 @page "/menu"
 @inject NavigationManager Nav
 @inject MenuService Oven
+@inject CartService Cart
+@inject IJSRuntime JS
+@implements IDisposable
+@implements IAsyncDisposable
 
 <PageTitle>Menu — 800° Forno</PageTitle>
 <Seo Title="Menu — 800° Forno"
@@ -8,56 +12,104 @@
      Path="/menu"
      JsonLd="@MenuJson" />
 
-<section class="page-head">
-    <p class="eyebrow">Šesť listov, jedna pec</p>
-    <h1>Menu</h1>
-    @if (!string.IsNullOrWhiteSpace(Q) || !string.IsNullOrWhiteSpace(Tag))
-    {
-        <p class="lede">
-            @if (!string.IsNullOrWhiteSpace(Q))
+<div class="kiln-ledger" @ref="_root">
+    <header class="ledger-mast">
+        <p class="eyebrow ledger-copy">Šesť listov, jedna pec</p>
+        <h1 class="ledger-title" aria-label="Menu">
+            <span class="hero-title-line">
+                @foreach (var letter in "MENU")
+                {
+                    <span class="char" aria-hidden="true">@letter</span>
+                }
+            </span>
+        </h1>
+        <p class="lede ledger-copy">Listy, ktoré pec práve spečie. Hľadajte, filtrujte, dajte do košíka — kôra ide von ešte horúca.</p>
+        <p class="ledger-count">
+            <strong data-count="@Visible.Count">@Visible.Count</strong>
+            @(Visible.Count == 1 ? "list v peci" : "listov v peci")
+            @if (IsFiltered)
             {
-                <span>Hľadanie: @Q. </span>
+                <span>z @All.Count</span>
+            }
+        </p>
+    </header>
+
+    <div class="ledger-tools">
+        <form class="find-form" @onsubmit="CommitSearch" @onsubmit:preventDefault>
+            <label>
+                Hľadať v peci
+                <input type="search" @bind="Search" @bind:event="oninput" placeholder="Margherita, bazalka, pikantná…" autocomplete="off" />
+            </label>
+            <button class="btn tomato" type="submit" data-magnetic>Hľadať</button>
+        </form>
+        <nav class="tag-row menu-tags" aria-label="Kategórie">
+            <a class="@(string.IsNullOrWhiteSpace(Tag) ? "is-on" : null)" href="@TagHref(null)">Všetko</a>
+            <a class="@(Tag == "klasika" ? "is-on" : null)" href="@TagHref("klasika")">Klasika</a>
+            <a class="@(Tag == "pikant" ? "is-on" : null)" href="@TagHref("pikant")">Pikantné</a>
+            <a class="@(Tag == "bez-masa" ? "is-on" : null)" href="@TagHref("bez-masa")">Bez mäsa</a>
+            <a class="@(Tag == "syry" ? "is-on" : null)" href="@TagHref("syry")">Syry</a>
+        </nav>
+    </div>
+
+    @if (IsFiltered)
+    {
+        <p class="ledger-filter">
+            @if (!string.IsNullOrWhiteSpace(Search))
+            {
+                <span>Hľadanie: @Search</span>
             }
             @if (!string.IsNullOrWhiteSpace(Tag))
             {
-                <span>Kategória: @TagLabel. </span>
+                <span>Kategória: @TagLabel</span>
             }
             <a href="/menu">Zobraziť všetko</a>
         </p>
     }
-</section>
 
-<nav class="tag-row menu-tags" aria-label="Kategórie">
-    <a class="@(string.IsNullOrWhiteSpace(Tag) ? "is-on" : null)" href="/menu">Všetko</a>
-    <a class="@(Tag == "klasika" ? "is-on" : null)" href="/menu?tag=klasika">Klasika</a>
-    <a class="@(Tag == "pikant" ? "is-on" : null)" href="/menu?tag=pikant">Pikantné</a>
-    <a class="@(Tag == "bez-masa" ? "is-on" : null)" href="/menu?tag=bez-masa">Bez mäsa</a>
-    <a class="@(Tag == "syry" ? "is-on" : null)" href="/menu?tag=syry">Syry</a>
-</nav>
-
-@if (!Filtered.Any())
-{
-    <p class="empty">V peci to nenašli. <a href="/menu">Celé menu</a></p>
-}
-else
-{
-    <ol class="manifesto long">
-        @foreach (var (pizza, i) in Filtered.Select((p, i) => (p, i)))
-        {
-            <li class="manifesto-row" style="animation-delay: @(80 * i)ms">
-                <a href="/menu/@pizza.Slug">
-                    <span class="index">@((i + 1).ToString("00"))</span>
-                    <span class="disc tone-@pizza.Tone" aria-hidden="true"></span>
-                    <span class="row-copy">
-                        <strong>@pizza.Name</strong>
-                        <em>@pizza.Ingredients</em>
-                    </span>
-                    <span class="price">@pizza.Price.ToString("N2") €</span>
-                </a>
-            </li>
-        }
-    </ol>
-}
+    @if (!Visible.Any())
+    {
+        <p class="empty ledger-empty">V peci to nenašli. <a href="/menu">Celé menu</a></p>
+    }
+    else
+    {
+        <ol class="peel-board">
+            @foreach (var (pizza, i) in Visible.Select((p, i) => (p, i)))
+            {
+                <li class="@(i == 0 ? "peel-lead" : "peel-row")" data-tilt>
+                    <a href="/menu/@pizza.Slug">
+                        @if (i != 0)
+                        {
+                            <span class="index">@((i + 1).ToString("00"))</span>
+                        }
+                        <PizzaMark Slug="@pizza.Slug" MarkId="@($"menu-{pizza.Slug}")" />
+                        <span class="row-copy">
+                            @if (i == 0)
+                            {
+                                <span class="fire-stamp">List dňa</span>
+                            }
+                            <strong>@pizza.Name</strong>
+                            <em>@pizza.Tagline</em>
+                            @if (i == 0)
+                            {
+                                <span class="ingredients">@pizza.Ingredients</span>
+                            }
+                            <span class="peel-stamps">
+                                @foreach (var stamp in Stamps(pizza))
+                                {
+                                    <i>@stamp</i>
+                                }
+                            </span>
+                        </span>
+                        <span class="price">@pizza.Price.ToString("N2") €</span>
+                    </a>
+                    <button class="btn tomato peel-add" type="button" data-magnetic @onclick="() => Add(pizza)">
+                        @(InCart(pizza) ? "Pridať ďalšiu" : "Do košíka")
+                    </button>
+                </li>
+            }
+        </ol>
+    }
+</div>
 
 @code {
     [SupplyParameterFromQuery]
@@ -66,8 +118,16 @@ else
     [SupplyParameterFromQuery]
     public string? Tag { get; set; }
 
-    private IReadOnlyList<PizzaItem> Filtered { get; set; } = [];
+    private ElementReference _root;
+    private bool _mounted;
+    private string _mountedTag = "\u0000";
     private IReadOnlyList<PizzaItem> All { get; set; } = [];
+    private string Search { get; set; } = "";
+
+    private IReadOnlyList<PizzaItem> Visible => MenuService.Filter(All, Search, Tag);
+
+    private bool IsFiltered =>
+        !string.IsNullOrWhiteSpace(Search) || !string.IsNullOrWhiteSpace(Tag);
 
     private string MenuJson
     {
@@ -80,12 +140,6 @@ else
         }
     }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        All = await Oven.AllAsync();
-        Filtered = await Oven.FilterAsync(Q, Tag);
-    }
-
     private string TagLabel => Tag switch
     {
         "klasika" => "Klasika",
@@ -94,4 +148,98 @@ else
         "syry" => "Syry",
         _ => Tag ?? ""
     };
+
+    protected override void OnInitialized() => Cart.Changed += OnCartChanged;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        All = await Oven.AllAsync();
+        Search = Q ?? "";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var tagKey = Tag ?? "";
+        if (!firstRender && _mounted && tagKey == _mountedTag)
+        {
+            return;
+        }
+
+        _mountedTag = tagKey;
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.mountMenu", _root, firstRender || !_mounted);
+            _mounted = true;
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    private void CommitSearch()
+    {
+        Nav.NavigateTo(TagHref(Tag, Search));
+    }
+
+    private string TagHref(string? tag, string? query = null)
+    {
+        var q = (query ?? Search).Trim();
+        if (string.IsNullOrEmpty(tag) && string.IsNullOrEmpty(q))
+        {
+            return "/menu";
+        }
+
+        if (string.IsNullOrEmpty(tag))
+        {
+            return $"/menu?q={Uri.EscapeDataString(q)}";
+        }
+
+        if (string.IsNullOrEmpty(q))
+        {
+            return $"/menu?tag={tag}";
+        }
+
+        return $"/menu?tag={tag}&q={Uri.EscapeDataString(q)}";
+    }
+
+    private static IEnumerable<string> Stamps(PizzaItem pizza)
+    {
+        foreach (var tag in pizza.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            yield return tag switch
+            {
+                "klasika" => "Klasika",
+                "pikant" => "Pikant",
+                "bez-masa" => "Bez mäsa",
+                "syry" => "Syry",
+                _ => tag
+            };
+        }
+    }
+
+    private bool InCart(PizzaItem pizza) =>
+        Cart.Lines.Any(line => line.Pizza.Slug == pizza.Slug);
+
+    private void Add(PizzaItem pizza) => Cart.Add(pizza);
+
+    private void OnCartChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Cart.Changed -= OnCartChanged;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_mounted)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.unmount");
+        }
+        catch (Exception)
+        {
+        }
+    }
 }

@@ -49,29 +49,30 @@ public sealed class MenuService(IDbContextFactory<FornoDbContext> factory)
         return row?.ToItem();
     }
 
-    public async Task<IReadOnlyList<PizzaItem>> FilterAsync(string? query, string? tag, CancellationToken cancellation = default)
+    public async Task<IReadOnlyList<PizzaItem>> FilterAsync(string? query, string? tag, CancellationToken cancellation = default) =>
+        Filter(await AllAsync(cancellation), query, tag);
+
+    public static IReadOnlyList<PizzaItem> Filter(IReadOnlyList<PizzaItem> items, string? query, string? tag)
     {
-        var items = await AllAsync(cancellation);
+        IEnumerable<PizzaItem> result = items;
 
         if (!string.IsNullOrWhiteSpace(tag))
         {
             var needle = tag.Trim();
-            items = items.Where(p => p.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Any(t => t.Equals(needle, StringComparison.OrdinalIgnoreCase)))
-                .ToList();
+            result = result.Where(p => p.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Any(t => t.Equals(needle, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (!string.IsNullOrWhiteSpace(query))
         {
             var q = query.Trim();
-            items = items.Where(p =>
+            result = result.Where(p =>
                 p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 p.Tagline.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 p.Ingredients.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
-        return items;
+        return result.ToList();
     }
 }

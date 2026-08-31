@@ -328,6 +328,106 @@
     }
   }
 
+  function mountMenu(root, fresh) {
+    unmount();
+
+    if (!root) {
+      revealNow();
+      return;
+    }
+
+    if (reduced() || !window.anime) {
+      revealNow();
+      return;
+    }
+
+    const { animate, createTimeline, stagger } = window.anime;
+    document.documentElement.classList.add("has-motion", "motion-ready");
+
+    const chars = root.querySelectorAll(".char");
+    const intro = createTimeline({
+      defaults: { ease: "out(3)" },
+      onComplete: () => {
+        document.documentElement.classList.add("motion-done");
+        root.querySelectorAll("[data-count]").forEach(countStat);
+      },
+    });
+
+    if (fresh !== false && chars.length) {
+      intro.add(
+        chars,
+        {
+          y: ["110%", "0%"],
+          opacity: [0, 1],
+          duration: 820,
+          ease: "out(4)",
+          delay: stagger(62),
+        },
+        40
+      );
+    } else {
+      chars.forEach((char) => {
+        char.style.opacity = "1";
+        char.style.transform = "none";
+      });
+    }
+
+    const copy = root.querySelectorAll(".ledger-copy, .ledger-count, .ledger-tools, .ledger-filter");
+    if (copy.length) {
+      intro.add(
+        copy,
+        {
+          opacity: [0, 1],
+          y: [20, 0],
+          duration: 680,
+          delay: stagger(70),
+        },
+        fresh === false ? 0 : 240
+      );
+    }
+
+    const lead = root.querySelector(".peel-lead");
+    if (lead) {
+      intro.add(
+        lead,
+        { opacity: [0, 1], y: [42, 0], duration: 920, ease: "out(4)" },
+        fresh === false ? 40 : 300
+      );
+
+      const pie = lead.querySelector(".pie-mark");
+      if (pie) {
+        intro.add(
+          pie,
+          { rotate: [-26, -11], scale: [0.84, 1], duration: 1100, ease: "out(4)" },
+          "<"
+        );
+      }
+    }
+
+    const rows = root.querySelectorAll(".peel-row");
+    if (rows.length) {
+      intro.add(
+        rows,
+        {
+          opacity: [0, 1],
+          x: [-42, 0],
+          rotate: [-2.4, 0],
+          duration: 740,
+          delay: stagger(76),
+          ease: "out(3)",
+        },
+        fresh === false ? 80 : 460
+      );
+    }
+
+    homeCleanups.push(() => intro.revert());
+    setupMagnetic(root);
+
+    root.querySelectorAll("[data-tilt]").forEach((el) => {
+      homeCleanups.push(tilt(el, el.classList.contains("peel-lead") ? 7 : 5));
+    });
+  }
+
   function mountFault(root) {
     unmount();
 
@@ -354,7 +454,7 @@
     });
   }
 
-  window.FornoMotion = { boot, mount, mountFault, unmount };
+  window.FornoMotion = { boot, mount, mountMenu, mountFault, unmount };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
