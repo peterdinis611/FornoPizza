@@ -428,6 +428,90 @@
     });
   }
 
+  function mountCart(root) {
+    unmount();
+
+    if (!root) {
+      revealNow();
+      return;
+    }
+
+    if (reduced() || !window.anime) {
+      revealNow();
+      return;
+    }
+
+    const { createTimeline, stagger } = window.anime;
+    document.documentElement.classList.add("has-motion", "motion-ready");
+
+    const chars = root.querySelectorAll(".char");
+    const intro = createTimeline({
+      defaults: { ease: "out(3)" },
+      onComplete: () => document.documentElement.classList.add("motion-done"),
+    });
+
+    if (chars.length) {
+      intro.add(chars, {
+        y: ["110%", "0%"],
+        opacity: [0, 1],
+        duration: 760,
+        ease: "out(4)",
+        delay: stagger(58),
+      }, 40);
+    }
+
+    const copy = root.querySelectorAll(".slip-copy, .slip-void");
+    if (copy.length) {
+      intro.add(copy, {
+        opacity: [0, 1],
+        y: [18, 0],
+        duration: 640,
+        delay: stagger(70),
+      }, 180);
+    }
+
+    const skillet = root.querySelector(".slip-skillet");
+    if (skillet) {
+      intro.add(skillet, {
+        opacity: [0, 1],
+        rotate: [-18, -8],
+        scale: [0.86, 1],
+        duration: 980,
+        ease: "out(4)",
+      }, 220);
+    }
+
+    const lines = root.querySelectorAll(".slip-line");
+    if (lines.length) {
+      intro.add(lines, {
+        opacity: [0, 1],
+        x: [-36, 0],
+        rotate: [-1.6, 0],
+        duration: 720,
+        delay: stagger(70),
+        ease: "out(3)",
+      }, 280);
+    }
+
+    const stub = root.querySelector(".slip-stub");
+    if (stub) {
+      intro.add(stub, {
+        opacity: [0, 1],
+        x: [28, 0],
+        rotate: [6, 1.6],
+        duration: 860,
+        ease: "out(4)",
+      }, 360);
+    }
+
+    homeCleanups.push(() => intro.revert());
+    setupMagnetic(root);
+
+    root.querySelectorAll("[data-tilt]").forEach((el) => {
+      homeCleanups.push(tilt(el, 6));
+    });
+  }
+
   function mountDetail(root, fresh) {
     unmount();
 
@@ -733,6 +817,7 @@
     mount,
     mountMenu,
     mountDetail,
+    mountCart,
     mountFault,
     chromeDetail,
     openMise,

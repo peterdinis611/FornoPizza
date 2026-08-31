@@ -1621,6 +1621,393 @@ html.motion-done .leaf-kiln .oven-pie {
   padding: 2rem 0 4rem;
 }
 
+.slip {
+  position: relative;
+  padding: 2.2rem 0 4.5rem;
+}
+
+.slip-mast {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.6rem 2rem;
+  margin-bottom: 2.4rem;
+}
+
+.slip-title {
+  margin: 0;
+  grid-column: 1;
+  font-family: var(--font-display);
+  font-size: clamp(4.2rem, 12vw, 8.4rem);
+  font-weight: 800;
+  line-height: 0.78;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+}
+
+.slip-lede {
+  grid-column: 1;
+  max-width: 28rem;
+  margin: 0.4rem 0 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ash);
+}
+
+.slip-seal {
+  position: absolute;
+  right: 0;
+  top: 0.2rem;
+  font-family: var(--font-display);
+  font-size: clamp(4.8rem, 11vw, 8.2rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--tomato);
+  opacity: 0.11;
+  pointer-events: none;
+  transform: rotate(12deg);
+}
+
+.slip-sheet {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 17.5rem;
+  gap: 2.4rem 3.2rem;
+  align-items: start;
+}
+
+.slip-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px dashed color-mix(in srgb, var(--char) 28%, transparent);
+}
+
+.slip-line {
+  display: grid;
+  grid-template-columns: 2.1rem 6.1rem minmax(0, 1fr) auto auto auto;
+  gap: 0.85rem 1rem;
+  align-items: center;
+  padding: 1.15rem 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--char) 28%, transparent);
+}
+
+.slip-no {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--tomato);
+}
+
+.slip-pie {
+  width: 6.1rem;
+  transform: rotate(-8deg);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slip-pie .pie-mark {
+  filter: drop-shadow(0 10px 14px rgba(28, 22, 18, 0.22));
+}
+
+.slip-line:hover .slip-pie {
+  transform: rotate(-2deg) scale(1.06);
+}
+
+.slip-meta {
+  min-width: 0;
+}
+
+.slip-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.45rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+}
+
+.slip-name:hover {
+  color: var(--tomato);
+}
+
+.slip-meta p {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+  font-size: 0.95rem;
+}
+
+.slip-stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slip-stamps li {
+  padding: 0.12rem 0.45rem;
+  border: 1px solid var(--tomato);
+  color: var(--tomato);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.slip-edit {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ash);
+  border-bottom: 1px solid transparent;
+}
+
+.slip-edit:hover {
+  color: var(--tomato);
+  border-bottom-color: var(--tomato);
+}
+
+.slip-qty {
+  min-height: 2.6rem;
+}
+
+.slip-qty button {
+  width: 1.7rem;
+  height: 2.2rem;
+  font-size: 1.25rem;
+}
+
+.slip-qty button:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.slip-sum {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+.slip-drop {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  background: none;
+  color: var(--ash);
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.slip-drop:hover {
+  color: var(--tomato);
+}
+
+.slip-stub {
+  position: sticky;
+  top: 5.4rem;
+  padding: 1.4rem 1.35rem 1.5rem 1.7rem;
+  background: var(--cream);
+  color: var(--char);
+  box-shadow:
+    8px 14px 0 color-mix(in srgb, var(--char) 8%, transparent),
+    0 18px 40px rgba(28, 22, 18, 0.12);
+  transform: rotate(1.6deg);
+  overflow: hidden;
+}
+
+.slip-stub::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.7rem;
+  background:
+    radial-gradient(circle at 0 0.55rem, transparent 0.28rem, var(--flour) 0.3rem) 0 0 / 100% 1.1rem;
+}
+
+.slip-stub::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 0.55rem;
+  background: repeating-linear-gradient(
+    180deg,
+    var(--tomato) 0 0.35rem,
+    transparent 0.35rem 0.7rem
+  );
+}
+
+.slip-stub-mark {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--tomato);
+}
+
+.slip-stub-id,
+.slip-stub-count {
+  margin: 0.25rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.slip-stub-total {
+  margin: 0.85rem 0 0.7rem;
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 6vw, 4.6rem);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+}
+
+.slip-stub-total span {
+  font-size: 0.42em;
+  letter-spacing: 0;
+}
+
+.slip-heat {
+  position: relative;
+  height: 0.42rem;
+  margin: 0 0 0.7rem;
+  background: color-mix(in srgb, var(--char) 10%, transparent);
+}
+
+.slip-heat i {
+  display: block;
+  width: calc(var(--heat, 0) * 1%);
+  height: 100%;
+  background: var(--tomato);
+  transform-origin: left;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slip-heat-dot {
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--tomato);
+  background: var(--flour);
+  transform: translate(-50%, -50%);
+}
+
+.slip-heat-dot.is-end {
+  left: 100%;
+  background: var(--tomato);
+}
+
+.slip-heat-note,
+.slip-pay {
+  margin: 0 0 1rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--ash);
+}
+
+.slip-stub .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.slip-back {
+  display: block;
+  margin: 0.85rem 0 1.1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.slip-back:hover {
+  color: var(--tomato);
+}
+
+.slip-pay {
+  margin: 0;
+  padding-top: 0.85rem;
+  border-top: 1px dashed color-mix(in srgb, var(--char) 22%, transparent);
+  font-size: 0.88rem;
+}
+
+.slip-void {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 22rem);
+  gap: 2rem 3rem;
+  align-items: center;
+  min-height: 18rem;
+}
+
+.slip-skillet {
+  position: relative;
+  width: 11rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  transform: rotate(-8deg);
+}
+
+.slip-skillet-ring,
+.slip-skillet-core {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px dashed color-mix(in srgb, var(--char) 32%, transparent);
+}
+
+.slip-skillet-ring {
+  inset: 0;
+}
+
+.slip-skillet-core {
+  inset: 22%;
+}
+
+.slip-skillet b {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: color-mix(in srgb, var(--char) 28%, transparent);
+}
+
+.slip-void-kicker {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--tomato);
+}
+
+.slip-void-copy p:nth-of-type(2) {
+  margin: 0 0 1.4rem;
+  max-width: 22rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.35rem;
+  line-height: 1.35;
+}
+
+html.has-motion .slip .slip-copy,
+html.has-motion .slip .slip-line,
+html.has-motion .slip .slip-stub,
+html.has-motion .slip .slip-void,
+html.has-motion .slip .slip-skillet {
+  opacity: 0;
+}
+
 .oven-mouth {
   position: relative;
   z-index: 1;
@@ -2901,7 +3288,11 @@ html.has-motion .leaf-fade,
 html.has-motion .leaf-note,
 html.has-motion .leaf-others .spread-head,
 html.has-motion .leaf-others-board .peel-row,
-html.has-motion .leaf-turn {
+html.has-motion .leaf-turn,
+html.has-motion .slip-copy,
+html.has-motion .slip-line,
+html.has-motion .slip-stub,
+html.has-motion .slip-void {
   opacity: 0;
 }
 
@@ -3076,18 +3467,17 @@ html.kiln-naving #kiln-nav {
     padding-top: 0;
   }
 
-  .leaf-slip {
-    margin: -1.1rem auto 0;
-    width: min(16rem, 92%);
+  .slip-sheet,
+  .slip-void {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
-  .leaf-slip-card {
-    transform: rotate(-2deg);
-  }
-
-  .leaf-quote {
-    padding-left: 3.2rem;
-    margin-bottom: 2.4rem;
+  .slip-stub {
+    position: static;
+    max-width: 24rem;
+    justify-self: start;
+    transform: rotate(0.8deg);
   }
 
   .leaf-notes {
@@ -3284,6 +3674,47 @@ html.kiln-naving #kiln-nav {
     grid-template-columns: 1fr;
   }
 
+  .slip-line {
+    grid-template-columns: 5.8rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      "pie copy drop"
+      "pie copy qty"
+      "pie sum qty";
+    gap: 0.35rem 0.8rem;
+  }
+
+  .slip-no {
+    display: none;
+  }
+
+  .slip-pie {
+    grid-area: pie;
+    width: 5.8rem;
+    margin: 0;
+  }
+
+  .slip-pie .pie-mark {
+    width: 5.8rem;
+  }
+
+  .slip-meta {
+    grid-area: copy;
+  }
+
+  .slip-qty {
+    grid-area: qty;
+    justify-self: end;
+  }
+
+  .slip-sum {
+    grid-area: sum;
+  }
+
+  .slip-drop {
+    grid-area: drop;
+    justify-self: end;
+  }
+
   .hero-disc {
     width: 10rem;
   }
@@ -3365,7 +3796,11 @@ html.kiln-naving #kiln-nav {
   html.has-motion .leaf-note,
   html.has-motion .leaf-others .spread-head,
   html.has-motion .leaf-others-board .peel-row,
-  html.has-motion .leaf-turn {
+  html.has-motion .leaf-turn,
+  html.has-motion .slip-copy,
+  html.has-motion .slip-line,
+  html.has-motion .slip-stub,
+  html.has-motion .slip-void {
     opacity: 1;
     transform: none;
   }
