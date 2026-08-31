@@ -45,6 +45,7 @@ public sealed class FornoDbContext(DbContextOptions<FornoDbContext> options) : D
             entity.ToTable("order_lines");
             entity.Property(l => l.PizzaSlug).HasMaxLength(80).IsRequired();
             entity.Property(l => l.PizzaName).HasMaxLength(80).IsRequired();
+            entity.Property(l => l.Extras).HasMaxLength(240);
             entity.Property(l => l.UnitPrice).HasPrecision(6, 2);
             entity.Ignore(l => l.LineTotal);
         });

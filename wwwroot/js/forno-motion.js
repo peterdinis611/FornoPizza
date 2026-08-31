@@ -578,6 +578,121 @@
     dockCleanup = () => io.disconnect();
   }
 
+  function openMise(el) {
+    if (!el || typeof el.showModal !== "function") {
+      return;
+    }
+
+    if (!el.open) {
+      el.showModal();
+    }
+
+    if (reduced() || !window.anime) {
+      return;
+    }
+
+    const { animate, stagger } = window.anime;
+    const peel = el.querySelector(".mise-peel");
+    if (peel) {
+      animate(peel, {
+        x: [72, 0],
+        opacity: [0.4, 1],
+        duration: 640,
+        ease: "out(4)",
+      });
+    }
+
+    const rows = el.querySelectorAll(".mise-board li");
+    if (rows.length) {
+      animate(rows, {
+        opacity: [0, 1],
+        x: [28, 0],
+        delay: stagger(38),
+        duration: 520,
+        ease: "out(3)",
+      });
+    }
+  }
+
+  async function closeMise(el) {
+    if (!el) {
+      return;
+    }
+
+    if (!reduced() && window.anime) {
+      const peel = el.querySelector(".mise-peel");
+      if (peel) {
+        await window.anime.animate(peel, {
+          x: [0, 56],
+          opacity: [1, 0],
+          duration: 360,
+          ease: "in(2)",
+        });
+      }
+    }
+
+    if (el.open) {
+      el.close();
+    }
+  }
+
+  function extraBits(root, extraId) {
+    if (!root) {
+      return [];
+    }
+
+    return root.querySelectorAll(`.leaf-kiln [data-extra="${extraId}"] .extra-bit`);
+  }
+
+  function dropExtra(root, extraId) {
+    const bits = extraBits(root, extraId);
+    if (!bits.length) {
+      return;
+    }
+
+    bits.forEach((bit) => bit.closest(".extra-drop")?.classList.remove("is-fresh"));
+
+    if (reduced() || !window.anime) {
+      bits.forEach((bit) => {
+        bit.style.opacity = "1";
+        bit.style.transform = "none";
+      });
+      return;
+    }
+
+    const { animate, stagger } = window.anime;
+    animate(bits, {
+      opacity: [0, 1],
+      y: [-36, 8, 0],
+      scale: [0.15, 1.18, 1],
+      rotate: [-28, 8, 0],
+      delay: stagger(64),
+      duration: 860,
+      ease: "out(4)",
+    });
+  }
+
+  async function liftExtra(root, extraId) {
+    const bits = extraBits(root, extraId);
+    if (!bits.length) {
+      return;
+    }
+
+    if (reduced() || !window.anime) {
+      return;
+    }
+
+    await window.anime.animate(bits, {
+      opacity: [1, 0],
+      y: [0, -22],
+      scale: [1, 0.2],
+      rotate: [0, -18],
+      delay: window.anime.stagger(40),
+      duration: 420,
+      ease: "in(2)",
+    });
+  }
+
   function mountFault(root) {
     unmount();
 
@@ -613,7 +728,19 @@
     });
   }
 
-  window.FornoMotion = { boot, mount, mountMenu, mountDetail, mountFault, chromeDetail, unmount };
+  window.FornoMotion = {
+    boot,
+    mount,
+    mountMenu,
+    mountDetail,
+    mountFault,
+    chromeDetail,
+    openMise,
+    closeMise,
+    dropExtra,
+    liftExtra,
+    unmount,
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);

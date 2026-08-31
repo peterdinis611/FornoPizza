@@ -49,8 +49,9 @@ public sealed class OrderService(IDbContextFactory<FornoDbContext> factory)
                 PizzaId = pizza.Id,
                 PizzaSlug = pizza.Slug,
                 PizzaName = pizza.Name,
-                UnitPrice = pizza.Price,
+                UnitPrice = line.UnitTotal,
                 Quantity = qty,
+                Extras = line.ExtraLabel
             });
         }
 

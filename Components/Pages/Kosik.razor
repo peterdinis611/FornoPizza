@@ -25,15 +25,19 @@ else
                 <span class="disc tone-@line.Pizza.Tone"></span>
                 <div>
                     <a href="/menu/@line.Pizza.Slug"><strong>@line.Pizza.Name</strong></a>
-                    <p>@line.Pizza.Price.ToString("N2") €</p>
+                    <p>@line.UnitTotal.ToString("N2") €</p>
+                    @if (!string.IsNullOrEmpty(line.ExtraLabel))
+                    {
+                        <p class="cart-extras">+ @line.ExtraLabel</p>
+                    }
                 </div>
                 <label class="qty-mini">
                     <input type="number" min="1" max="12"
                            value="@line.Quantity"
-                           @onchange="e => Change(line.Pizza.Slug, e)" />
+                           @onchange="e => Change(line.Key, e)" />
                 </label>
                 <span class="price">@line.LineTotal.ToString("N2") €</span>
-                <button type="button" class="ghost" @onclick="() => Cart.Remove(line.Pizza.Slug)">×</button>
+                <button type="button" class="ghost" @onclick="() => Cart.Remove(line.Key)">×</button>
             </li>
         }
     </ul>
@@ -48,11 +52,11 @@ else
     private void OnChanged() => InvokeAsync(StateHasChanged);
     public void Dispose() => Cart.Changed -= OnChanged;
 
-    private void Change(string slug, ChangeEventArgs e)
+    private void Change(string key, ChangeEventArgs e)
     {
         if (int.TryParse(Convert.ToString(e.Value), out var qty))
         {
-            Cart.SetQuantity(slug, qty);
+            Cart.SetQuantity(key, qty);
         }
     }
 }

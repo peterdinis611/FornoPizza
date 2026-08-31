@@ -686,7 +686,7 @@ html[data-theme="dark"] .theme-icon-moon {
 }
 
 .leaf {
-  padding: 1.2rem 0 6.5rem;
+  padding: 0.4rem 0 6.5rem;
 }
 
 .leaf-crumb {
@@ -694,9 +694,9 @@ html[data-theme="dark"] .theme-icon-moon {
   flex-wrap: wrap;
   gap: 0.55rem;
   align-items: baseline;
-  margin: 0 0 1.6rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
+  margin: 0 0 1.1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ash);
 }
@@ -707,28 +707,44 @@ html[data-theme="dark"] .theme-icon-moon {
 
 .leaf-hero {
   display: grid;
-  grid-template-columns: minmax(16rem, 0.92fr) minmax(0, 1.08fr);
-  gap: 1.5rem 3vw;
-  align-items: center;
-  min-height: min(72vh, 42rem);
-  margin-bottom: 3.2rem;
+  grid-template-columns: minmax(18rem, 1.08fr) minmax(0, 0.92fr);
+  gap: 1.2rem 4.5vw;
+  align-items: start;
+  margin-bottom: 4.2rem;
 }
 
 .leaf-kiln {
   justify-self: start;
   margin-left: 0;
   width: 100%;
+  z-index: 1;
+}
+
+.leaf-copy {
+  padding-top: 0.6rem;
+}
+
+.leaf-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.9rem;
+  margin: 0 0 0.55rem;
+}
+
+.leaf-meta .eyebrow {
+  margin: 0;
 }
 
 .leaf-copy .peel-stamps {
-  margin: 0 0 0.7rem;
+  margin: 0;
 }
 
 .leaf-title {
-  margin: 0 0 0.8rem;
+  margin: 0 0 0.85rem;
   font-family: var(--font-display);
-  font-size: clamp(3.2rem, 8vw, 7.2rem);
-  line-height: 0.8;
+  font-size: clamp(2.6rem, 6.2vw, 5.4rem);
+  line-height: 0.82;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: -0.045em;
@@ -744,59 +760,86 @@ html[data-theme="dark"] .theme-icon-moon {
 }
 
 .leaf-copy .lede {
-  margin: 0 0 1.2rem;
-  max-width: 36rem;
+  margin: 0 0 0.85rem;
+  max-width: 34rem;
+  font-size: 1.12rem;
 }
 
 .leaf-ings {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.15rem 0;
   list-style: none;
-  margin: 0 0 1.4rem;
+  margin: 0 0 1.35rem;
   padding: 0;
 }
 
 .leaf-ings li {
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--olive);
-  border-bottom: 1px solid color-mix(in srgb, var(--olive) 45%, transparent);
-  padding: 0.15rem 0;
+  padding: 0;
+  border: 0;
+}
+
+.leaf-ings li:not(:last-child)::after {
+  content: "·";
+  margin: 0 0.55rem;
+  color: color-mix(in srgb, var(--olive) 55%, transparent);
 }
 
 .leaf-facts {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.8rem 1rem;
-  margin: 0 0 1.4rem;
-  max-width: 28rem;
+  gap: 0;
+  margin: 0 0 1.5rem;
+  max-width: 26rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.leaf-facts div {
+  padding: 0 0.7rem 0 0;
+}
+
+.leaf-facts div:not(:last-child) {
+  border-right: 1px solid var(--line);
 }
 
 .leaf-facts dt {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: 1.45rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 0.9;
 }
 
 .leaf-facts dd {
-  margin: 0.2rem 0 0;
-  font-size: 0.65rem;
+  margin: 0.28rem 0 0;
+  font-size: 0.6rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ash);
+}
+
+.leaf-act {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
 }
 
 .leaf .detail-price {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.7rem 1.1rem;
-  margin: 0 0 1.3rem;
+  gap: 0.5rem 0.9rem;
+  margin: 0;
+  font-size: 2.55rem;
+  line-height: 0.9;
 }
 
 .leaf-sum {
@@ -810,25 +853,81 @@ html[data-theme="dark"] .theme-icon-moon {
 .leaf-buy {
   display: flex;
   flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.7rem 0.85rem;
+}
+
+.leaf-buy .btn.tomato {
+  min-width: 10.5rem;
+}
+
+.leaf-back {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ash);
+  border-bottom: 1px solid transparent;
+}
+
+.leaf-back:hover {
+  color: var(--tomato);
+  border-bottom-color: var(--tomato);
+}
+
+.leaf-more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.85rem 1.3rem;
+}
+
+.leaf-mise-open {
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem 1rem;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tomato);
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.leaf-mise-open i {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 0.85rem;
+  letter-spacing: 0;
+}
+
+.leaf-mise-open:hover {
+  color: var(--ember);
+}
+
+.leaf-ings li.is-extra {
+  color: var(--tomato);
 }
 
 .qty-step {
   display: inline-flex;
   align-items: center;
   min-height: 3rem;
-  border-bottom: 1px solid var(--char);
+  padding: 0 0.15rem;
+  border: 1px solid var(--line);
 }
 
 .qty-step button {
-  width: 2.2rem;
-  height: 2.6rem;
+  width: 2.05rem;
+  height: 2.5rem;
   border: 0;
   background: none;
   color: var(--char);
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 1.45rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -838,14 +937,14 @@ html[data-theme="dark"] .theme-icon-moon {
 }
 
 .qty-step span {
-  min-width: 1.6rem;
+  min-width: 1.45rem;
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: 1.3rem;
   text-align: center;
 }
 
 .leaf-notice {
-  margin: 1rem 0 0;
+  margin: 0.9rem 0 0;
   font-family: var(--font-body);
   font-style: italic;
   color: var(--tomato);
@@ -860,10 +959,10 @@ html[data-theme="dark"] .theme-icon-moon {
 }
 
 .leaf-allergy {
-  margin: 1.1rem 0 0;
-  max-width: 36rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  margin: 1.25rem 0 0;
+  max-width: 32rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
   color: var(--ash);
 }
 
@@ -871,7 +970,7 @@ html[data-theme="dark"] .theme-icon-moon {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
-  margin: 0 0 4rem;
+  margin: 0 0 3.6rem;
   padding: 0;
   border-top: 1px solid var(--line);
 }
@@ -880,17 +979,17 @@ html[data-theme="dark"] .theme-icon-moon {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  padding: 1.7rem 1.7rem 0.4rem 0;
+  padding: 1.5rem 1.6rem 0.2rem 0;
   border-right: 1px solid var(--line);
 }
 
-.leaf-note:nth-child(2) {
-  padding-top: 3rem;
+.leaf-note:nth-child(2),
+.leaf-note:nth-child(3) {
+  padding-top: 1.5rem;
   padding-left: 1.5rem;
 }
 
 .leaf-note:nth-child(3) {
-  padding-left: 1.5rem;
   border-right: 0;
 }
 
@@ -945,31 +1044,33 @@ html[data-theme="dark"] .theme-icon-moon {
 
 .leaf-stage {
   position: relative;
+  isolation: isolate;
   justify-self: start;
-  width: min(48vw, 28rem);
+  width: min(44vw, 34rem);
 }
 
 .leaf-slip {
-  position: absolute;
-  right: -10%;
-  bottom: 4%;
-  z-index: 4;
-  width: min(13.5rem, 72%);
+  position: relative;
+  z-index: 8;
+  width: min(16rem, calc(100% - 0.6rem));
+  margin: -1.5rem 0 0 0.35rem;
+  pointer-events: none;
 }
 
 .leaf-slip-card {
-  padding: 0.95rem 1.05rem 1.1rem;
+  overflow: hidden;
+  padding: 0.8rem 0.95rem 0.9rem;
   background: var(--foam);
   color: #1c1612;
-  transform: rotate(7deg);
+  transform: rotate(-2deg);
   box-shadow:
-    0 22px 44px rgba(18, 14, 12, 0.22),
+    0 18px 36px rgba(18, 14, 12, 0.22),
     inset 0 0 0 1px rgba(28, 22, 18, 0.08);
   background-image:
     repeating-linear-gradient(
       180deg,
-      transparent 0 1.55rem,
-      rgba(28, 22, 18, 0.05) 1.55rem 1.6rem
+      transparent 0 1.4rem,
+      rgba(28, 22, 18, 0.05) 1.4rem 1.45rem
     );
 }
 
@@ -983,13 +1084,14 @@ html[data-theme="dark"] .theme-icon-moon {
 
 .leaf-slip strong {
   display: block;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.55rem;
   font-family: var(--font-display);
-  font-size: 1.85rem;
+  font-size: 1.55rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   text-transform: uppercase;
   line-height: 0.9;
+  color: #c23018;
 }
 
 .leaf-slip dl {
@@ -999,9 +1101,9 @@ html[data-theme="dark"] .theme-icon-moon {
 }
 
 .leaf-slip div {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.8rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 0.7rem;
   align-items: baseline;
   border-top: 1px dashed rgba(28, 22, 18, 0.18);
   padding-top: 0.32rem;
@@ -1010,7 +1112,7 @@ html[data-theme="dark"] .theme-icon-moon {
 .leaf-slip dt {
   margin: 0;
   font-size: 0.62rem;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #6b6358;
 }
@@ -1021,31 +1123,33 @@ html[data-theme="dark"] .theme-icon-moon {
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .leaf-quote {
   position: relative;
-  margin: 0 0 3.8rem;
-  padding: 0.4rem 0 0 9vw;
-  max-width: 58rem;
+  margin: 0 0 3.2rem;
+  padding: 0.2rem 0 0 5.5rem;
+  max-width: 46rem;
 }
 
 .leaf-quote p {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(1.55rem, 3.5vw, 2.7rem);
+  font-size: clamp(1.3rem, 2.4vw, 1.95rem);
   font-style: italic;
   font-weight: 400;
-  line-height: 1.22;
+  line-height: 1.35;
+  color: var(--ash);
 }
 
 .leaf-quote::before {
   content: "„";
   position: absolute;
   left: 0;
-  top: -0.12em;
+  top: -0.08em;
   font-family: var(--font-display);
-  font-size: 5.2rem;
+  font-size: 3.6rem;
   font-style: normal;
   font-weight: 800;
   color: var(--tomato);
@@ -1079,20 +1183,15 @@ html[data-theme="dark"] .theme-icon-moon {
 
 .leaf-layer {
   display: grid;
-  grid-template-columns: 3rem minmax(7rem, 15rem) minmax(0, 1fr);
-  gap: 0.45rem 1.1rem;
+  grid-template-columns: 2.6rem minmax(8rem, 14rem) minmax(0, 1fr);
+  gap: 0.4rem 1.2rem;
   align-items: baseline;
-  padding: 1.15rem 0 1.2rem;
+  padding: 0.95rem 0 1rem;
   border-bottom: 1px solid var(--line);
 }
 
-.leaf-layer:nth-child(even) {
-  padding-left: 6%;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--tomato) 7%, transparent), transparent 48%);
-}
-
-.leaf-layer:nth-child(3n) {
-  padding-left: 11%;
+.leaf-layer:hover strong {
+  color: var(--tomato);
 }
 
 .leaf-layer span {
@@ -1203,6 +1302,183 @@ html.motion-done .leaf-kiln .oven-pie {
 @keyframes pie-breathe {
   0%, 100% { transform: rotate(-2deg) scale(1); }
   50% { transform: rotate(2.4deg) scale(1.035); }
+}
+
+.extra-bit {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.extra-drop.is-fresh .extra-bit {
+  opacity: 0;
+}
+
+.cart-extras {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem !important;
+  color: var(--tomato) !important;
+}
+
+dialog.mise {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(34rem, 100vw);
+  height: 100%;
+  max-height: none;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+dialog.mise::backdrop {
+  background:
+    radial-gradient(ellipse at 18% 42%, transparent 36%, rgba(12, 9, 8, 0.28) 100%);
+}
+
+.mise-peel {
+  height: 100%;
+  overflow: auto;
+  padding: 1.4rem 1.5rem 2.4rem;
+  background: var(--cream);
+  color: var(--char);
+  border-left: 1px solid var(--line);
+  box-shadow: -28px 0 70px rgba(12, 9, 8, 0.28);
+}
+
+.mise-head {
+  position: relative;
+  padding: 0 2.4rem 1rem 0;
+  margin: 0 0 0.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.mise-head h2 {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 4vw, 3.1rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  line-height: 0.85;
+}
+
+.mise-close {
+  position: absolute;
+  top: -0.2rem;
+  right: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--char);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mise-close:hover {
+  color: var(--tomato);
+  border-color: var(--tomato);
+}
+
+.mise-lede {
+  margin: 0.9rem 0 1.1rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+}
+
+.mise-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mise-board li {
+  border-bottom: 1px solid var(--line);
+}
+
+.mise-board button {
+  display: grid;
+  grid-template-columns: 1.3rem minmax(0, 1fr) auto auto;
+  gap: 0.55rem 0.85rem;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0.85rem 0.15rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mise-board button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.mise-board li.is-on button {
+  color: var(--char);
+}
+
+.mise-board li.is-on {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tomato) 10%, transparent), transparent 55%);
+}
+
+.mise-swatch {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px rgba(28, 22, 18, 0.22);
+}
+
+.mise-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.mise-copy strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+
+.mise-copy em {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--ash);
+}
+
+.mise-price {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.mise-flag {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tomato);
+  white-space: nowrap;
+}
+
+.mise-board button:hover .mise-copy strong {
+  color: var(--tomato);
 }
 
 .qty-row,
@@ -2662,6 +2938,38 @@ html.has-cursor .ember-cursor {
   background: rgba(194, 48, 24, 0.1);
 }
 
+#kiln-nav {
+  position: fixed;
+  top: 5.1rem;
+  right: 6vw;
+  z-index: 32;
+  width: 3.35rem;
+  height: 3.35rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 18px rgba(18, 14, 12, 0.28));
+  transform: translate3d(0, -8px, 0) rotate(-18deg) scale(0.72);
+  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.kiln-naving #kiln-nav {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+#kiln-nav svg {
+  width: 100%;
+  height: 100%;
+  animation: kiln-nav-cook 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes kiln-nav-cook {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(14deg); }
+}
+
 #blazor-error-ui {
   background: var(--soot);
   color: var(--foam);
@@ -2707,27 +3015,32 @@ html.has-cursor .ember-cursor {
   .leaf-hero {
     grid-template-columns: 1fr;
     min-height: 0;
-    gap: 1.6rem;
+    gap: 2.2rem;
+    margin-bottom: 3rem;
   }
 
   .leaf-stage,
   .leaf-kiln {
-    width: min(78vw, 24rem);
+    width: min(82vw, 26rem);
     justify-self: center;
   }
 
+  .leaf-copy {
+    padding-top: 0;
+  }
+
   .leaf-slip {
-    right: -4%;
-    bottom: -4%;
+    margin: -1.1rem auto 0;
+    width: min(16rem, 92%);
   }
 
   .leaf-slip-card {
-    transform: rotate(5deg);
+    transform: rotate(-2deg);
   }
 
   .leaf-quote {
     padding-left: 3.2rem;
-    margin-bottom: 2.6rem;
+    margin-bottom: 2.4rem;
   }
 
   .leaf-notes {
@@ -2745,6 +3058,19 @@ html.has-cursor .ember-cursor {
   .leaf-facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: none;
+    gap: 0.7rem 0;
+  }
+
+  .leaf-facts div:nth-child(2) {
+    border-right: 0;
+    padding-right: 0;
+    padding-left: 0.9rem;
+  }
+
+  .leaf-facts div:nth-child(3),
+  .leaf-facts div:nth-child(4) {
+    border-top: 1px solid var(--line);
+    padding-top: 0.7rem;
   }
 
   .peel-lead .pie-mark {
@@ -2915,12 +3241,9 @@ html.has-cursor .ember-cursor {
     width: 10rem;
   }
 
-  .leaf-layer,
-  .leaf-layer:nth-child(even),
-  .leaf-layer:nth-child(3n) {
+  .leaf-layer {
     grid-template-columns: 2.4rem 1fr;
     padding-left: 0;
-    background: none;
   }
 
   .leaf-layer em {
@@ -2934,6 +3257,10 @@ html.has-cursor .ember-cursor {
 
   .leaf-dock-copy span {
     display: none;
+  }
+
+  dialog.mise {
+    width: 100%;
   }
 }
 
@@ -2994,6 +3321,17 @@ html.has-cursor .ember-cursor {
 
   .leaf-dock {
     transition: none;
+  }
+
+  .extra-drop.is-fresh .extra-bit {
+    opacity: 1;
+    transform: none;
+  }
+
+  .kiln-boot-ring,
+  .kiln-boot-pie,
+  #kiln-nav svg {
+    animation: none;
   }
 
   .kiln-door,

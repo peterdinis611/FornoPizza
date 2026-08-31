@@ -2,30 +2,35 @@
 
 <dialog id="components-reconnect-modal" data-nosnippet>
     <div class="components-reconnect-container">
-        <div class="components-rejoining-animation" aria-hidden="true">
-            <div></div>
-            <div></div>
+        <div class="components-rejoining-animation kiln-reconnect-pie" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="97" fill="#d9a04e" />
+                <circle cx="100" cy="100" r="76" fill="#c23018" />
+                <ellipse cx="78" cy="86" rx="24" ry="17" fill="#fff6de" transform="rotate(-18 78 86)" />
+                <ellipse cx="118" cy="80" rx="20" ry="15" fill="#f4e4c4" transform="rotate(12 118 80)" />
+                <path d="M64 72c8-16 22-20 28-6-10 6-20 12-28 6z" fill="#3a4a2c" />
+            </svg>
         </div>
         <p class="components-reconnect-first-attempt-visible">
-            Rejoining the server...
+            Pec hľadá spojenie…
         </p>
         <p class="components-reconnect-repeated-attempt-visible">
-            Rejoin failed... trying again in <span id="components-seconds-to-next-attempt"></span> seconds.
+            Pec neodpovedá… ďalší pokus o <span id="components-seconds-to-next-attempt"></span> s.
         </p>
         <p class="components-reconnect-failed-visible">
-            Failed to rejoin.<br />Please retry or reload the page.
+            Pec vypadla.<br />Skúste znova, alebo obnovte stránku.
         </p>
         <button id="components-reconnect-button" class="components-reconnect-failed-visible">
-            Retry
+            Skúsiť znova
         </button>
         <p class="components-pause-visible">
-            The session has been paused by the server.
+            Pec si na chvíľu oddýchla.
         </p>
         <p class="components-resume-failed-visible">
-            Failed to resume the session.<br />Please retry or reload the page.
+            Pec sa nenaštartovala.<br />Skúste znova, alebo obnovte stránku.
         </p>
         <button id="components-resume-button" class="components-pause-visible components-resume-failed-visible">
-            Resume
+            Znova do pece
         </button>
     </div>
 </dialog>

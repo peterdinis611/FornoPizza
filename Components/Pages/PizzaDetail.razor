@@ -49,11 +49,10 @@ else
                         </text>
                     </svg>
                     <div class="oven-pie">
-                        <PizzaMark Slug="@Pizza.Slug" MarkId="@($"leaf-{Pizza.Slug}")" />
+                        <PizzaMark Slug="@Pizza.Slug" MarkId="@($"leaf-{Pizza.Slug}")" Extras="ExtraIds" FreshId="@_freshExtra" />
                     </div>
                     <div class="kiln-door kiln-door-a" aria-hidden="true"></div>
                     <div class="kiln-door kiln-door-b" aria-hidden="true"></div>
-                    <span class="oven-seal">@Leaf.Time</span>
                 </div>
                 <aside class="leaf-slip leaf-fade">
                     <div class="leaf-slip-card">
@@ -78,12 +77,14 @@ else
             </div>
 
             <div class="leaf-copy">
-                <p class="eyebrow leaf-fade">@Pizza.Tagline</p>
-                <div class="peel-stamps leaf-fade">
-                    @foreach (var stamp in Stamps(Pizza))
-                    {
-                        <i>@stamp</i>
-                    }
+                <div class="leaf-meta leaf-fade">
+                    <p class="eyebrow">@Pizza.Tagline</p>
+                    <div class="peel-stamps">
+                        @foreach (var stamp in Stamps(Pizza))
+                        {
+                            <i>@stamp</i>
+                        }
+                    </div>
                 </div>
                 <h1 class="leaf-title" aria-label="@Pizza.Name">
                     <span class="hero-title-line leaf-title-line">
@@ -106,6 +107,10 @@ else
                     {
                         <li>@part</li>
                     }
+                    @foreach (var extra in PickedExtras)
+                    {
+                        <li class="is-extra">+ @extra.Name</li>
+                    }
                 </ul>
                 <dl class="leaf-facts leaf-fade">
                     <div>
@@ -125,23 +130,34 @@ else
                         <dd>list</dd>
                     </div>
                 </dl>
-                <p class="detail-price leaf-fade">
-                    @Pizza.Price.ToString("N2") €
-                    @if (Quantity > 1)
-                    {
-                        <span class="leaf-sum">@Quantity × = @LineTotal.ToString("N2") €</span>
-                    }
-                </p>
-                <div class="leaf-buy leaf-fade" data-leaf-buy>
-                    <div class="qty-step" aria-label="Kusy">
-                        <button type="button" @onclick="Less" aria-label="Menej">−</button>
-                        <span>@Quantity</span>
-                        <button type="button" @onclick="More" aria-label="Viac">+</button>
+                <div class="leaf-act leaf-fade">
+                    <p class="detail-price">
+                        @UnitPrice.ToString("N2") €
+                        @if (Quantity > 1)
+                        {
+                            <span class="leaf-sum">@Quantity × = @LineTotal.ToString("N2") €</span>
+                        }
+                    </p>
+                    <div class="leaf-buy" data-leaf-buy>
+                        <div class="qty-step" aria-label="Kusy">
+                            <button type="button" @onclick="Less" aria-label="Menej">−</button>
+                            <span>@Quantity</span>
+                            <button type="button" @onclick="More" aria-label="Viac">+</button>
+                        </div>
+                        <button class="btn tomato" type="button" data-magnetic @onclick="Add">
+                            @(InCart ? "Pridať ďalšiu" : "Do košíka")
+                        </button>
                     </div>
-                    <button class="btn tomato" type="button" data-magnetic @onclick="Add">
-                        @(InCart ? "Pridať ďalšiu" : "Do košíka")
-                    </button>
-                    <a class="btn" data-magnetic href="/menu">Späť k listom</a>
+                    <div class="leaf-more">
+                        <button class="leaf-mise-open" type="button" @onclick="OpenMise">
+                            Ešte na list
+                            @if (ExtraIds.Count > 0)
+                            {
+                                <i>@ExtraIds.Count</i>
+                            }
+                        </button>
+                        <a class="leaf-back" href="/menu">Späť k listom</a>
+                    </div>
                 </div>
                 @if (JustAdded)
                 {
@@ -149,7 +165,7 @@ else
                         V košíku. <a href="/kosik">Otvoriť košík</a>
                     </p>
                 }
-                <p class="leaf-allergy leaf-fade">Alergény: @Leaf.Allergens</p>
+                <p class="leaf-allergy leaf-fade">Alergény: @AllergyLine</p>
             </div>
         </section>
 
@@ -245,7 +261,7 @@ else
                 <strong>@Pizza.Name</strong>
                 <span>@Leaf.Diameter · @Leaf.Heat · @Leaf.Time</span>
             </div>
-            <p class="leaf-dock-price">@Pizza.Price.ToString("N2") €</p>
+            <p class="leaf-dock-price">@UnitPrice.ToString("N2") €</p>
             <div class="qty-step" aria-label="Kusy">
                 <button type="button" @onclick="Less" aria-label="Menej">−</button>
                 <span>@Quantity</span>
@@ -255,6 +271,34 @@ else
                 @(InCart ? "Ďalšia" : "Do košíka")
             </button>
         </aside>
+
+        <dialog class="mise" @ref="_mise">
+            <div class="mise-peel">
+                <header class="mise-head">
+                    <p class="eyebrow">Mise</p>
+                    <h2>Čo ešte unesie pec</h2>
+                    <button class="mise-close" type="button" @onclick="CloseMise" aria-label="Zavrieť">×</button>
+                </header>
+                <p class="mise-lede">Kliknite — vec dopadne na list. Pec unesie ešte @(RemainExtras == 1 ? "1 vec" : $"{RemainExtras} vecí").</p>
+                <ol class="mise-board">
+                    @foreach (var extra in OvenExtras.All)
+                    {
+                        var on = HasExtra(extra.Id);
+                        <li class="@(on ? "is-on" : null)">
+                            <button type="button" disabled="@(!on && ExtraIds.Count >= OvenExtras.MaxOnLeaf)" @onclick="() => ToggleExtra(extra.Id)">
+                                <span class="mise-swatch" style="--swatch: @extra.Swatch"></span>
+                                <span class="mise-copy">
+                                    <strong>@extra.Name</strong>
+                                    <em>@extra.Note</em>
+                                </span>
+                                <span class="mise-price">+ @extra.Price.ToString("N2") €</span>
+                                <span class="mise-flag">@(on ? "Na liste" : "Pridať")</span>
+                            </button>
+                        </li>
+                    }
+                </ol>
+            </div>
+        </dialog>
     </article>
 }
 
@@ -266,22 +310,44 @@ else
     private HttpContext? Http { get; set; }
 
     private ElementReference _root;
+    private ElementReference _mise;
     private PizzaItem? Pizza { get; set; }
     private PizzaLeaf Leaf { get; set; } = PizzaLeaves.For("");
     private IReadOnlyList<PizzaItem> Others { get; set; } = [];
     private PizzaItem? Prev { get; set; }
     private PizzaItem? Next { get; set; }
     private int Quantity { get; set; } = 1;
+    private readonly List<string> ExtraIds = [];
+    private string? _freshExtra;
     private bool _ready;
     private bool _mounted;
     private string _mountedSlug = "";
     private string _paramSlug = "";
     private bool JustAdded { get; set; }
 
-    private decimal LineTotal => Pizza is null ? 0 : Pizza.Price * Quantity;
+    private decimal ExtraTotal => OvenExtras.Sum(ExtraIds);
+
+    private decimal UnitPrice => Pizza is null ? 0 : Pizza.Price + ExtraTotal;
+
+    private decimal LineTotal => UnitPrice * Quantity;
+
+    private int RemainExtras => Math.Max(0, OvenExtras.MaxOnLeaf - ExtraIds.Count);
+
+    private IEnumerable<OvenExtra> PickedExtras =>
+        ExtraIds.Select(OvenExtras.Find).OfType<OvenExtra>();
+
+    private string AllergyLine
+    {
+        get
+        {
+            var extra = OvenExtras.Allergens(ExtraIds);
+            return string.IsNullOrWhiteSpace(extra) ? Leaf.Allergens : $"{Leaf.Allergens} · {extra}";
+        }
+    }
 
     private bool InCart =>
-        Pizza is not null && Cart.Lines.Any(line => line.Pizza.Slug == Pizza.Slug);
+        Pizza is not null && Cart.Lines.Any(line =>
+            line.Pizza.Slug == Pizza.Slug && OvenExtras.Same(line.ExtraIds, ExtraIds));
 
     private string PizzaJson
     {
@@ -310,6 +376,8 @@ else
         {
             JustAdded = false;
             Quantity = 1;
+            ExtraIds.Clear();
+            _freshExtra = null;
             _paramSlug = Slug;
             _mounted = false;
         }
@@ -358,6 +426,13 @@ else
         {
             try
             {
+                if (_freshExtra is not null)
+                {
+                    var id = _freshExtra;
+                    await JS.InvokeVoidAsync("FornoMotion.dropExtra", _root, id);
+                    _freshExtra = null;
+                }
+
                 await JS.InvokeVoidAsync("FornoMotion.chromeDetail", _root);
             }
             catch (Exception)
@@ -391,8 +466,59 @@ else
             return;
         }
 
-        Cart.Add(Pizza, Quantity);
+        Cart.Add(Pizza, Quantity, ExtraIds);
         JustAdded = true;
+    }
+
+    private bool HasExtra(string id) =>
+        ExtraIds.Contains(id, StringComparer.OrdinalIgnoreCase);
+
+    private async Task OpenMise()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.openMise", _mise);
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    private async Task CloseMise()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.closeMise", _mise);
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    private async Task ToggleExtra(string id)
+    {
+        if (HasExtra(id))
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("FornoMotion.liftExtra", _root, id);
+            }
+            catch (Exception)
+            {
+            }
+
+            ExtraIds.RemoveAll(x => x.Equals(id, StringComparison.OrdinalIgnoreCase));
+            _freshExtra = null;
+            return;
+        }
+
+        if (ExtraIds.Count >= OvenExtras.MaxOnLeaf)
+        {
+            return;
+        }
+
+        ExtraIds.Add(id);
+        _freshExtra = id;
     }
 
     private static IEnumerable<string> Stamps(PizzaItem pizza)

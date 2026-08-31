@@ -27,6 +27,100 @@
     <link rel="stylesheet" href="@Assets["Forno.styles.css"]" />
     <ImportMap />
     <HeadOutlet @rendermode="PageRenderMode" />
+    <style>
+      html.kiln-booting {
+        overflow: hidden;
+      }
+      #kiln-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        display: grid;
+        place-items: center;
+        margin: 0;
+        background: #f3ead8;
+        color: #1c1612;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      html[data-theme="dark"] #kiln-boot {
+        background: #16110e;
+        color: #f4ebe0;
+      }
+      html.kiln-booting #kiln-boot {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      #kiln-boot.is-out {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .kiln-boot-stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.1rem;
+      }
+      .kiln-boot-mouth {
+        position: relative;
+        width: min(42vw, 13.5rem);
+        aspect-ratio: 1;
+      }
+      .kiln-boot-glow {
+        position: absolute;
+        inset: 6%;
+        border-radius: 50%;
+        background: radial-gradient(circle at 50% 46%, #3a241c 0 42%, #1a1210 62%, transparent 74%);
+        box-shadow: 0 0 70px rgba(194, 48, 24, 0.32), inset 0 0 28px rgba(0, 0, 0, 0.4);
+      }
+      .kiln-boot-ring {
+        position: absolute;
+        inset: -4%;
+        animation: kiln-boot-spin 18s linear infinite;
+      }
+      .kiln-boot-ring text {
+        fill: #c23018;
+        font-family: "Red Hat Text", sans-serif;
+        font-size: 9px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+      .kiln-boot-pie {
+        position: absolute;
+        inset: 18%;
+        animation: kiln-boot-cook 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      }
+      .kiln-boot-kicker {
+        margin: 0;
+        font-family: "Big Shoulders Display", sans-serif;
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        color: #c23018;
+      }
+      .kiln-boot-copy {
+        margin: 0;
+        font-family: "Literata", serif;
+        font-style: italic;
+        font-size: 1.05rem;
+        letter-spacing: 0.02em;
+        opacity: 0.72;
+      }
+      @@keyframes kiln-boot-spin {
+        to { transform: rotate(360deg); }
+      }
+      @@keyframes kiln-boot-cook {
+        0%, 100% { transform: rotate(-8deg) scale(1); }
+        50% { transform: rotate(12deg) scale(1.06); }
+      }
+      @@media (prefers-reduced-motion: reduce) {
+        .kiln-boot-ring, .kiln-boot-pie { animation: none; }
+      }
+    </style>
     <script>
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             document.documentElement.classList.add('has-motion');
@@ -44,12 +138,51 @@
         <span class="ember-cursor-ring"></span>
         <span class="ember-cursor-core"></span>
     </div>
+    <div id="kiln-boot" aria-hidden="true" aria-busy="false" role="status">
+        <div class="kiln-boot-stage">
+            <div class="kiln-boot-mouth">
+                <span class="kiln-boot-glow"></span>
+                <svg class="kiln-boot-ring" viewBox="0 0 200 200" aria-hidden="true">
+                    <defs>
+                        <path id="kiln-boot-path" d="M100,100 m-88,0 a88,88 0 1,1 176,0 a88,88 0 1,1 -176,0" fill="none" />
+                    </defs>
+                    <text>
+                        <textPath href="#kiln-boot-path">800° · pec sa rozohrieva · 90s · 800° · pec sa rozohrieva · 90s · </textPath>
+                    </text>
+                </svg>
+                <svg class="kiln-boot-pie" viewBox="0 0 200 200" aria-hidden="true">
+                    <circle cx="100" cy="100" r="97" fill="#d9a04e" />
+                    <circle cx="100" cy="100" r="76" fill="#c23018" />
+                    <ellipse cx="78" cy="86" rx="24" ry="17" fill="#fff6de" transform="rotate(-18 78 86)" />
+                    <ellipse cx="118" cy="80" rx="20" ry="15" fill="#f4e4c4" transform="rotate(12 118 80)" />
+                    <ellipse cx="124" cy="118" rx="22" ry="16" fill="#fff8ee" transform="rotate(-8 124 118)" />
+                    <ellipse cx="82" cy="122" rx="18" ry="13" fill="#f0dcb0" transform="rotate(16 82 122)" />
+                    <path d="M64 72c8-16 22-20 28-6-10 6-20 12-28 6z" fill="#3a4a2c" />
+                    <path d="M128 64c8-16 22-20 28-6-10 6-20 12-28 6z" fill="#3a4a2c" transform="rotate(18 142 58)" />
+                    <circle cx="96" cy="74" r="6.2" fill="#1c1612" />
+                    <circle cx="142" cy="92" r="5.4" fill="#1c1612" />
+                </svg>
+            </div>
+            <p class="kiln-boot-kicker">800°</p>
+            <p class="kiln-boot-copy">Pec sa rozohrieva</p>
+        </div>
+    </div>
+    <div id="kiln-nav" aria-hidden="true">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="97" fill="#d9a04e" />
+            <circle cx="100" cy="100" r="76" fill="#c23018" />
+            <ellipse cx="78" cy="86" rx="24" ry="17" fill="#fff6de" transform="rotate(-18 78 86)" />
+            <ellipse cx="118" cy="80" rx="20" ry="15" fill="#f4e4c4" transform="rotate(12 118 80)" />
+            <path d="M64 72c8-16 22-20 28-6-10 6-20 12-28 6z" fill="#3a4a2c" />
+        </svg>
+    </div>
     <Routes @rendermode="PageRenderMode" />
     <ReconnectModal />
     <script src="@Assets["lib/anime.umd.min.js"]"></script>
     <script src="@Assets["js/theme.js"]"></script>
     <script src="@Assets["js/forno-motion.js"]"></script>
-    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="@Assets["_framework/blazor.web.js"]" autostart="false"></script>
+    <script src="@Assets["js/kiln-boot.js"]"></script>
 </body>
 
 </html>

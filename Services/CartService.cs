@@ -16,12 +16,20 @@ public sealed class CartService
 
     public bool IsEmpty => _lines.Count == 0;
 
-    public void Add(PizzaItem pizza, int quantity = 1)
+    public void Add(PizzaItem pizza, int quantity = 1, IReadOnlyList<string>? extras = null)
     {
-        var existing = _lines.FirstOrDefault(l => l.Pizza.Slug == pizza.Slug);
+        var ids = OvenExtras.Normalize(extras);
+        var existing = _lines.FirstOrDefault(l =>
+            l.Pizza.Slug == pizza.Slug && OvenExtras.Same(l.ExtraIds, ids));
+
         if (existing is null)
         {
-            _lines.Add(new CartLine { Pizza = pizza, Quantity = quantity });
+            _lines.Add(new CartLine
+            {
+                Pizza = pizza,
+                Quantity = quantity,
+                ExtraIds = ids
+            });
         }
         else
         {
@@ -31,9 +39,9 @@ public sealed class CartService
         Notify();
     }
 
-    public void SetQuantity(string slug, int quantity)
+    public void SetQuantity(string key, int quantity)
     {
-        var line = _lines.FirstOrDefault(l => l.Pizza.Slug == slug);
+        var line = _lines.FirstOrDefault(l => l.Key == key);
         if (line is null)
         {
             return;
@@ -51,9 +59,9 @@ public sealed class CartService
         Notify();
     }
 
-    public void Remove(string slug)
+    public void Remove(string key)
     {
-        _lines.RemoveAll(l => l.Pizza.Slug == slug);
+        _lines.RemoveAll(l => l.Key == key);
         Notify();
     }
 
