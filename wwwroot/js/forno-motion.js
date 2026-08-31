@@ -428,7 +428,7 @@
     });
   }
 
-  function mountCart(root) {
+  function mountCart(root, fresh) {
     unmount();
 
     if (!root) {
@@ -450,65 +450,68 @@
       onComplete: () => document.documentElement.classList.add("motion-done"),
     });
 
-    if (chars.length) {
-      intro.add(chars, {
-        y: ["110%", "0%"],
-        opacity: [0, 1],
-        duration: 760,
-        ease: "out(4)",
-        delay: stagger(58),
-      }, 40);
+    if (fresh !== false && chars.length) {
+      intro.add(
+        chars,
+        {
+          y: ["110%", "0%"],
+          opacity: [0, 1],
+          duration: 780,
+          ease: "out(4)",
+          delay: stagger(58),
+        },
+        40
+      );
+    } else {
+      chars.forEach((char) => {
+        char.style.opacity = "1";
+        char.style.transform = "none";
+      });
     }
 
-    const copy = root.querySelectorAll(".slip-copy, .slip-void");
-    if (copy.length) {
-      intro.add(copy, {
-        opacity: [0, 1],
-        y: [18, 0],
-        duration: 640,
-        delay: stagger(70),
-      }, 180);
+    const kicker = root.querySelectorAll(".slip-kicker, .slip-stamp");
+    if (kicker.length) {
+      intro.add(
+        kicker,
+        { opacity: [0, 1], y: [16, 0], duration: 620, delay: stagger(60) },
+        fresh === false ? 0 : 180
+      );
     }
 
-    const skillet = root.querySelector(".slip-skillet");
-    if (skillet) {
-      intro.add(skillet, {
-        opacity: [0, 1],
-        rotate: [-18, -8],
-        scale: [0.86, 1],
-        duration: 980,
-        ease: "out(4)",
-      }, 220);
+    const empty = root.querySelector(".slip-void");
+    if (empty) {
+      intro.add(empty, { opacity: [0, 1], y: [28, 0], duration: 860, ease: "out(4)" }, 120);
     }
 
     const lines = root.querySelectorAll(".slip-line");
     if (lines.length) {
-      intro.add(lines, {
-        opacity: [0, 1],
-        x: [-36, 0],
-        rotate: [-1.6, 0],
-        duration: 720,
-        delay: stagger(70),
-        ease: "out(3)",
-      }, 280);
+      intro.add(
+        lines,
+        {
+          opacity: [0, 1],
+          x: [-36, 0],
+          duration: 720,
+          delay: stagger(70),
+          ease: "out(3)",
+        },
+        fresh === false ? 40 : 280
+      );
     }
 
     const stub = root.querySelector(".slip-stub");
     if (stub) {
-      intro.add(stub, {
-        opacity: [0, 1],
-        x: [28, 0],
-        rotate: [6, 1.6],
-        duration: 860,
-        ease: "out(4)",
-      }, 360);
+      intro.add(
+        stub,
+        { opacity: [0, 1], rotate: [8, 1.8], y: [24, 0], duration: 920, ease: "out(4)" },
+        fresh === false ? 80 : 360
+      );
     }
 
     homeCleanups.push(() => intro.revert());
     setupMagnetic(root);
 
     root.querySelectorAll("[data-tilt]").forEach((el) => {
-      homeCleanups.push(tilt(el, 6));
+      homeCleanups.push(tilt(el, 4));
     });
   }
 
@@ -816,8 +819,8 @@
     boot,
     mount,
     mountMenu,
-    mountDetail,
     mountCart,
+    mountDetail,
     mountFault,
     chromeDetail,
     openMise,

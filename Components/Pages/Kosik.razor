@@ -11,8 +11,8 @@
 
 <article class="slip" @ref="_root">
     <header class="slip-mast">
-        <p class="eyebrow slip-copy">Ešte pred pecou</p>
-        <h1 class="slip-title" aria-label="Košík">
+        <p class="eyebrow slip-kicker">Ešte pred pecou</p>
+        <h1 aria-label="Košík">
             <span class="hero-title-line">
                 @foreach (var letter in "KOŠÍK")
                 {
@@ -20,26 +20,22 @@
                 }
             </span>
         </h1>
-        <p class="slip-lede slip-copy">
-            @(Cart.IsEmpty
-                ? "Pec čaká na list. Zatiaľ bez platby a bez účtu."
-                : $"{Cart.Count} {(Cart.Count == 1 ? "list" : "listov")} na lístku. Zatiaľ bez platby.")
-        </p>
-        <span class="slip-seal" aria-hidden="true">@(Cart.IsEmpty ? "—" : Cart.Count.ToString("00"))</span>
+        @if (!Cart.IsEmpty)
+        {
+            <p class="slip-stamp">@Cart.Count @(Cart.Count == 1 ? "list" : "ks")</p>
+        }
     </header>
 
     @if (Cart.IsEmpty)
     {
         <div class="slip-void">
-            <div class="slip-skillet" aria-hidden="true">
-                <span class="slip-skillet-ring"></span>
-                <span class="slip-skillet-core"></span>
-                <b>800°</b>
+            <div class="slip-void-kiln" aria-hidden="true">
+                <span class="slip-void-ring"></span>
+                <span class="slip-void-hole"></span>
             </div>
             <div class="slip-void-copy">
-                <p class="slip-void-kicker">Žiadny list</p>
-                <p>Ani kôrka. Ani dym. Otvorte menu a pec začne počítať.</p>
-                <a class="btn tomato" href="/menu" data-magnetic>K listom</a>
+                <p class="slip-void-lede">Pec čaká na list. Kôra ešte nie je na lístku.</p>
+                <a class="btn tomato" href="/menu" data-magnetic>Otvoriť menu</a>
             </div>
         </div>
     }
@@ -47,84 +43,94 @@
     {
         <div class="slip-sheet">
             <ol class="slip-lines">
-                @foreach (var (line, i) in Cart.Lines.Select((l, n) => (l, n)))
+                @for (var i = 0; i < Cart.Lines.Count; i++)
                 {
+                    var line = Cart.Lines[i];
+                    var mark = $"cart-{i}-{line.Pizza.Slug}";
                     <li class="slip-line">
                         <span class="slip-no">@((i + 1).ToString("00"))</span>
-                        <a class="slip-pie" href="/menu/@line.Pizza.Slug" data-tilt aria-hidden="true" tabindex="-1">
-                            <PizzaMark Slug="@line.Pizza.Slug" MarkId="@($"slip-{i}")" Extras="line.ExtraIds" />
+                        <a class="slip-pie" href="/menu/@line.Pizza.Slug" aria-hidden="true" tabindex="-1">
+                            <PizzaMark Slug="@line.Pizza.Slug" MarkId="@mark" Extras="@line.ExtraIds" />
                         </a>
-                        <div class="slip-meta">
-                            <a class="slip-name" href="/menu/@line.Pizza.Slug">@line.Pizza.Name</a>
-                            <p>@line.UnitTotal.ToString("N2") € · kus</p>
+                        <div class="slip-copy">
+                            <a href="/menu/@line.Pizza.Slug"><strong>@line.Pizza.Name</strong></a>
+                            <p>@line.UnitTotal.ToString("N2") € / ks</p>
                             @if (line.ExtraIds.Count > 0)
                             {
-                                <ul class="slip-stamps">
+                                <ul class="slip-chips">
                                     @foreach (var extra in line.ExtraIds)
                                     {
-                                        <li>@OvenExtras.Find(extra)?.Name</li>
+                                        var item = OvenExtras.Find(extra);
+                                        if (item is not null)
+                                        {
+                                            <li>@item.Name</li>
+                                        }
                                     }
                                 </ul>
                             }
-                            <a class="slip-edit" href="/menu/@line.Pizza.Slug">Upraviť list</a>
                         </div>
                         <div class="qty-step slip-qty" aria-label="Kusy">
-                            <button type="button" @onclick="() => Less(line.Key, line.Quantity)" aria-label="Menej" disabled="@(line.Quantity <= 1)">−</button>
+                            <button type="button" @onclick="() => Less(line.Key, line.Quantity)" aria-label="Menej">−</button>
                             <span>@line.Quantity</span>
-                            <button type="button" @onclick="() => More(line.Key, line.Quantity)" aria-label="Viac" disabled="@(line.Quantity >= 12)">+</button>
+                            <button type="button" @onclick="() => More(line.Key, line.Quantity)" aria-label="Viac">+</button>
                         </div>
-                        <strong class="slip-sum">@line.LineTotal.ToString("N2") €</strong>
-                        <button type="button" class="slip-drop" @onclick="() => Cart.Remove(line.Key)" aria-label="@($"Odstrániť {line.Pizza.Name}")">×</button>
+                        <span class="slip-sum">@line.LineTotal.ToString("N2") €</span>
+                        <button type="button" class="slip-off" @onclick="() => Cart.Remove(line.Key)">Z listu</button>
                     </li>
                 }
             </ol>
 
-            <aside class="slip-stub">
-                <p class="slip-stub-mark">Duplikát</p>
-                <p class="slip-stub-id">Bardejov · 800°</p>
-                <p class="slip-stub-count">@Cart.Count ks</p>
-                <p class="slip-stub-total">@Cart.Total.ToString("N2") <span>€</span></p>
-                <div class="slip-heat" style="--heat: @HeatPct" aria-hidden="true">
+            <aside class="slip-stub" data-tilt>
+                <p class="slip-stub-kicker">Uhlíková kópia · Bardejov</p>
+                <p class="slip-stub-label">Spolu</p>
+                <strong class="slip-total">@Cart.Total.ToString("N2") €</strong>
+                <dl>
+                    <div>
+                        <dt>Kusy</dt>
+                        <dd>@Cart.Count</dd>
+                    </div>
+                    <div>
+                        <dt>Listy</dt>
+                        <dd>@Cart.Lines.Count</dd>
+                    </div>
+                </dl>
+                <div class="slip-heat" style="--heat: @Heat.ToString(System.Globalization.CultureInfo.InvariantCulture)">
                     <i></i>
-                    <span class="slip-heat-dot" style="left: 54.5%"></span>
-                    <span class="slip-heat-dot is-end"></span>
                 </div>
                 <p class="slip-heat-note">@HeatNote</p>
                 <a class="btn tomato" href="/objednavka" data-magnetic>K objednávke</a>
-                <a class="slip-back" href="/menu">Ešte na list</a>
-                <p class="slip-pay">Zatiaľ bez platby kartou. Pec prijme lístok a ozve sa.</p>
+                <a class="slip-more" href="/menu">Ešte list</a>
+                <p class="slip-pay">Zatiaľ bez platby a účtu</p>
             </aside>
         </div>
     }
 </article>
 
 @code {
-    private const decimal MinOrder = 12m;
-    private const decimal FreeDelivery = 22m;
+    private const decimal ShipFrom = 12m;
+    private const decimal FreeFrom = 22m;
 
     private ElementReference _root;
     private bool _mounted;
+    private bool _empty = true;
 
-    private int HeatPct =>
-        (int)Math.Round(Math.Clamp((double)(Cart.Total / FreeDelivery) * 100d, 0, 100));
+    private decimal Heat => Math.Clamp(Cart.Total / FreeFrom, 0, 1);
 
     private string HeatNote
     {
         get
         {
-            if (Cart.Total >= FreeDelivery)
+            if (Cart.Total >= FreeFrom)
             {
-                return "Rozvoz zadarmo. Pec vás vie.";
+                return "Rozvoz zadarmo. Pec to unesie.";
             }
 
-            if (Cart.Total >= MinOrder)
+            if (Cart.Total >= ShipFrom)
             {
-                var left = FreeDelivery - Cart.Total;
-                return $"Rozvoz ide. Do zadarmo ešte {left.ToString("N2")} €.";
+                return $"Rozvoz. Ešte {(FreeFrom - Cart.Total).ToString("N2")} € do voľného.";
             }
 
-            var need = MinOrder - Cart.Total;
-            return $"Do minima ešte {need.ToString("N2")} €. Potom vie ísť rozvoz.";
+            return $"Ešte {(ShipFrom - Cart.Total).ToString("N2")} € do rozvozu. Alebo výdaj pri peci.";
         }
     }
 
@@ -134,45 +140,33 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender && _mounted)
+        var empty = Cart.IsEmpty;
+        if (!firstRender && _mounted && empty == _empty)
         {
             return;
         }
 
+        _empty = empty;
         try
         {
-            await JS.InvokeVoidAsync("FornoMotion.mountCart", _root);
+            await JS.InvokeVoidAsync("FornoMotion.mountCart", _root, firstRender);
             _mounted = true;
         }
-        catch (InvalidOperationException)
+        catch (Exception)
         {
-        }
-        catch (JSDisconnectedException)
-        {
-        }
-        catch (JSException)
-        {
-            _mounted = true;
         }
     }
 
     private void Less(string key, int quantity)
     {
-        if (quantity <= 1)
+        if (quantity > 1)
         {
-            return;
+            Cart.SetQuantity(key, quantity - 1);
         }
-
-        Cart.SetQuantity(key, quantity - 1);
     }
 
     private void More(string key, int quantity)
     {
-        if (quantity >= 12)
-        {
-            return;
-        }
-
         Cart.SetQuantity(key, quantity + 1);
     }
 
@@ -180,7 +174,7 @@
 
     public async ValueTask DisposeAsync()
     {
-        Cart.Changed -= OnChanged;
+        Dispose();
         if (!_mounted)
         {
             return;
