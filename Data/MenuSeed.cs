@@ -2,9 +2,9 @@ using Forno.Models;
 
 namespace Forno.Data;
 
-public static class MenuCatalog
+public static class MenuSeed
 {
-    public static IReadOnlyList<PizzaItem> All { get; } =
+    public static IReadOnlyList<PizzaItem> Items { get; } =
     [
         new(
             "margherita",
@@ -64,33 +64,4 @@ public static class MenuCatalog
             Featured: true,
             Tags: "klasika"),
     ];
-
-    public static PizzaItem? Find(string slug) =>
-        All.FirstOrDefault(p => p.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase));
-
-    public static IEnumerable<PizzaItem> Featured => All.Where(p => p.Featured);
-
-    public static IEnumerable<PizzaItem> Filter(string? query, string? tag)
-    {
-        IEnumerable<PizzaItem> items = All;
-
-        if (!string.IsNullOrWhiteSpace(tag))
-        {
-            var needle = tag.Trim();
-            items = items.Where(p => p.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Any(t => t.Equals(needle, StringComparison.OrdinalIgnoreCase)));
-        }
-
-        if (!string.IsNullOrWhiteSpace(query))
-        {
-            var q = query.Trim();
-            items = items.Where(p =>
-                p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Tagline.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Ingredients.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
-        }
-
-        return items;
-    }
 }

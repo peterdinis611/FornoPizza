@@ -1,10 +1,16 @@
 ﻿@page "/"
 @inject IJSRuntime JS
 @inject CartService Cart
+@inject MenuService Menu
+@inject SubscriberService Subscribers
 @inject NavigationManager Nav
 @implements IAsyncDisposable
 
-<PageTitle>Forno — pec</PageTitle>
+<PageTitle>800° Forno — neapolská pizza, Bardejov</PageTitle>
+<Seo Title="800° Forno — neapolská pizza, Bardejov"
+     Description="Pizza z múky, dymu a času. Neapolská pec v Bardejove, 800°, 90 sekúnd, 48 hodín kvasenia. Objednajte z webu — zatiaľ bez účtu."
+     Path="/"
+     JsonLd="@JsonLd" />
 
 <div class="hearth" @ref="_root">
     <section class="hero-stage">
@@ -112,7 +118,7 @@
             <a href="/menu">Celé menu →</a>
         </header>
         <ol class="fire-board">
-            @foreach (var (pizza, i) in MenuCatalog.Featured.Select((p, i) => (p, i)))
+            @foreach (var (pizza, i) in Featured.Select((p, i) => (p, i)))
             {
                 <li class="fire-card @(i == 0 ? "fire-card-lead" : "fire-card-side")" data-scroll data-tilt>
                     <a href="/menu/@pizza.Slug">
@@ -272,9 +278,21 @@
 @code {
     private ElementReference _root;
     private bool _mounted;
+    private IReadOnlyList<PizzaItem> Featured { get; set; } = [];
     private string Query { get; set; } = "";
     private string Email { get; set; } = "";
     private bool Subscribed { get; set; }
+
+    private string JsonLd
+    {
+        get
+        {
+            var url = Nav.BaseUri.TrimEnd('/');
+            return $$"""
+            {"@context":"https://schema.org","@type":"Pizzeria","name":"800° Forno","url":"{{url}}","description":"Neapolská pizza z pece v Bardejove. 800°, 90 sekúnd, 48 hodín kvasenia.","address":{"@type":"PostalAddress","addressLocality":"Bardejov","addressCountry":"SK"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"11:00","closes":"22:00"},"servesCuisine":["Pizza","Neapolitan"],"priceRange":"€€","hasMenu":"{{url}}/menu"}
+            """;
+        }
+    }
 
     private bool InCart(PizzaItem pizza) =>
         Cart.Lines.Any(line => line.Pizza.Slug == pizza.Slug);
@@ -289,14 +307,19 @@
         Nav.NavigateTo(url);
     }
 
-    private void Subscribe()
+    private async Task Subscribe()
     {
         if (string.IsNullOrWhiteSpace(Email))
         {
             return;
         }
 
-        Subscribed = true;
+        Subscribed = await Subscribers.AddAsync(Email);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Featured = await Menu.FeaturedAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

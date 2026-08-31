@@ -1,18 +1,26 @@
 @page "/menu/{Slug}"
 @inject CartService Cart
+@inject MenuService Menu
 @inject NavigationManager Nav
 
-<PageTitle>@(Pizza?.Name ?? "Pizza") — Forno</PageTitle>
-
-@if (Pizza is null)
+@if (!_ready)
 {
-    <section class="page-head">
-        <h1>Tento list v peci nie je</h1>
-        <a class="btn" href="/menu">Späť na menu</a>
-    </section>
+}
+else if (Pizza is null)
+{
+    <PageTitle>404 — list v peci nie je — Forno</PageTitle>
+    <Seo Title="404 — list v peci nie je — Forno"
+         Description="Tento list v peci nie je. Vráťte sa k menu 800° Forno v Bardejove."
+         NoIndex="true" />
+    <KilnFault Code="404" />
 }
 else
 {
+    <PageTitle>@Pizza.Name — 800° Forno</PageTitle>
+    <Seo Title="@($"{Pizza.Name} — 800° Forno")"
+         Description="@Pizza.Description"
+         Path="@($"/menu/{Pizza.Slug}")"
+         JsonLd="@PizzaJson" />
     <article class="detail">
         <p class="eyebrow">@Pizza.Tagline</p>
         <div class="detail-grid">
@@ -40,13 +48,43 @@ else
     [Parameter]
     public string Slug { get; set; } = "";
 
+    [CascadingParameter]
+    private HttpContext? Http { get; set; }
+
     private PizzaItem? Pizza { get; set; }
     private int Quantity { get; set; } = 1;
+    private bool _ready;
 
-    protected override void OnParametersSet()
+    private string PizzaJson
     {
-        Pizza = MenuCatalog.Find(Slug);
+        get
+        {
+            if (Pizza is null)
+            {
+                return "";
+            }
+
+            var url = $"{Nav.BaseUri.TrimEnd('/')}/menu/{Pizza.Slug}";
+            var price = Pizza.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+            var desc = Pizza.Description.Replace("\\", "\\\\").Replace("\"", "\\\"");
+            return "{\"@context\":\"https://schema.org\",\"@type\":\"MenuItem\",\"name\":\"" + Pizza.Name
+                + "\",\"description\":\"" + desc
+                + "\",\"url\":\"" + url
+                + "\",\"offers\":{\"@type\":\"Offer\",\"price\":\"" + price
+                + "\",\"priceCurrency\":\"EUR\",\"availability\":\"https://schema.org/InStock\"}}";
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Pizza = await Menu.FindAsync(Slug);
         Quantity = 1;
+        _ready = true;
+
+        if (Pizza is null && Http is { Response.HasStarted: false })
+        {
+            Http.Response.StatusCode = 404;
+        }
     }
 
     private void Add()

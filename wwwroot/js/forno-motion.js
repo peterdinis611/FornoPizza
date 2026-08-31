@@ -19,6 +19,9 @@
     }
     booted = true;
 
+    setupCursor();
+    setupHeatRail();
+
     if (reduced()) {
       document.documentElement.classList.remove("has-motion");
       return;
@@ -31,12 +34,14 @@
       }
     }, 2400);
 
-    setupCursor();
-    setupHeatRail();
+    const fault = document.querySelector(".kiln-fault");
+    if (fault) {
+      mountFault(fault);
+    }
   }
 
   function setupCursor() {
-    if (!finePointer()) {
+    if (!finePointer() || reduced()) {
       return;
     }
 
@@ -45,23 +50,39 @@
       return;
     }
 
-    document.documentElement.classList.add("has-cursor");
     const ring = cursor.querySelector(".ember-cursor-ring");
     const core = cursor.querySelector(".ember-cursor-core");
-    const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    const lag = { x: pos.x, y: pos.y };
+    if (!ring || !core) {
+      return;
+    }
+
+    const pos = { x: -100, y: -100 };
+    const lag = { x: -100, y: -100 };
+    let armed = false;
+
+    const place = (el, x, y) => {
+      el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    };
 
     const move = (event) => {
       pos.x = event.clientX;
       pos.y = event.clientY;
-      core.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+      place(core, pos.x, pos.y);
+
+      if (!armed) {
+        armed = true;
+        place(ring, pos.x, pos.y);
+        lag.x = pos.x;
+        lag.y = pos.y;
+        document.documentElement.classList.add("has-cursor");
+      }
     };
 
     let frame;
     const tick = () => {
       lag.x += (pos.x - lag.x) * 0.18;
       lag.y += (pos.y - lag.y) * 0.18;
-      ring.style.transform = `translate(${lag.x}px, ${lag.y}px)`;
+      place(ring, lag.x, lag.y);
       frame = requestAnimationFrame(tick);
     };
     tick();
@@ -307,6 +328,22 @@
     }
   }
 
+  function mountFault(root) {
+    unmount();
+
+    if (!root || reduced() || !window.anime) {
+      document.documentElement.classList.add("motion-done");
+      return;
+    }
+
+    document.documentElement.classList.add("has-motion", "motion-ready", "motion-done");
+    setupMagnetic(root);
+
+    root.querySelectorAll("[data-tilt]").forEach((el) => {
+      homeCleanups.push(tilt(el, 7));
+    });
+  }
+
   function unmount() {
     homeCleanups.splice(0).forEach((fn) => {
       try {
@@ -317,7 +354,7 @@
     });
   }
 
-  window.FornoMotion = { boot, mount, unmount };
+  window.FornoMotion = { boot, mount, mountFault, unmount };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);

@@ -1,7 +1,11 @@
 @page "/objednavka"
 @inject CartService Cart
+@inject OrderService Orders
 
 <PageTitle>Objednávka — Forno</PageTitle>
+<Seo Title="Objednávka — 800° Forno"
+     Description="Objednávka z pece 800° Forno. Zatiaľ bez platby a bez účtu."
+     NoIndex="true" />
 
 <section class="page-head">
     <p class="eyebrow">Zatiaľ bez platby</p>
@@ -13,7 +17,7 @@
     <div class="ticket">
         <p class="eyebrow">Pec prijala lístok</p>
         <h2>Ďakujeme, @Name.</h2>
-        <p>Základný projekt ešte neposiela objednávku do kuchyne ani neberie platbu. Tento krok neskôr napojíme.</p>
+        <p>Lístok č. @OrderId je zapísaný v peci. Platbu ešte neberieme — ozveme sa na telefón.</p>
         <a class="btn" href="/menu">Späť k menu</a>
     </div>
 }
@@ -51,14 +55,17 @@ else
     private string Address { get; set; } = "";
     private string Note { get; set; } = "";
     private bool Submitted { get; set; }
+    private int OrderId { get; set; }
 
-    private void Submit()
+    private async Task Submit()
     {
         if (Cart.IsEmpty || string.IsNullOrWhiteSpace(Name))
         {
             return;
         }
 
+        var order = await Orders.PlaceAsync(Name, Phone, Address, Note, Cart.Lines);
+        OrderId = order.Id;
         Cart.Clear();
         Submitted = true;
     }

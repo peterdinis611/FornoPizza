@@ -1,0 +1,64 @@
+@inject NavigationManager Nav
+
+<HeadContent>
+    <meta name="description" content="@Description" />
+    @if (NoIndex)
+    {
+        <meta name="robots" content="noindex, nofollow" />
+    }
+    else
+    {
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="@Canonical" />
+        <meta property="og:url" content="@Canonical" />
+    }
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="sk_SK" />
+    <meta property="og:site_name" content="800° Forno" />
+    <meta property="og:title" content="@Title" />
+    <meta property="og:description" content="@Description" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="@Title" />
+    <meta name="twitter:description" content="@Description" />
+    @if (!string.IsNullOrWhiteSpace(JsonLd))
+    {
+        <script type="application/ld+json">@((MarkupString)JsonLd)</script>
+    }
+</HeadContent>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "";
+
+    [Parameter, EditorRequired]
+    public string Description { get; set; } = "";
+
+    [Parameter]
+    public string? Path { get; set; }
+
+    [Parameter]
+    public bool NoIndex { get; set; }
+
+    [Parameter]
+    public string? JsonLd { get; set; }
+
+    private string Canonical
+    {
+        get
+        {
+            var root = Nav.BaseUri.TrimEnd('/');
+            if (!string.IsNullOrWhiteSpace(Path))
+            {
+                return $"{root}{Path}";
+            }
+
+            var path = new Uri(Nav.Uri).AbsolutePath;
+            if (path == "/")
+            {
+                return $"{root}/";
+            }
+
+            return $"{root}{path.TrimEnd('/')}";
+        }
+    }
+}

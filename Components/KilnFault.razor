@@ -1,0 +1,109 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<section class="kiln-fault kiln-fault-@Code" data-fault="@Code" @ref="_root" aria-labelledby="fault-title">
+    <div class="fault-copy">
+        <p class="eyebrow">@Eyebrow</p>
+        <h1 id="fault-title" class="fault-code" aria-label="@Code.ToString()">
+            @foreach (var digit in Code.ToString())
+            {
+                <span class="char" aria-hidden="true">@digit</span>
+            }
+        </h1>
+        <p class="lede">@Lede</p>
+        @if (!string.IsNullOrEmpty(RequestId))
+        {
+            <p class="fault-id">Lístok peci <code>@RequestId</code></p>
+        }
+        <div class="hero-actions">
+            <a class="btn tomato" data-magnetic href="/menu">Otvoriť menu</a>
+            <a class="btn" data-magnetic href="/">Späť k peci</a>
+        </div>
+    </div>
+
+    <div class="fault-kiln" data-tilt aria-hidden="true">
+        <span class="ember" style="--x: 18%; --delay: 0s"></span>
+        <span class="ember" style="--x: 42%; --delay: 1.1s"></span>
+        <span class="ember" style="--x: 61%; --delay: 0.4s"></span>
+        <span class="ember" style="--x: 77%; --delay: 1.8s"></span>
+        <span class="ember" style="--x: 33%; --delay: 2.4s"></span>
+        <div class="oven-soot"></div>
+        <svg class="heat-ring" viewBox="0 0 200 200">
+            <defs>
+                <path id="fault-heat-path" d="M100,100 m-90,0 a90,90 0 1,1 180,0 a90,90 0 1,1 -180,0" fill="none" />
+            </defs>
+            <text>
+                <textPath href="#fault-heat-path">@RingCopy</textPath>
+            </text>
+        </svg>
+        @if (Code == 404)
+        {
+            <div class="fault-ash"></div>
+            <div class="fault-peel"></div>
+            <span class="oven-seal">prázdne</span>
+        }
+        else
+        {
+            <div class="fault-crack"></div>
+            <div class="fault-haze"></div>
+            <span class="oven-seal">prehriate</span>
+        }
+        <div class="kiln-door kiln-door-a"></div>
+        <div class="kiln-door kiln-door-b"></div>
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public int Code { get; set; } = 404;
+
+    [Parameter]
+    public string? RequestId { get; set; }
+
+    private ElementReference _root;
+
+    private string Eyebrow => Code == 500 ? "Pec sa zastavila" : "List sa nenašiel";
+
+    private string Lede => Code == 500
+        ? "Kameň praskol, dvere sa zasekli. Chvíľu počkajte, kým klesne žiar — a skúste to znova."
+        : "Tento list v peci nie je. Možno spadol za kameň, možno ho oheň vzal.";
+
+    private string RingCopy => Code == 500
+        ? "500° · PREHRIATE · DVERE ZASEKNUTÉ · 500° · PREHRIATE · DVERE ZASEKNUTÉ · "
+        : "404 · PRÁZDNE · LIST NIE JE · 404 · PRÁZDNE · LIST NIE JE · ";
+
+    private bool _mounted;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.mountFault", _root);
+            _mounted = true;
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_mounted)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.unmount");
+        }
+        catch (Exception)
+        {
+        }
+    }
+}

@@ -1,24 +1,40 @@
 ﻿@page "/Error"
+@page "/kiln-status/{Code:int}"
 @using System.Diagnostics
+@layout MainLayout
 
-<PageTitle>Chyba — Forno</PageTitle>
+<PageTitle>@(IsNotFound ? "404 — list v peci nie je" : "500 — pec sa prehriala") — Forno</PageTitle>
+<Seo Title="@(IsNotFound ? "404 — list v peci nie je — Forno" : "500 — pec sa prehriala — Forno")"
+     Description="@(IsNotFound ? "Tento list v peci nie je. Vráťte sa k menu 800° Forno v Bardejove." : "Pec sa prehriala. Skúste to o chvíľu, kým klesne žiar.")"
+     NoIndex="true" />
 
-<section class="page-head">
-    <p class="eyebrow">Pec sa zastavila</p>
-    <h1>Chyba</h1>
-    @if (ShowRequestId)
-    {
-        <p class="empty">ID: <code>@RequestId</code></p>
-    }
-</section>
+<KilnFault Code="@(IsNotFound ? 404 : 500)" RequestId="@RequestId" />
 
 @code {
+    [Parameter]
+    public int Code { get; set; }
+
     [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
+    private HttpContext? Http { get; set; }
 
     private string? RequestId { get; set; }
-    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    protected override void OnInitialized() =>
-        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+    private bool IsNotFound => Code is > 0 and < 500;
+
+    protected override void OnInitialized()
+    {
+        if (Code == 0)
+        {
+            Code = 500;
+        }
+
+        if (Http is { Response.HasStarted: false })
+        {
+            Http.Response.StatusCode = Code is >= 400 and < 600 ? Code : 500;
+        }
+
+        RequestId = IsNotFound
+            ? null
+            : Activity.Current?.Id ?? Http?.TraceIdentifier;
+    }
 }

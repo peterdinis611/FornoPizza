@@ -1,6 +1,12 @@
 @page "/menu"
+@inject NavigationManager Nav
+@inject MenuService Oven
 
-<PageTitle>Menu — Forno</PageTitle>
+<PageTitle>Menu — 800° Forno</PageTitle>
+<Seo Title="Menu — 800° Forno"
+     Description="Šesť listov z neapolskej pece v Bardejove. Margherita, Marinara, Diavola, Quattro formaggi, Prosciutto e funghi, Capricciosa."
+     Path="/menu"
+     JsonLd="@MenuJson" />
 
 <section class="page-head">
     <p class="eyebrow">Šesť listov, jedna pec</p>
@@ -60,7 +66,25 @@ else
     [SupplyParameterFromQuery]
     public string? Tag { get; set; }
 
-    private IEnumerable<PizzaItem> Filtered => MenuCatalog.Filter(Q, Tag);
+    private IReadOnlyList<PizzaItem> Filtered { get; set; } = [];
+    private IReadOnlyList<PizzaItem> All { get; set; } = [];
+
+    private string MenuJson
+    {
+        get
+        {
+            var root = Nav.BaseUri.TrimEnd('/');
+            var items = string.Join(",", All.Select((p, i) =>
+                $$"""{"@type":"ListItem","position":{{i + 1}},"url":"{{root}}/menu/{{p.Slug}}","name":"{{p.Name}}"}"""));
+            return $$"""{"@context":"https://schema.org","@type":"ItemList","name":"Menu 800° Forno","itemListElement":[{{items}}]}""";
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        All = await Oven.AllAsync();
+        Filtered = await Oven.FilterAsync(Q, Tag);
+    }
 
     private string TagLabel => Tag switch
     {

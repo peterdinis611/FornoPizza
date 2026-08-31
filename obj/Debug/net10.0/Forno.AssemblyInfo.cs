@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Forno")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8d50c5701bef55baa63ffca87edcd3388cc548dd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a167dd9c54bebb703f8550e2b528a3129f1dbb5")]
 [assembly: System.Reflection.AssemblyProductAttribute("Forno")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Forno")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

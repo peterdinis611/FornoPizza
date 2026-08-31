@@ -5,6 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f3ead8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="author" content="800° Forno" />
     <base href="/" />
     <script>
         (function () {
@@ -24,7 +26,7 @@
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["Forno.styles.css"]" />
     <ImportMap />
-    <HeadOutlet @rendermode="InteractiveServer" />
+    <HeadOutlet @rendermode="PageRenderMode" />
     <script>
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             document.documentElement.classList.add('has-motion');
@@ -38,7 +40,11 @@
 </head>
 
 <body>
-    <Routes @rendermode="InteractiveServer" />
+    <div class="ember-cursor" aria-hidden="true">
+        <span class="ember-cursor-ring"></span>
+        <span class="ember-cursor-core"></span>
+    </div>
+    <Routes @rendermode="PageRenderMode" />
     <ReconnectModal />
     <script src="@Assets["lib/anime.umd.min.js"]"></script>
     <script src="@Assets["js/theme.js"]"></script>
@@ -47,3 +53,24 @@
 </body>
 
 </html>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? Http { get; set; }
+
+    private IComponentRenderMode? PageRenderMode
+    {
+        get
+        {
+            var path = Http?.Request.Path ?? PathString.Empty;
+            if (path.StartsWithSegments("/Error")
+                || path.StartsWithSegments("/not-found")
+                || path.StartsWithSegments("/kiln-status"))
+            {
+                return null;
+            }
+
+            return InteractiveServer;
+        }
+    }
+}

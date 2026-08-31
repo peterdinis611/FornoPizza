@@ -1,10 +1,22 @@
 ﻿@page "/not-found"
 @layout MainLayout
 
-<PageTitle>Nenašli sme — Forno</PageTitle>
+<PageTitle>404 — list v peci nie je — Forno</PageTitle>
+<Seo Title="404 — list v peci nie je — Forno"
+     Description="Tento list v peci nie je. Vráťte sa k menu 800° Forno v Bardejove."
+     NoIndex="true" />
 
-<section class="page-head">
-    <p class="eyebrow">404</p>
-    <h1>Tento list v peci nie je</h1>
-    <a class="btn" href="/menu">Späť na menu</a>
-</section>
+<KilnFault Code="404" />
+
+@code {
+    [CascadingParameter]
+    private HttpContext? Http { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Http is { Response.HasStarted: false })
+        {
+            Http.Response.StatusCode = 404;
+        }
+    }
+}
