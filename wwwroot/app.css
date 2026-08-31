@@ -685,6 +685,526 @@ html[data-theme="dark"] .theme-icon-moon {
   margin: 0.4rem 0 1.2rem;
 }
 
+.leaf {
+  padding: 1.2rem 0 6.5rem;
+}
+
+.leaf-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: baseline;
+  margin: 0 0 1.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.leaf-crumb a:hover {
+  color: var(--tomato);
+}
+
+.leaf-hero {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.92fr) minmax(0, 1.08fr);
+  gap: 1.5rem 3vw;
+  align-items: center;
+  min-height: min(72vh, 42rem);
+  margin-bottom: 3.2rem;
+}
+
+.leaf-kiln {
+  justify-self: start;
+  margin-left: 0;
+  width: 100%;
+}
+
+.leaf-copy .peel-stamps {
+  margin: 0 0 0.7rem;
+}
+
+.leaf-title {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-display);
+  font-size: clamp(3.2rem, 8vw, 7.2rem);
+  line-height: 0.8;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.045em;
+}
+
+.leaf-title .hero-title-line {
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.leaf-title .char-gap {
+  width: 0.28em;
+}
+
+.leaf-copy .lede {
+  margin: 0 0 1.2rem;
+  max-width: 36rem;
+}
+
+.leaf-ings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0 0 1.4rem;
+  padding: 0;
+}
+
+.leaf-ings li {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--olive);
+  border-bottom: 1px solid color-mix(in srgb, var(--olive) 45%, transparent);
+  padding: 0.15rem 0;
+}
+
+.leaf-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem 1rem;
+  margin: 0 0 1.4rem;
+  max-width: 28rem;
+}
+
+.leaf-facts dt {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+}
+
+.leaf-facts dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.leaf .detail-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.7rem 1.1rem;
+  margin: 0 0 1.3rem;
+}
+
+.leaf-sum {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ash);
+}
+
+.leaf-buy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.qty-step {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  border-bottom: 1px solid var(--char);
+}
+
+.qty-step button {
+  width: 2.2rem;
+  height: 2.6rem;
+  border: 0;
+  background: none;
+  color: var(--char);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.qty-step button:hover {
+  color: var(--tomato);
+}
+
+.qty-step span {
+  min-width: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  text-align: center;
+}
+
+.leaf-notice {
+  margin: 1rem 0 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--tomato);
+}
+
+.leaf-notice a {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.leaf-allergy {
+  margin: 1.1rem 0 0;
+  max-width: 36rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--ash);
+}
+
+.leaf-notes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 0 4rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.leaf-note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.7rem 1.7rem 0.4rem 0;
+  border-right: 1px solid var(--line);
+}
+
+.leaf-note:nth-child(2) {
+  padding-top: 3rem;
+  padding-left: 1.5rem;
+}
+
+.leaf-note:nth-child(3) {
+  padding-left: 1.5rem;
+  border-right: 0;
+}
+
+.leaf-note span {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  color: var(--tomato);
+}
+
+.leaf-note strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.leaf-note em {
+  max-width: 28ch;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+  line-height: 1.45;
+}
+
+.leaf-others-board .peel-row:nth-child(even) {
+  padding-left: 0;
+}
+
+.leaf-others-board .peel-add {
+  display: none;
+}
+
+.leaf-turn {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.8rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.leaf-turn a:hover {
+  color: var(--tomato);
+}
+
+.leaf-stage {
+  position: relative;
+  justify-self: start;
+  width: min(48vw, 28rem);
+}
+
+.leaf-slip {
+  position: absolute;
+  right: -10%;
+  bottom: 4%;
+  z-index: 4;
+  width: min(13.5rem, 72%);
+}
+
+.leaf-slip-card {
+  padding: 0.95rem 1.05rem 1.1rem;
+  background: var(--foam);
+  color: #1c1612;
+  transform: rotate(7deg);
+  box-shadow:
+    0 22px 44px rgba(18, 14, 12, 0.22),
+    inset 0 0 0 1px rgba(28, 22, 18, 0.08);
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 1.55rem,
+      rgba(28, 22, 18, 0.05) 1.55rem 1.6rem
+    );
+}
+
+.leaf-slip p {
+  margin: 0 0 0.35rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6b6358;
+}
+
+.leaf-slip strong {
+  display: block;
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 0.9;
+}
+
+.leaf-slip dl {
+  display: grid;
+  gap: 0.35rem 0;
+  margin: 0;
+}
+
+.leaf-slip div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: baseline;
+  border-top: 1px dashed rgba(28, 22, 18, 0.18);
+  padding-top: 0.32rem;
+}
+
+.leaf-slip dt {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6b6358;
+}
+
+.leaf-slip dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.leaf-quote {
+  position: relative;
+  margin: 0 0 3.8rem;
+  padding: 0.4rem 0 0 9vw;
+  max-width: 58rem;
+}
+
+.leaf-quote p {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(1.55rem, 3.5vw, 2.7rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.22;
+}
+
+.leaf-quote::before {
+  content: "„";
+  position: absolute;
+  left: 0;
+  top: -0.12em;
+  font-family: var(--font-display);
+  font-size: 5.2rem;
+  font-style: normal;
+  font-weight: 800;
+  color: var(--tomato);
+  line-height: 0.7;
+}
+
+.leaf-quote footer {
+  margin-top: 0.85rem;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-style: normal;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.leaf-layers {
+  margin: 0 0 3.6rem;
+}
+
+.leaf-layers .spread-head {
+  margin-bottom: 0.4rem;
+}
+
+.leaf-layers ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.leaf-layer {
+  display: grid;
+  grid-template-columns: 3rem minmax(7rem, 15rem) minmax(0, 1fr);
+  gap: 0.45rem 1.1rem;
+  align-items: baseline;
+  padding: 1.15rem 0 1.2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.leaf-layer:nth-child(even) {
+  padding-left: 6%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tomato) 7%, transparent), transparent 48%);
+}
+
+.leaf-layer:nth-child(3n) {
+  padding-left: 11%;
+}
+
+.leaf-layer span {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  color: var(--tomato);
+}
+
+.leaf-layer strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+
+.leaf-layer em {
+  max-width: 38rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+}
+
+.leaf-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 18;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1rem;
+  width: min(calc(100vw - 1.6rem), 54rem);
+  padding: 0.65rem 0.75rem 0.65rem 1.15rem;
+  background: var(--soot);
+  color: #f3ead8;
+  transform: translate(-50%, 140%);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(232, 93, 42, 0.38);
+}
+
+.leaf-dock.is-on {
+  transform: translate(-50%, 0);
+}
+
+.leaf-dock-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 8rem;
+  flex: 1 1 10rem;
+}
+
+.leaf-dock-copy strong {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height: 0.9;
+}
+
+.leaf-dock-copy span {
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b7aea2;
+}
+
+.leaf-dock-price {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.leaf-dock .qty-step {
+  border-bottom-color: rgba(243, 234, 216, 0.4);
+}
+
+.leaf-dock .qty-step button,
+.leaf-dock .qty-step span {
+  color: #f3ead8;
+}
+
+.leaf-dock .qty-step button:hover {
+  color: var(--ember);
+}
+
+.leaf-dock .btn {
+  color: #f3ead8;
+  border-color: rgba(243, 234, 216, 0.28);
+}
+
+.leaf-dock .btn.tomato {
+  color: var(--foam);
+}
+
+html.motion-done .leaf-kiln .oven-pie {
+  animation: pie-breathe 8s ease-in-out infinite;
+}
+
+@keyframes pie-breathe {
+  0%, 100% { transform: rotate(-2deg) scale(1); }
+  50% { transform: rotate(2.4deg) scale(1.035); }
+}
+
 .qty-row,
 .checkout label,
 .qty-mini {
@@ -2053,8 +2573,22 @@ html.has-motion .kiln-ledger .ledger-copy,
 html.has-motion .kiln-ledger .ledger-tools,
 html.has-motion .kiln-ledger .ledger-count,
 html.has-motion .kiln-ledger .peel-lead,
-html.has-motion .kiln-ledger .peel-row {
+html.has-motion .kiln-ledger .peel-row,
+html.has-motion .leaf-fade,
+html.has-motion .leaf-note,
+html.has-motion .leaf-others .spread-head,
+html.has-motion .leaf-others-board .peel-row,
+html.has-motion .leaf-turn {
   opacity: 0;
+}
+
+html.motion-done .leaf-fade,
+html.motion-done .leaf-note,
+html.motion-done .leaf-others .spread-head,
+html.motion-done .leaf-others-board .peel-row,
+html.motion-done .leaf-turn {
+  opacity: 1;
+  transform: none;
 }
 
 html.has-motion [data-reveal],
@@ -2170,9 +2704,47 @@ html.has-cursor .ember-cursor {
     margin: 0;
   }
 
-  .peel-lead a {
+  .leaf-hero {
     grid-template-columns: 1fr;
-    gap: 0.4rem 1rem;
+    min-height: 0;
+    gap: 1.6rem;
+  }
+
+  .leaf-stage,
+  .leaf-kiln {
+    width: min(78vw, 24rem);
+    justify-self: center;
+  }
+
+  .leaf-slip {
+    right: -4%;
+    bottom: -4%;
+  }
+
+  .leaf-slip-card {
+    transform: rotate(5deg);
+  }
+
+  .leaf-quote {
+    padding-left: 3.2rem;
+    margin-bottom: 2.6rem;
+  }
+
+  .leaf-notes {
+    grid-template-columns: 1fr;
+  }
+
+  .leaf-note,
+  .leaf-note:nth-child(2),
+  .leaf-note:nth-child(3) {
+    padding: 1.3rem 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .leaf-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
   }
 
   .peel-lead .pie-mark {
@@ -2342,6 +2914,27 @@ html.has-cursor .ember-cursor {
   .hero-disc {
     width: 10rem;
   }
+
+  .leaf-layer,
+  .leaf-layer:nth-child(even),
+  .leaf-layer:nth-child(3n) {
+    grid-template-columns: 2.4rem 1fr;
+    padding-left: 0;
+    background: none;
+  }
+
+  .leaf-layer em {
+    grid-column: 2;
+  }
+
+  .leaf-dock {
+    bottom: 0.45rem;
+    padding: 0.55rem 0.65rem 0.55rem 0.9rem;
+  }
+
+  .leaf-dock-copy span {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2353,6 +2946,7 @@ html.has-cursor .ember-cursor {
   .manifesto-row,
   .heat-ring,
   .oven-pie,
+  html.motion-done .leaf-kiln .oven-pie,
   .ticker-track,
   .ember,
   .live-dot,
@@ -2388,9 +2982,18 @@ html.has-cursor .ember-cursor {
   html.has-motion .kiln-ledger .ledger-tools,
   html.has-motion .kiln-ledger .ledger-count,
   html.has-motion .kiln-ledger .peel-lead,
-  html.has-motion .kiln-ledger .peel-row {
+  html.has-motion .kiln-ledger .peel-row,
+  html.has-motion .leaf-fade,
+  html.has-motion .leaf-note,
+  html.has-motion .leaf-others .spread-head,
+  html.has-motion .leaf-others-board .peel-row,
+  html.has-motion .leaf-turn {
     opacity: 1;
     transform: none;
+  }
+
+  .leaf-dock {
+    transition: none;
   }
 
   .kiln-door,

@@ -157,5 +157,5 @@
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/runtimes/win-x64/native/e_sqlite3.dll
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/runtimes/win-x86/native/e_sqlite3.dll
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/Forno.csproj.Up2Date
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-w96086tet7-w96086tet7.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/12nutl04a2-{0}-dw3ot4ofhz-dw3ot4ofhz.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/12nutl04a2-{0}-190xtg9po2-190xtg9po2.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-t8biknj8ol-t8biknj8ol.gz

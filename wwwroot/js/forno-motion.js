@@ -428,6 +428,156 @@
     });
   }
 
+  function mountDetail(root, fresh) {
+    unmount();
+
+    if (!root) {
+      revealNow();
+      return;
+    }
+
+    if (reduced() || !window.anime) {
+      revealNow();
+      return;
+    }
+
+    const { animate, createTimeline, stagger, onScroll } = window.anime;
+    document.documentElement.classList.add("has-motion", "motion-ready");
+
+    const chars = root.querySelectorAll(".leaf-title .char");
+    const doors = {
+      a: root.querySelector(".kiln-door-a"),
+      b: root.querySelector(".kiln-door-b"),
+    };
+
+    const intro = createTimeline({
+      defaults: { ease: "out(3)" },
+      onComplete: () => document.documentElement.classList.add("motion-done"),
+    });
+
+    if (fresh !== false && chars.length) {
+      intro.add(
+        chars,
+        {
+          y: ["110%", "0%"],
+          opacity: [0, 1],
+          duration: 780,
+          ease: "out(4)",
+          delay: stagger(42),
+        },
+        60
+      );
+    } else {
+      chars.forEach((char) => {
+        char.style.opacity = "1";
+        char.style.transform = "none";
+      });
+    }
+
+    intro.add(
+      root.querySelectorAll(".leaf-fade"),
+      {
+        opacity: [0, 1],
+        y: [18, 0],
+        duration: 680,
+        delay: stagger(55),
+      },
+      fresh === false ? 0 : 180
+    );
+
+    intro.add(
+      root.querySelector(".leaf-kiln"),
+      {
+        opacity: [0, 1],
+        scale: [0.86, 1],
+        duration: 1000,
+        ease: "out(4)",
+      },
+      80
+    );
+
+    if (doors.a && doors.b) {
+      intro.add(
+        doors.a,
+        { rotateY: [0, -118], opacity: [1, 0], duration: 880, ease: "inOut(2)" },
+        420
+      );
+      intro.add(
+        doors.b,
+        { rotateY: [0, 118], opacity: [1, 0], duration: 880, ease: "inOut(2)" },
+        420
+      );
+    }
+
+    const pie = root.querySelector(".leaf-kiln .oven-pie");
+    if (pie) {
+      intro.add(pie, { rotate: [-16, 0], scale: [0.9, 1], duration: 980, ease: "out(4)" }, 360);
+    }
+
+    const seal = root.querySelector(".leaf-kiln .oven-seal");
+    if (seal) {
+      intro.add(seal, { scale: [0.2, 1], rotate: [40, 12], duration: 680, ease: "out(4)" }, 640);
+    }
+
+    homeCleanups.push(() => intro.revert());
+    setupMagnetic(root);
+    chromeDetail(root);
+
+    root.querySelectorAll("[data-tilt]").forEach((el) => {
+      homeCleanups.push(tilt(el, 8));
+    });
+
+    root.querySelectorAll("[data-scroll]").forEach((el) => {
+      const observer = onScroll({
+        target: el,
+        repeat: false,
+        enter: "bottom-=14% top",
+        onEnter: () => {
+          animate(el, {
+            opacity: [0, 1],
+            y: [28, 0],
+            duration: 780,
+            ease: "out(3)",
+          });
+        },
+      });
+      homeCleanups.push(() => observer.revert());
+    });
+  }
+
+  let dockCleanup = null;
+
+  function chromeDetail(root) {
+    if (dockCleanup) {
+      dockCleanup();
+      dockCleanup = null;
+    }
+
+    if (!root) {
+      return;
+    }
+
+    const buy = root.querySelector("[data-leaf-buy]");
+    const dock = root.querySelector(".leaf-dock");
+    if (!buy || !dock) {
+      return;
+    }
+
+    if (reduced()) {
+      dock.classList.add("is-on");
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        dock.classList.toggle("is-on", !entry.isIntersecting);
+      },
+      { threshold: 0.2, rootMargin: "-8% 0px 0px 0px" }
+    );
+    io.observe(buy);
+    dockCleanup = () => io.disconnect();
+  }
+
   function mountFault(root) {
     unmount();
 
@@ -445,6 +595,15 @@
   }
 
   function unmount() {
+    if (dockCleanup) {
+      dockCleanup();
+      dockCleanup = null;
+    }
+
+    document.querySelectorAll(".leaf-dock").forEach((dock) => {
+      dock.classList.remove("is-on");
+    });
+
     homeCleanups.splice(0).forEach((fn) => {
       try {
         fn();
@@ -454,7 +613,7 @@
     });
   }
 
-  window.FornoMotion = { boot, mount, mountMenu, mountFault, unmount };
+  window.FornoMotion = { boot, mount, mountMenu, mountDetail, mountFault, chromeDetail, unmount };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);

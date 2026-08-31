@@ -2,6 +2,8 @@
 @inject CartService Cart
 @inject MenuService Menu
 @inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 @if (!_ready)
 {
@@ -21,26 +23,238 @@ else
          Description="@Pizza.Description"
          Path="@($"/menu/{Pizza.Slug}")"
          JsonLd="@PizzaJson" />
-    <article class="detail">
-        <p class="eyebrow">@Pizza.Tagline</p>
-        <div class="detail-grid">
-            <div class="hero-disc">
-                <PizzaMark Slug="@Pizza.Slug" MarkId="@($"detail-{Pizza.Slug}")" />
-            </div>
-            <div>
-                <h1>@Pizza.Name</h1>
-                <p class="lede">@Pizza.Description</p>
-                <p class="ingredients">@Pizza.Ingredients</p>
-                <p class="detail-price">@Pizza.Price.ToString("N2") €</p>
-                <div class="qty-row">
-                    <label>
-                        Kusy
-                        <input type="number" min="1" max="12" @bind="Quantity" />
-                    </label>
-                    <button class="btn tomato" type="button" @onclick="Add">Do košíka</button>
+
+    <article class="leaf" @ref="_root">
+        <nav class="leaf-crumb leaf-fade">
+            <a href="/menu">Menu</a>
+            <span aria-hidden="true">/</span>
+            <span>@Pizza.Name</span>
+        </nav>
+
+        <section class="leaf-hero">
+            <div class="leaf-stage">
+                <div class="oven-mouth leaf-kiln" data-tilt>
+                    <span class="ember" style="--x: 18%; --delay: 0s"></span>
+                    <span class="ember" style="--x: 42%; --delay: 1.1s"></span>
+                    <span class="ember" style="--x: 61%; --delay: 0.4s"></span>
+                    <span class="ember" style="--x: 77%; --delay: 1.8s"></span>
+                    <span class="ember" style="--x: 33%; --delay: 2.4s"></span>
+                    <div class="oven-soot"></div>
+                    <svg class="heat-ring" viewBox="0 0 200 200" aria-hidden="true">
+                        <defs>
+                            <path id="leaf-heat-@Pizza.Slug" d="M100,100 m-90,0 a90,90 0 1,1 180,0 a90,90 0 1,1 -180,0" fill="none" />
+                        </defs>
+                        <text>
+                            <textPath href="#leaf-heat-@Pizza.Slug">800° · @Pizza.Name.ToUpperInvariant() · 90s · 800° · @Pizza.Name.ToUpperInvariant() · 90s · </textPath>
+                        </text>
+                    </svg>
+                    <div class="oven-pie">
+                        <PizzaMark Slug="@Pizza.Slug" MarkId="@($"leaf-{Pizza.Slug}")" />
+                    </div>
+                    <div class="kiln-door kiln-door-a" aria-hidden="true"></div>
+                    <div class="kiln-door kiln-door-b" aria-hidden="true"></div>
+                    <span class="oven-seal">@Leaf.Time</span>
                 </div>
+                <aside class="leaf-slip leaf-fade">
+                    <div class="leaf-slip-card">
+                        <p>Pec · Bardejov</p>
+                        <strong>List @Leaf.Number</strong>
+                        <dl>
+                            <div>
+                                <dt>Hmotnosť</dt>
+                                <dd>@Leaf.Weight</dd>
+                            </div>
+                            <div>
+                                <dt>Múka</dt>
+                                <dd>@Leaf.Flour</dd>
+                            </div>
+                            <div>
+                                <dt>Drevo</dt>
+                                <dd>@Leaf.Wood</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </aside>
             </div>
-        </div>
+
+            <div class="leaf-copy">
+                <p class="eyebrow leaf-fade">@Pizza.Tagline</p>
+                <div class="peel-stamps leaf-fade">
+                    @foreach (var stamp in Stamps(Pizza))
+                    {
+                        <i>@stamp</i>
+                    }
+                </div>
+                <h1 class="leaf-title" aria-label="@Pizza.Name">
+                    <span class="hero-title-line leaf-title-line">
+                        @foreach (var letter in Pizza.Name.ToUpperInvariant())
+                        {
+                            if (letter == ' ')
+                            {
+                                <span class="char char-gap" aria-hidden="true">&nbsp;</span>
+                            }
+                            else
+                            {
+                                <span class="char" aria-hidden="true">@letter</span>
+                            }
+                        }
+                    </span>
+                </h1>
+                <p class="lede leaf-fade">@Pizza.Description</p>
+                <ul class="leaf-ings leaf-fade">
+                    @foreach (var part in Pizza.Ingredients.Split("·", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <li>@part</li>
+                    }
+                </ul>
+                <dl class="leaf-facts leaf-fade">
+                    <div>
+                        <dt>@Leaf.Heat</dt>
+                        <dd>pec</dd>
+                    </div>
+                    <div>
+                        <dt>@Leaf.Time</dt>
+                        <dd>v ohni</dd>
+                    </div>
+                    <div>
+                        <dt>@Leaf.Dough</dt>
+                        <dd>kvasenie</dd>
+                    </div>
+                    <div>
+                        <dt>@Leaf.Diameter</dt>
+                        <dd>list</dd>
+                    </div>
+                </dl>
+                <p class="detail-price leaf-fade">
+                    @Pizza.Price.ToString("N2") €
+                    @if (Quantity > 1)
+                    {
+                        <span class="leaf-sum">@Quantity × = @LineTotal.ToString("N2") €</span>
+                    }
+                </p>
+                <div class="leaf-buy leaf-fade" data-leaf-buy>
+                    <div class="qty-step" aria-label="Kusy">
+                        <button type="button" @onclick="Less" aria-label="Menej">−</button>
+                        <span>@Quantity</span>
+                        <button type="button" @onclick="More" aria-label="Viac">+</button>
+                    </div>
+                    <button class="btn tomato" type="button" data-magnetic @onclick="Add">
+                        @(InCart ? "Pridať ďalšiu" : "Do košíka")
+                    </button>
+                    <a class="btn" data-magnetic href="/menu">Späť k listom</a>
+                </div>
+                @if (JustAdded)
+                {
+                    <p class="leaf-notice" aria-live="polite">
+                        V košíku. <a href="/kosik">Otvoriť košík</a>
+                    </p>
+                }
+                <p class="leaf-allergy leaf-fade">Alergény: @Leaf.Allergens</p>
+            </div>
+        </section>
+
+        <blockquote class="leaf-quote" data-scroll>
+            <p>@Leaf.Quote</p>
+            <footer>Zápis z pece · list @Leaf.Number</footer>
+        </blockquote>
+
+        @if (Leaf.Layers.Count > 0)
+        {
+            <section class="leaf-layers">
+                <header class="spread-head" data-scroll>
+                    <p class="eyebrow">Na liste</p>
+                    <h2>Zloženie</h2>
+                </header>
+                <ol>
+                    @foreach (var (layer, i) in Leaf.Layers.Select((l, i) => (l, i)))
+                    {
+                        <li class="leaf-layer" data-scroll>
+                            <span>@((i + 1).ToString("00"))</span>
+                            <strong>@layer.Name</strong>
+                            <em>@layer.Note</em>
+                        </li>
+                    }
+                </ol>
+            </section>
+        }
+
+        <section class="leaf-notes">
+            <div class="leaf-note" data-scroll>
+                <span>01</span>
+                <strong>Ako pecie</strong>
+                <em>@Leaf.BakeNote</em>
+            </div>
+            <div class="leaf-note" data-scroll>
+                <span>02</span>
+                <strong>K stolu</strong>
+                <em>@Leaf.PairsWith</em>
+            </div>
+            <div class="leaf-note" data-scroll>
+                <span>03</span>
+                <strong>Rozvoz</strong>
+                <em>Bardejov 30–40 min. Od 12 €, zadarmo od 22 €. Výdaj pri peci 15–20 min.</em>
+            </div>
+        </section>
+
+        @if (Others.Count > 0)
+        {
+            <section class="leaf-others">
+                <header class="spread-head" data-scroll>
+                    <p class="eyebrow">Ešte v peci</p>
+                    <h2>Ďalšie listy</h2>
+                    <a href="/menu">Celé menu →</a>
+                </header>
+                <ol class="peel-board leaf-others-board">
+                    @foreach (var (pizza, i) in Others.Select((p, i) => (p, i)))
+                    {
+                        <li class="peel-row" data-scroll>
+                            <a href="/menu/@pizza.Slug">
+                                <span class="index">@((i + 1).ToString("00"))</span>
+                                <PizzaMark Slug="@pizza.Slug" MarkId="@($"sib-{pizza.Slug}")" />
+                                <span class="row-copy">
+                                    <strong>@pizza.Name</strong>
+                                    <em>@pizza.Tagline</em>
+                                </span>
+                                <span class="price">@pizza.Price.ToString("N2") €</span>
+                            </a>
+                        </li>
+                    }
+                </ol>
+                @if (Prev is not null || Next is not null)
+                {
+                    <nav class="leaf-turn" data-scroll>
+                        @if (Prev is not null)
+                        {
+                            <a href="/menu/@Prev.Slug">← @Prev.Name</a>
+                        }
+                        else
+                        {
+                            <span></span>
+                        }
+                        @if (Next is not null)
+                        {
+                            <a href="/menu/@Next.Slug">@Next.Name →</a>
+                        }
+                    </nav>
+                }
+            </section>
+        }
+
+        <aside class="leaf-dock" aria-label="Rýchly nákup">
+            <div class="leaf-dock-copy">
+                <strong>@Pizza.Name</strong>
+                <span>@Leaf.Diameter · @Leaf.Heat · @Leaf.Time</span>
+            </div>
+            <p class="leaf-dock-price">@Pizza.Price.ToString("N2") €</p>
+            <div class="qty-step" aria-label="Kusy">
+                <button type="button" @onclick="Less" aria-label="Menej">−</button>
+                <span>@Quantity</span>
+                <button type="button" @onclick="More" aria-label="Viac">+</button>
+            </div>
+            <button class="btn tomato" type="button" data-magnetic @onclick="Add">
+                @(InCart ? "Ďalšia" : "Do košíka")
+            </button>
+        </aside>
     </article>
 }
 
@@ -51,9 +265,23 @@ else
     [CascadingParameter]
     private HttpContext? Http { get; set; }
 
+    private ElementReference _root;
     private PizzaItem? Pizza { get; set; }
+    private PizzaLeaf Leaf { get; set; } = PizzaLeaves.For("");
+    private IReadOnlyList<PizzaItem> Others { get; set; } = [];
+    private PizzaItem? Prev { get; set; }
+    private PizzaItem? Next { get; set; }
     private int Quantity { get; set; } = 1;
     private bool _ready;
+    private bool _mounted;
+    private string _mountedSlug = "";
+    private string _paramSlug = "";
+    private bool JustAdded { get; set; }
+
+    private decimal LineTotal => Pizza is null ? 0 : Pizza.Price * Quantity;
+
+    private bool InCart =>
+        Pizza is not null && Cart.Lines.Any(line => line.Pizza.Slug == Pizza.Slug);
 
     private string PizzaJson
     {
@@ -77,8 +305,40 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        var slugChanged = !Slug.Equals(_paramSlug, StringComparison.OrdinalIgnoreCase);
+        if (slugChanged)
+        {
+            JustAdded = false;
+            Quantity = 1;
+            _paramSlug = Slug;
+            _mounted = false;
+        }
+
         Pizza = await Menu.FindAsync(Slug);
-        Quantity = 1;
+        Leaf = PizzaLeaves.For(Slug);
+
+        var all = await Menu.AllAsync();
+        Others = Pizza is null
+            ? []
+            : all
+                .Where(p => !p.Slug.Equals(Slug, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(p => SharesTags(p, Pizza))
+                .ThenByDescending(p => p.Featured)
+                .Take(3)
+                .ToList();
+
+        var index = -1;
+        for (var i = 0; i < all.Count; i++)
+        {
+            if (all[i].Slug.Equals(Slug, StringComparison.OrdinalIgnoreCase))
+            {
+                index = i;
+                break;
+            }
+        }
+        Prev = index > 0 ? all[index - 1] : null;
+        Next = index >= 0 && index < all.Count - 1 ? all[index + 1] : null;
+
         _ready = true;
 
         if (Pizza is null && Http is { Response.HasStarted: false })
@@ -87,6 +347,43 @@ else
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Pizza is null)
+        {
+            return;
+        }
+
+        if (!firstRender && _mounted && _mountedSlug == Slug)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("FornoMotion.chromeDetail", _root);
+            }
+            catch (Exception)
+            {
+            }
+
+            return;
+        }
+
+        var fresh = firstRender || _mountedSlug != Slug;
+        _mountedSlug = Slug;
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.mountDetail", _root, fresh);
+            _mounted = true;
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    private void Less() => Quantity = Math.Max(1, Quantity - 1);
+
+    private void More() => Quantity = Math.Min(12, Quantity + 1);
+
     private void Add()
     {
         if (Pizza is null)
@@ -94,7 +391,45 @@ else
             return;
         }
 
-        Cart.Add(Pizza, Math.Clamp(Quantity, 1, 12));
-        Nav.NavigateTo("/kosik");
+        Cart.Add(Pizza, Quantity);
+        JustAdded = true;
+    }
+
+    private static IEnumerable<string> Stamps(PizzaItem pizza)
+    {
+        foreach (var tag in pizza.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            yield return tag switch
+            {
+                "klasika" => "Klasika",
+                "pikant" => "Pikant",
+                "bez-masa" => "Bez mäsa",
+                "syry" => "Syry",
+                _ => tag
+            };
+        }
+    }
+
+    private static int SharesTags(PizzaItem a, PizzaItem b)
+    {
+        var left = a.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var right = b.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return left.Count(t => right.Contains(t, StringComparer.OrdinalIgnoreCase));
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_mounted)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.unmount");
+        }
+        catch (Exception)
+        {
+        }
     }
 }
