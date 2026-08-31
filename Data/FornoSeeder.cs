@@ -1,3 +1,4 @@
+using Forno.Mapping;
 using Microsoft.EntityFrameworkCore;
 
 namespace Forno.Data;
@@ -14,19 +15,7 @@ public static class FornoSeeder
         var order = 1;
         foreach (var item in MenuSeed.Items)
         {
-            db.Pizzas.Add(new Pizza
-            {
-                Slug = item.Slug,
-                Name = item.Name,
-                Tagline = item.Tagline,
-                Description = item.Description,
-                Ingredients = item.Ingredients,
-                Price = item.Price,
-                Tone = item.Tone,
-                Featured = item.Featured,
-                Tags = item.Tags,
-                SortOrder = order++,
-            });
+            db.Pizzas.Add(PizzaMapper.ToEntity(item, order++));
         }
 
         await db.SaveChangesAsync(cancellation);

@@ -1,4 +1,6 @@
+using Forno.Mapping;
 using Forno.Models;
+using Forno.Validation;
 
 namespace Forno.Services;
 
@@ -18,22 +20,17 @@ public sealed class CartService
 
     public void Add(PizzaItem pizza, int quantity = 1, IReadOnlyList<string>? extras = null)
     {
-        var ids = OvenExtras.Normalize(extras);
+        var incoming = CartMapper.ToLine(pizza, quantity, extras);
         var existing = _lines.FirstOrDefault(l =>
-            l.Pizza.Slug == pizza.Slug && OvenExtras.Same(l.ExtraIds, ids));
+            l.Pizza.Slug == incoming.Pizza.Slug && OvenExtras.Same(l.ExtraIds, incoming.ExtraIds));
 
         if (existing is null)
         {
-            _lines.Add(new CartLine
-            {
-                Pizza = pizza,
-                Quantity = quantity,
-                ExtraIds = ids
-            });
+            _lines.Add(incoming);
         }
         else
         {
-            existing.Quantity += quantity;
+            existing.Quantity = CartRules.ClampQty(existing.Quantity + incoming.Quantity);
         }
 
         Notify();
@@ -47,13 +44,13 @@ public sealed class CartService
             return;
         }
 
-        if (quantity <= 0)
+        if (quantity < 1)
         {
             _lines.Remove(line);
         }
         else
         {
-            line.Quantity = quantity;
+            line.Quantity = CartRules.ClampQty(quantity);
         }
 
         Notify();
@@ -72,17 +69,12 @@ public sealed class CartService
     }
 
     public IReadOnlyList<CartSnap> Snapshot() =>
-        _lines
-            .Select(line => new CartSnap(
-                line.Pizza.Slug,
-                line.Quantity,
-                line.ExtraIds.ToArray()))
-            .ToList();
+        _lines.Select(CartMapper.ToSnap).ToList();
 
     public void Replace(IEnumerable<CartLine> lines)
     {
         _lines.Clear();
-        _lines.AddRange(lines);
+        _lines.AddRange(lines.Select(CartMapper.Normalize));
         Notify();
     }
 

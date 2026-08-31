@@ -1,23 +1,26 @@
+using Forno.Contracts;
 using Forno.Data;
+using Forno.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Forno.Services;
 
-public sealed class SubscriberService(IDbContextFactory<FornoDbContext> factory)
+public sealed class SubscriberService(IDbContextFactory<FornoDbContext> factory) : ISubscriberService
 {
-    public async Task<bool> AddAsync(string email, CancellationToken cancellation = default)
+    public async Task<Result> AddAsync(string email, CancellationToken cancellation = default)
     {
-        var trimmed = email.Trim().ToLowerInvariant();
-        if (string.IsNullOrWhiteSpace(trimmed) || trimmed.Length > 120)
+        var check = SubscribeValidator.Validate(email);
+        if (!check.IsSuccess)
         {
-            return false;
+            return check;
         }
 
+        var trimmed = InputText.Email(email);
         await using var db = await factory.CreateDbContextAsync(cancellation);
 
         if (await db.Subscribers.AnyAsync(s => s.Email == trimmed, cancellation))
         {
-            return true;
+            return Result.Ok();
         }
 
         db.Subscribers.Add(new Subscriber
@@ -32,9 +35,9 @@ public sealed class SubscriberService(IDbContextFactory<FornoDbContext> factory)
         }
         catch (DbUpdateException)
         {
-            return true;
+            return Result.Ok();
         }
 
-        return true;
+        return Result.Ok();
     }
 }

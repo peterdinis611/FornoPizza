@@ -21,9 +21,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<CartService>();
-builder.Services.AddScoped<MenuService>();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<SubscriberService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ISubscriberService, SubscriberService>();
 
 var app = builder.Build();
 
@@ -48,7 +48,7 @@ app.MapGet("/robots.txt", (HttpRequest request, IConfiguration config) =>
     return Results.Text(body, "text/plain; charset=utf-8");
 });
 
-app.MapGet("/sitemap.xml", async (HttpRequest request, IConfiguration config, MenuService menu) =>
+app.MapGet("/sitemap.xml", async (HttpRequest request, IConfiguration config, IMenuService menu) =>
 {
     var slugs = await menu.SlugsAsync();
     var body = SiteDocuments.Sitemap(SiteDocuments.PublicBase(request, config), slugs);

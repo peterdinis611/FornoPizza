@@ -9,7 +9,7 @@ public sealed class OvenOrder
     public string Address { get; set; } = "";
     public string Note { get; set; } = "";
     public decimal Total { get; set; }
-    public string Status { get; set; } = "prijata";
+    public string Status { get; set; } = Forno.Domain.OrderStatus.Accepted;
 
     public List<OrderLine> Lines { get; set; } = [];
 }

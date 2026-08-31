@@ -1,68 +1,66 @@
+using Forno.Contracts;
 using Forno.Data;
-using Forno.Models;
+using Forno.Mapping;
+using Forno.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Forno.Services;
 
-public sealed class OrderService(IDbContextFactory<FornoDbContext> factory)
+public sealed class OrderService(IDbContextFactory<FornoDbContext> factory) : IOrderService
 {
-    public async Task<OvenOrder> PlaceAsync(
-        string name,
-        string phone,
-        string address,
-        string note,
-        IReadOnlyList<CartLine> lines,
+    public async Task<Result<OrderReceipt>> PlaceAsync(
+        PlaceOrderRequest request,
         CancellationToken cancellation = default)
     {
-        if (lines.Count == 0)
+        var errors = CheckoutValidator.Validate(request);
+        if (errors.Count > 0)
         {
-            throw new InvalidOperationException("Košík je prázdny.");
+            return Result<OrderReceipt>.Fail(errors);
         }
 
         await using var db = await factory.CreateDbContextAsync(cancellation);
 
-        var slugs = lines.Select(l => l.Pizza.Slug).Distinct().ToList();
+        var slugs = request.Lines
+            .Select(line => InputText.Slug(line.Pizza.Slug))
+            .Where(slug => slug.Length > 0)
+            .Distinct()
+            .ToList();
+
         var pizzas = await db.Pizzas
             .Where(p => slugs.Contains(p.Slug))
             .ToDictionaryAsync(p => p.Slug, cancellation);
 
-        var order = new OvenOrder
+        var lines = new List<OrderLine>();
+        foreach (var line in request.Lines)
         {
-            CreatedAt = DateTimeOffset.UtcNow,
-            Name = name.Trim(),
-            Phone = phone.Trim(),
-            Address = address.Trim(),
-            Note = note.Trim(),
-            Status = "prijata",
-        };
-
-        foreach (var line in lines)
-        {
-            if (!pizzas.TryGetValue(line.Pizza.Slug, out var pizza))
+            var slug = InputText.Slug(line.Pizza.Slug);
+            if (!pizzas.TryGetValue(slug, out var pizza))
             {
-                continue;
+                return Result<OrderReceipt>.Fail(
+                    "cart",
+                    $"List {line.Pizza.Name} v peci už nie je.");
             }
 
-            var qty = Math.Clamp(line.Quantity, 1, 12);
-            order.Lines.Add(new OrderLine
-            {
-                PizzaId = pizza.Id,
-                PizzaSlug = pizza.Slug,
-                PizzaName = pizza.Name,
-                UnitPrice = line.UnitTotal,
-                Quantity = qty,
-                Extras = line.ExtraLabel
-            });
+            lines.Add(OrderMapper.ToLine(line, pizza));
         }
 
-        if (order.Lines.Count == 0)
+        if (lines.Count == 0)
         {
-            throw new InvalidOperationException("V peci už tieto listy nie sú.");
+            return Result<OrderReceipt>.Fail("cart", "Košík je prázdny.");
         }
 
-        order.Total = order.Lines.Sum(l => l.UnitPrice * l.Quantity);
+        var order = OrderMapper.ToOrder(request, lines);
         db.Orders.Add(order);
-        await db.SaveChangesAsync(cancellation);
-        return order;
+
+        try
+        {
+            await db.SaveChangesAsync(cancellation);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<OrderReceipt>.Fail("order", "Lístok sa nepodarilo zapísať. Skúste znova.");
+        }
+
+        return Result<OrderReceipt>.Ok(OrderMapper.ToReceipt(order));
     }
 }

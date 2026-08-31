@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject CartService Cart
-@inject MenuService Oven
+@inject IMenuService Oven
 @inject IJSRuntime JS
 @implements IDisposable
 
@@ -127,45 +127,8 @@
             {
                 return;
             }
-            CartSnap[] snaps;
-            try
-            {
-                snaps = System.Text.Json.JsonSerializer.Deserialize<CartSnap[]>(json) ?? [];
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                snaps = [];
-            }
-
-            if (snaps.Length == 0)
-            {
-                return;
-            }
-
-            var menu = await Oven.AllAsync();
-            var lines = new List<CartLine>();
-            foreach (var snap in snaps)
-            {
-                if (string.IsNullOrWhiteSpace(snap.Slug))
-                {
-                    continue;
-                }
-
-                var pizza = menu.FirstOrDefault(p =>
-                    p.Slug.Equals(snap.Slug, StringComparison.OrdinalIgnoreCase));
-                if (pizza is null)
-                {
-                    continue;
-                }
-
-                lines.Add(new CartLine
-                {
-                    Pizza = pizza,
-                    Quantity = Math.Clamp(snap.Quantity, 1, 12),
-                    ExtraIds = OvenExtras.Normalize(snap.Extras)
-                });
-            }
-
+            var snaps = System.Text.Json.JsonSerializer.Deserialize<CartSnap[]>(json) ?? [];
+            var lines = CartMapper.Hydrate(snaps, await Oven.AllAsync());
             if (lines.Count > 0)
             {
                 Cart.Replace(lines);

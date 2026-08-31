@@ -1,3 +1,5 @@
+using Forno.Domain;
+
 namespace Forno.Models;
 
 public sealed record OvenExtra(
@@ -10,7 +12,7 @@ public sealed record OvenExtra(
 
 public static class OvenExtras
 {
-    public const int MaxOnLeaf = 6;
+    public const int MaxOnLeaf = OvenLimits.ExtraMax;
 
     public static IReadOnlyList<OvenExtra> All { get; } =
     [

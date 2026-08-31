@@ -13,7 +13,4 @@ public sealed class Pizza
     public bool Featured { get; set; }
     public string Tags { get; set; } = "klasika";
     public int SortOrder { get; set; }
-
-    public Models.PizzaItem ToItem() =>
-        new(Slug, Name, Tagline, Description, Ingredients, Price, Tone, Featured, Tags);
 }

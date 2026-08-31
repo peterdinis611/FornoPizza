@@ -1,10 +1,12 @@
 using Forno.Data;
+using Forno.Mapping;
 using Forno.Models;
+using Forno.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Forno.Services;
 
-public sealed class MenuService(IDbContextFactory<FornoDbContext> factory)
+public sealed class MenuService(IDbContextFactory<FornoDbContext> factory) : IMenuService
 {
     public async Task<IReadOnlyList<PizzaItem>> AllAsync(CancellationToken cancellation = default)
     {
@@ -41,6 +43,12 @@ public sealed class MenuService(IDbContextFactory<FornoDbContext> factory)
 
     public async Task<PizzaItem?> FindAsync(string slug, CancellationToken cancellation = default)
     {
+        slug = InputText.Slug(slug);
+        if (slug.Length == 0)
+        {
+            return null;
+        }
+
         await using var db = await factory.CreateDbContextAsync(cancellation);
         var row = await db.Pizzas
             .AsNoTracking()
@@ -49,28 +57,31 @@ public sealed class MenuService(IDbContextFactory<FornoDbContext> factory)
         return row?.ToItem();
     }
 
-    public async Task<IReadOnlyList<PizzaItem>> FilterAsync(string? query, string? tag, CancellationToken cancellation = default) =>
+    public async Task<IReadOnlyList<PizzaItem>> FilterAsync(
+        string? query,
+        string? tag,
+        CancellationToken cancellation = default) =>
         Filter(await AllAsync(cancellation), query, tag);
 
     public static IReadOnlyList<PizzaItem> Filter(IReadOnlyList<PizzaItem> items, string? query, string? tag)
     {
         IEnumerable<PizzaItem> result = items;
+        query = InputText.Query(query);
+        tag = InputText.Collapse(tag);
 
         if (!string.IsNullOrWhiteSpace(tag))
         {
-            var needle = tag.Trim();
             result = result.Where(p => p.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Any(t => t.Equals(needle, StringComparison.OrdinalIgnoreCase)));
+                .Any(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (!string.IsNullOrWhiteSpace(query))
         {
-            var q = query.Trim();
             result = result.Where(p =>
-                p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Tagline.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Ingredients.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
+                p.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                p.Tagline.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                p.Ingredients.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                p.Description.Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
         return result.ToList();
