@@ -1,0 +1,37 @@
+﻿@page "/"
+
+<PageTitle>Forno — pec</PageTitle>
+
+<section class="hero">
+    <p class="eyebrow animate-rise">Neapolská pec · 800 stupňov</p>
+    <h1 class="hero-title animate-rise delay-1">
+        Forno
+        <span class="hero-temp">800°</span>
+    </h1>
+    <p class="lede animate-rise delay-2">
+        Pizza z múky, dymu a času. Objednajte si ju ešte kým je kôra chrumkavá.
+    </p>
+    <a class="btn tomato animate-rise delay-3" href="/menu">Otvoriť menu</a>
+</section>
+
+<section class="featured">
+    <header class="section-head">
+        <h2>Dnes v peci</h2>
+        <a href="/menu">Celé menu →</a>
+    </header>
+    <ol class="manifesto">
+        @foreach (var pizza in MenuCatalog.Featured)
+        {
+            <li class="manifesto-row">
+                <a href="/menu/@pizza.Slug">
+                    <span class="disc tone-@pizza.Tone" aria-hidden="true"></span>
+                    <span class="row-copy">
+                        <strong>@pizza.Name</strong>
+                        <em>@pizza.Tagline</em>
+                    </span>
+                    <span class="price">@pizza.Price.ToString("N2") €</span>
+                </a>
+            </li>
+        }
+    </ol>
+</section>

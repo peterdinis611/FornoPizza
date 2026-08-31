@@ -1,0 +1,25 @@
+@page "/menu"
+
+<PageTitle>Menu — Forno</PageTitle>
+
+<section class="page-head">
+    <p class="eyebrow">Šesť listov, jedna pec</p>
+    <h1>Menu</h1>
+</section>
+
+<ol class="manifesto long">
+    @foreach (var (pizza, i) in MenuCatalog.All.Select((p, i) => (p, i)))
+    {
+        <li class="manifesto-row" style="animation-delay: @(80 * i)ms">
+            <a href="/menu/@pizza.Slug">
+                <span class="index">@((i + 1).ToString("00"))</span>
+                <span class="disc tone-@pizza.Tone" aria-hidden="true"></span>
+                <span class="row-copy">
+                    <strong>@pizza.Name</strong>
+                    <em>@pizza.Ingredients</em>
+                </span>
+                <span class="price">@pizza.Price.ToString("N2") €</span>
+            </a>
+        </li>
+    }
+</ol>

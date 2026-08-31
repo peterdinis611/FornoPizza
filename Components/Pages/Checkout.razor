@@ -1,0 +1,65 @@
+@page "/objednavka"
+@inject CartService Cart
+
+<PageTitle>Objednávka — Forno</PageTitle>
+
+<section class="page-head">
+    <p class="eyebrow">Zatiaľ bez platby</p>
+    <h1>Objednávka</h1>
+</section>
+
+@if (Submitted)
+{
+    <div class="ticket">
+        <p class="eyebrow">Pec prijala lístok</p>
+        <h2>Ďakujeme, @Name.</h2>
+        <p>Základný projekt ešte neposiela objednávku do kuchyne ani neberie platbu. Tento krok neskôr napojíme.</p>
+        <a class="btn" href="/menu">Späť k menu</a>
+    </div>
+}
+else if (Cart.IsEmpty)
+{
+    <p class="empty">Najprv si vyberte pizzu. <a href="/menu">Menu</a></p>
+}
+else
+{
+    <form class="checkout" @onsubmit="Submit" @onsubmit:preventDefault>
+        <p class="sum">@Cart.Count ks · @Cart.Total.ToString("N2") €</p>
+        <label>
+            Meno
+            <input @bind="Name" required maxlength="80" />
+        </label>
+        <label>
+            Telefón
+            <input @bind="Phone" required maxlength="30" />
+        </label>
+        <label>
+            Adresa
+            <input @bind="Address" required maxlength="160" />
+        </label>
+        <label>
+            Poznámka
+            <textarea @bind="Note" rows="3" maxlength="240"></textarea>
+        </label>
+        <button class="btn tomato" type="submit">Odoslať objednávku</button>
+    </form>
+}
+
+@code {
+    private string Name { get; set; } = "";
+    private string Phone { get; set; } = "";
+    private string Address { get; set; } = "";
+    private string Note { get; set; } = "";
+    private bool Submitted { get; set; }
+
+    private void Submit()
+    {
+        if (Cart.IsEmpty || string.IsNullOrWhiteSpace(Name))
+        {
+            return;
+        }
+
+        Cart.Clear();
+        Submitted = true;
+    }
+}

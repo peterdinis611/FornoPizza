@@ -1,0 +1,46 @@
+﻿@inherits LayoutComponentBase
+@inject CartService Cart
+@implements IDisposable
+
+<div class="shell">
+    <header class="mast">
+        <a class="brand" href="/">
+            <span class="brand-mark">800°</span>
+            <span class="brand-name">Forno</span>
+        </a>
+        <nav class="nav">
+            <NavLink href="/" Match="NavLinkMatch.All">Pec</NavLink>
+            <NavLink href="/menu">Menu</NavLink>
+            <NavLink href="/kosik" class="nav-cart">
+                Košík
+                @if (Cart.Count > 0)
+                {
+                    <span class="cart-count">@Cart.Count</span>
+                }
+            </NavLink>
+        </nav>
+    </header>
+
+    <main class="stage">
+        @Body
+    </main>
+
+    <footer class="colophon">
+        <p>Neapolská pec · Bardejov · zatiaľ bez platby a účtov</p>
+        <p>Forno · Blazor</p>
+    </footer>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    Niečo sa spálilo v peci.
+    <a href="." class="reload">Obnoviť</a>
+    <span class="dismiss">×</span>
+</div>
+
+@code {
+    protected override void OnInitialized() => Cart.Changed += OnCartChanged;
+
+    private void OnCartChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Cart.Changed -= OnCartChanged;
+}

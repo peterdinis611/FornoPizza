@@ -1,0 +1,55 @@
+@page "/kosik"
+@inject CartService Cart
+@implements IDisposable
+
+<PageTitle>Košík — Forno</PageTitle>
+
+<section class="page-head">
+    <p class="eyebrow">Ešte pred pecou</p>
+    <h1>Košík</h1>
+</section>
+
+@if (Cart.IsEmpty)
+{
+    <p class="empty">Košík je prázdny. <a href="/menu">Otvorte menu</a>.</p>
+}
+else
+{
+    <ul class="cart-list">
+        @foreach (var line in Cart.Lines)
+        {
+            <li>
+                <span class="disc tone-@line.Pizza.Tone"></span>
+                <div>
+                    <a href="/menu/@line.Pizza.Slug"><strong>@line.Pizza.Name</strong></a>
+                    <p>@line.Pizza.Price.ToString("N2") €</p>
+                </div>
+                <label class="qty-mini">
+                    <input type="number" min="1" max="12"
+                           value="@line.Quantity"
+                           @onchange="e => Change(line.Pizza.Slug, e)" />
+                </label>
+                <span class="price">@line.LineTotal.ToString("N2") €</span>
+                <button type="button" class="ghost" @onclick="() => Cart.Remove(line.Pizza.Slug)">×</button>
+            </li>
+        }
+    </ul>
+    <div class="cart-foot">
+        <p>Spolu <strong>@Cart.Total.ToString("N2") €</strong></p>
+        <a class="btn tomato" href="/objednavka">K objednávke</a>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized() => Cart.Changed += OnChanged;
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Cart.Changed -= OnChanged;
+
+    private void Change(string slug, ChangeEventArgs e)
+    {
+        if (int.TryParse(Convert.ToString(e.Value), out var qty))
+        {
+            Cart.SetQuantity(slug, qty);
+        }
+    }
+}

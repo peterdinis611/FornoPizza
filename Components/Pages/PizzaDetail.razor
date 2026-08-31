@@ -1,0 +1,60 @@
+@page "/menu/{Slug}"
+@inject CartService Cart
+@inject NavigationManager Nav
+
+<PageTitle>@(Pizza?.Name ?? "Pizza") — Forno</PageTitle>
+
+@if (Pizza is null)
+{
+    <section class="page-head">
+        <h1>Tento list v peci nie je</h1>
+        <a class="btn" href="/menu">Späť na menu</a>
+    </section>
+}
+else
+{
+    <article class="detail">
+        <p class="eyebrow">@Pizza.Tagline</p>
+        <div class="detail-grid">
+            <div class="hero-disc tone-@Pizza.Tone" aria-hidden="true"></div>
+            <div>
+                <h1>@Pizza.Name</h1>
+                <p class="lede">@Pizza.Description</p>
+                <p class="ingredients">@Pizza.Ingredients</p>
+                <p class="detail-price">@Pizza.Price.ToString("N2") €</p>
+                <div class="qty-row">
+                    <label>
+                        Kusy
+                        <input type="number" min="1" max="12" @bind="Quantity" />
+                    </label>
+                    <button class="btn tomato" type="button" @onclick="Add">Do košíka</button>
+                </div>
+            </div>
+        </div>
+    </article>
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = "";
+
+    private PizzaItem? Pizza { get; set; }
+    private int Quantity { get; set; } = 1;
+
+    protected override void OnParametersSet()
+    {
+        Pizza = MenuCatalog.Find(Slug);
+        Quantity = 1;
+    }
+
+    private void Add()
+    {
+        if (Pizza is null)
+        {
+            return;
+        }
+
+        Cart.Add(Pizza, Math.Clamp(Quantity, 1, 12));
+        Nav.NavigateTo("/kosik");
+    }
+}
