@@ -26,8 +26,6 @@
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/8f2mwxqik3-{0}-cyz5k529gx-cyz5k529gx.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/t55jn6iqd9-{0}-ax6tuj8tun-ax6tuj8tun.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/qq2o3z2bkv-{0}-zr4b1gdhaw-zr4b1gdhaw.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5coqme1f7f-{0}-kulqr99zpk-kulqr99zpk.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/rxvq20yamv-{0}-kulqr99zpk-kulqr99zpk.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/staticwebassets.build.json
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/staticwebassets.build.json.cache
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/staticwebassets.development.json
@@ -39,4 +37,9 @@
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/Forno.genruntimeconfig.cache
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/ref/Forno.dll
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/Forno.sourcelink.json
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-hljsf2mhgn-hljsf2mhgn.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/ditqycuedt-{0}-c4q594tiqv-c4q594tiqv.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/12nutl04a2-{0}-qapm3q2dcg-qapm3q2dcg.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/f3j87fkcye-{0}-baux94xmez-baux94xmez.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5coqme1f7f-{0}-vjiwoq5mu9-vjiwoq5mu9.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/rxvq20yamv-{0}-vjiwoq5mu9-vjiwoq5mu9.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-m86qgzjaqs-m86qgzjaqs.gz

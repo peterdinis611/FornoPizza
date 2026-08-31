@@ -2,32 +2,51 @@
 @inject CartService Cart
 @implements IDisposable
 
+<a class="skip" href="#obsah">Preskočiť na obsah</a>
+
+<div class="ember-cursor" aria-hidden="true">
+    <span class="ember-cursor-ring"></span>
+    <span class="ember-cursor-core"></span>
+</div>
+
 <div class="shell">
     <header class="mast">
         <a class="brand" href="/">
             <span class="brand-mark">800°</span>
             <span class="brand-name">Forno</span>
         </a>
-        <nav class="nav">
-            <NavLink href="/" Match="NavLinkMatch.All">Pec</NavLink>
-            <NavLink href="/menu">Menu</NavLink>
-            <NavLink href="/kosik" class="nav-cart">
-                Košík
-                @if (Cart.Count > 0)
-                {
-                    <span class="cart-count">@Cart.Count</span>
-                }
-            </NavLink>
-        </nav>
+        <div class="mast-end">
+            <nav class="nav">
+                <NavLink href="/" Match="NavLinkMatch.All">Pec</NavLink>
+                <NavLink href="/menu">Menu</NavLink>
+                <NavLink href="/kosik" class="nav-cart">
+                    Košík
+                    @if (Cart.Count > 0)
+                    {
+                        <span class="cart-count">@Cart.Count</span>
+                    }
+                </NavLink>
+            </nav>
+            <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" aria-label="Zapnúť tmavý režim">
+                <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15.5 3.5A8.5 8.5 0 1 0 20.5 14.5 7 7 0 0 1 15.5 3.5Z" />
+                </svg>
+                <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4.2" />
+                    <path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" />
+                </svg>
+            </button>
+        </div>
+        <div class="heat-rail" aria-hidden="true"><i></i></div>
     </header>
 
-    <main class="stage">
+    <main class="stage" id="obsah">
         @Body
     </main>
 
     <footer class="colophon">
         <p>Neapolská pec · Bardejov · zatiaľ bez platby a účtov</p>
-        <p>Forno · Blazor</p>
+        <p>800° · otvorené 11–22</p>
     </footer>
 </div>
 

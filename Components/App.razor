@@ -4,7 +4,18 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3ead8" />
     <base href="/" />
+    <script>
+        (function () {
+            var stored = localStorage.getItem('forno-theme');
+            var theme = stored === 'dark' || stored === 'light'
+                ? stored
+                : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.style.colorScheme = theme;
+        })();
+    </script>
     <ResourcePreloader />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,11 +25,24 @@
     <link rel="stylesheet" href="@Assets["Forno.styles.css"]" />
     <ImportMap />
     <HeadOutlet @rendermode="InteractiveServer" />
+    <script>
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.documentElement.classList.add('has-motion');
+            window.setTimeout(function () {
+                if (!document.documentElement.classList.contains('motion-ready')) {
+                    document.documentElement.classList.remove('has-motion');
+                }
+            }, 2500);
+        }
+    </script>
 </head>
 
 <body>
     <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
+    <script src="@Assets["lib/anime.umd.min.js"]"></script>
+    <script src="@Assets["js/theme.js"]"></script>
+    <script src="@Assets["js/forno-motion.js"]"></script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 

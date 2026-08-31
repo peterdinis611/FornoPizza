@@ -1,7 +1,7 @@
 #blazor-error-ui {
-    color-scheme: light only;
-    background: #1c1612;
-    color: #fff8ee;
+    color-scheme: dark;
+    background: var(--soot);
+    color: var(--foam);
     bottom: 0;
     left: 0;
     padding: 0.6rem 1.25rem;
