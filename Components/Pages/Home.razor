@@ -1,5 +1,7 @@
 ﻿@page "/"
 @inject IJSRuntime JS
+@inject CartService Cart
+@inject NavigationManager Nav
 @implements IAsyncDisposable
 
 <PageTitle>Forno — pec</PageTitle>
@@ -24,7 +26,7 @@
             </p>
             <div class="hero-actions" data-reveal>
                 <a class="btn tomato" data-magnetic href="/menu">Otvoriť menu</a>
-                <a class="btn" data-magnetic href="#pec">Ako pecie</a>
+                <a class="btn" data-magnetic href="#ako">Ako objednať</a>
             </div>
             <dl class="hearth-stats" data-reveal>
                 <div>
@@ -83,8 +85,25 @@
     <aside class="service-rail" data-scroll>
         <p><strong>11–22</strong> dnes otvorené</p>
         <p><strong>15–20 min</strong> výdaj z peci</p>
-        <p><strong>Bardejov</strong> neapolská pec</p>
+        <p><strong>od 12 €</strong> rozvoz · zadarmo od 22 €</p>
+        <p><strong>Bez účtu</strong> objednávka z webu</p>
     </aside>
+
+    <section class="shop-find" data-scroll>
+        <form class="find-form" @onsubmit="Find" @onsubmit:preventDefault>
+            <label>
+                Hľadať v peci
+                <input type="search" name="q" @bind="Query" placeholder="Margherita, bazalka, pikantná…" autocomplete="off" />
+            </label>
+            <button class="btn tomato" type="submit">Hľadať</button>
+        </form>
+        <nav class="tag-row" aria-label="Kategórie">
+            <a href="/menu?tag=klasika">Klasika</a>
+            <a href="/menu?tag=pikant">Pikantné</a>
+            <a href="/menu?tag=bez-masa">Bez mäsa</a>
+            <a href="/menu?tag=syry">Syry</a>
+        </nav>
+    </section>
 
     <section class="featured-spread" id="dnes">
         <header class="spread-head" data-scroll>
@@ -98,6 +117,10 @@
                 <li class="fire-card @(i == 0 ? "fire-card-lead" : "fire-card-side")" data-scroll data-tilt>
                     <a href="/menu/@pizza.Slug">
                         <span class="fire-num">@((i + 1).ToString("00"))</span>
+                        @if (i == 0)
+                        {
+                            <span class="fire-stamp">Najviac z peci</span>
+                        }
                         <PizzaMark Slug="@pizza.Slug" MarkId="@($"feat-{pizza.Slug}")" />
                         <span class="row-copy">
                             <strong>@pizza.Name</strong>
@@ -108,11 +131,114 @@
                             }
                         </span>
                         <span class="price">@pizza.Price.ToString("N2") €</span>
-                        <span class="fire-cta">Do peci</span>
                     </a>
+                    <button class="btn tomato fire-add" type="button" @onclick="() => Add(pizza)">
+                        @(InCart(pizza) ? "Pridať ďalšiu" : "Do košíka")
+                    </button>
                 </li>
             }
         </ol>
+    </section>
+
+    <section class="order-path" id="ako">
+        <header class="spread-head" data-scroll>
+            <p class="eyebrow">E-shop</p>
+            <h2>Ako objednať</h2>
+        </header>
+        <ol class="path-steps">
+            <li data-scroll>
+                <span>01</span>
+                <strong>Vyberte list</strong>
+                <em>Šesť píz v peci. Hľadajte, filtrujte, dajte do košíka.</em>
+            </li>
+            <li data-scroll>
+                <span>02</span>
+                <strong>Pec spečie</strong>
+                <em>Deväťdesiat sekúnd pri 800°. Kôra ide von ešte horúca.</em>
+            </li>
+            <li data-scroll>
+                <span>03</span>
+                <strong>Donesieme</strong>
+                <em>Výdaj 15–20 min. Rozvoz po Bardejove 30–40 min.</em>
+            </li>
+        </ol>
+    </section>
+
+    <section class="delivery-sheet" id="rozvoz" data-scroll>
+        <div>
+            <p class="eyebrow">Rozvoz</p>
+            <h2>Bardejov a okolie</h2>
+            <p class="oven-lede">Minimum 12 €. Nad 22 € ide rozvoz zadarmo. Zatiaľ bez platby kartou — objednávku prijmeme a platbu doriešime neskôr.</p>
+        </div>
+        <ul>
+            <li><strong>Centrum</strong><span>15–25 min</span></li>
+            <li><strong>Okolie mesta</strong><span>30–40 min</span></li>
+            <li><strong>Výdaj pri peci</strong><span>15–20 min</span></li>
+            <li><strong>Alergény</strong><span>cesto z pšenice · v poznámke napíšte viac</span></li>
+        </ul>
+    </section>
+
+    <section class="voices" data-scroll>
+        <div class="voices-score">
+            <strong>4,9</strong>
+            <em>128 objednávok z peci</em>
+        </div>
+        <blockquote>
+            <p>Kôra praskala ešte v krabici. Takto má chutiť Bardejov v noci.</p>
+            <cite>Marta · centrum</cite>
+        </blockquote>
+        <blockquote>
+            <p>Diavola nie je agresívna. Med a chili sedia. Pec vie, kedy prestať.</p>
+            <cite>Ondrej · okolie</cite>
+        </blockquote>
+        <blockquote>
+            <p>Bez účtu, bez čakania na aplikáciu. Objednal som a za dvadsať minút bola kôra tu.</p>
+            <cite>Lea · výdaj</cite>
+        </blockquote>
+    </section>
+
+    <section class="faq" id="faq">
+        <header class="spread-head" data-scroll>
+            <p class="eyebrow">Otázky</p>
+            <h2>Pred pecou</h2>
+        </header>
+        <div data-scroll>
+            <details>
+                <summary>Ako dlho trvá objednávka?</summary>
+                <p>Výdaj 15–20 minút. Rozvoz po Bardejove 30–40 minút, podľa toho, kde pec práve horí.</p>
+            </details>
+            <details>
+                <summary>Je potrebný účet?</summary>
+                <p>Nie. Meno, telefón a adresa stačia. Zatiaľ neberieme platbu ani prihlasovanie.</p>
+            </details>
+            <details>
+                <summary>Čo s alergiami?</summary>
+                <p>Cesto je z pšeničnej múky. Marinara je bez syra. V poznámke k objednávke napíšte, čo pec nesmie.</p>
+            </details>
+            <details>
+                <summary>Od koľkých eur vozíte?</summary>
+                <p>Od 12 €. Nad 22 € je rozvoz zadarmo. Menšie objednávky sú na výdaj pri peci.</p>
+            </details>
+        </div>
+    </section>
+
+    <section class="letter" data-scroll>
+        <p class="eyebrow">List z peci</p>
+        <h2>Nové listy, nie spam</h2>
+        @if (Subscribed)
+        {
+            <p class="oven-lede">Máme vás. Keď pôjde do peci niečo nové, ozveme sa.</p>
+        }
+        else
+        {
+            <form class="letter-form" @onsubmit="Subscribe" @onsubmit:preventDefault>
+                <label>
+                    E-mail
+                    <input type="email" @bind="Email" required maxlength="120" placeholder="vas@email.sk" />
+                </label>
+                <button class="btn tomato" type="submit">Zapísať</button>
+            </form>
+        }
     </section>
 
     <section class="oven-band" id="pec">
@@ -146,6 +272,32 @@
 @code {
     private ElementReference _root;
     private bool _mounted;
+    private string Query { get; set; } = "";
+    private string Email { get; set; } = "";
+    private bool Subscribed { get; set; }
+
+    private bool InCart(PizzaItem pizza) =>
+        Cart.Lines.Any(line => line.Pizza.Slug == pizza.Slug);
+
+    private void Add(PizzaItem pizza) => Cart.Add(pizza);
+
+    private void Find()
+    {
+        var url = string.IsNullOrWhiteSpace(Query)
+            ? "/menu"
+            : $"/menu?q={Uri.EscapeDataString(Query.Trim())}";
+        Nav.NavigateTo(url);
+    }
+
+    private void Subscribe()
+    {
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            return;
+        }
+
+        Subscribed = true;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -161,7 +313,6 @@
         }
         catch (JSException)
         {
-            // Motion script is optional; page stays readable without it.
         }
     }
 

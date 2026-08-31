@@ -8,4 +8,5 @@ public sealed record PizzaItem(
     string Ingredients,
     decimal Price,
     string Tone,
-    bool Featured = false);
+    bool Featured = false,
+    string Tags = "klasika");

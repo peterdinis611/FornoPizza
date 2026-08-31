@@ -5,21 +5,69 @@
 <section class="page-head">
     <p class="eyebrow">Šesť listov, jedna pec</p>
     <h1>Menu</h1>
+    @if (!string.IsNullOrWhiteSpace(Q) || !string.IsNullOrWhiteSpace(Tag))
+    {
+        <p class="lede">
+            @if (!string.IsNullOrWhiteSpace(Q))
+            {
+                <span>Hľadanie: @Q. </span>
+            }
+            @if (!string.IsNullOrWhiteSpace(Tag))
+            {
+                <span>Kategória: @TagLabel. </span>
+            }
+            <a href="/menu">Zobraziť všetko</a>
+        </p>
+    }
 </section>
 
-<ol class="manifesto long">
-    @foreach (var (pizza, i) in MenuCatalog.All.Select((p, i) => (p, i)))
+<nav class="tag-row menu-tags" aria-label="Kategórie">
+    <a class="@(string.IsNullOrWhiteSpace(Tag) ? "is-on" : null)" href="/menu">Všetko</a>
+    <a class="@(Tag == "klasika" ? "is-on" : null)" href="/menu?tag=klasika">Klasika</a>
+    <a class="@(Tag == "pikant" ? "is-on" : null)" href="/menu?tag=pikant">Pikantné</a>
+    <a class="@(Tag == "bez-masa" ? "is-on" : null)" href="/menu?tag=bez-masa">Bez mäsa</a>
+    <a class="@(Tag == "syry" ? "is-on" : null)" href="/menu?tag=syry">Syry</a>
+</nav>
+
+@if (!Filtered.Any())
+{
+    <p class="empty">V peci to nenašli. <a href="/menu">Celé menu</a></p>
+}
+else
+{
+    <ol class="manifesto long">
+        @foreach (var (pizza, i) in Filtered.Select((p, i) => (p, i)))
+        {
+            <li class="manifesto-row" style="animation-delay: @(80 * i)ms">
+                <a href="/menu/@pizza.Slug">
+                    <span class="index">@((i + 1).ToString("00"))</span>
+                    <span class="disc tone-@pizza.Tone" aria-hidden="true"></span>
+                    <span class="row-copy">
+                        <strong>@pizza.Name</strong>
+                        <em>@pizza.Ingredients</em>
+                    </span>
+                    <span class="price">@pizza.Price.ToString("N2") €</span>
+                </a>
+            </li>
+        }
+    </ol>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Q { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? Tag { get; set; }
+
+    private IEnumerable<PizzaItem> Filtered => MenuCatalog.Filter(Q, Tag);
+
+    private string TagLabel => Tag switch
     {
-        <li class="manifesto-row" style="animation-delay: @(80 * i)ms">
-            <a href="/menu/@pizza.Slug">
-                <span class="index">@((i + 1).ToString("00"))</span>
-                <span class="disc tone-@pizza.Tone" aria-hidden="true"></span>
-                <span class="row-copy">
-                    <strong>@pizza.Name</strong>
-                    <em>@pizza.Ingredients</em>
-                </span>
-                <span class="price">@pizza.Price.ToString("N2") €</span>
-            </a>
-        </li>
-    }
-</ol>
+        "klasika" => "Klasika",
+        "pikant" => "Pikantné",
+        "bez-masa" => "Bez mäsa",
+        "syry" => "Syry",
+        _ => Tag ?? ""
+    };
+}

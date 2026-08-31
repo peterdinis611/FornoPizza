@@ -42,4 +42,4 @@
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/f3j87fkcye-{0}-baux94xmez-baux94xmez.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5coqme1f7f-{0}-vjiwoq5mu9-vjiwoq5mu9.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/rxvq20yamv-{0}-vjiwoq5mu9-vjiwoq5mu9.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-m86qgzjaqs-m86qgzjaqs.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-tegl0rvd0w-tegl0rvd0w.gz

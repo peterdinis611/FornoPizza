@@ -14,7 +14,8 @@ public static class MenuCatalog
             "San Marzano · fior di latte · bazalka · olivový olej",
             9.90m,
             "tomato",
-            Featured: true),
+            Featured: true,
+            Tags: "klasika bez-masa"),
         new(
             "marinara",
             "Marinara",
@@ -22,7 +23,8 @@ public static class MenuCatalog
             "Najstarší list z Neapola. Cesnak, oregano, olej — a teplo, ktoré ostane v kôre.",
             "San Marzano · cesnak · oregano · extra virgin",
             8.50m,
-            "olive"),
+            "olive",
+            Tags: "klasika bez-masa"),
         new(
             "diavola",
             "Diavola",
@@ -31,7 +33,8 @@ public static class MenuCatalog
             "fior di latte · salame piccante · chili olej · med",
             12.90m,
             "char",
-            Featured: true),
+            Featured: true,
+            Tags: "pikant"),
         new(
             "quattro-formaggi",
             "Quattro formaggi",
@@ -39,7 +42,8 @@ public static class MenuCatalog
             "Mozzarella, gorgonzola, pecorino, ricotta. Krémová, ale stále o ceste.",
             "fior di latte · gorgonzola · pecorino · ricotta",
             13.50m,
-            "cream"),
+            "cream",
+            Tags: "syry bez-masa"),
         new(
             "funghi",
             "Prosciutto e funghi",
@@ -47,7 +51,8 @@ public static class MenuCatalog
             "Šunka, šampióny, petržlen. Klasika, ktorú pec nesmie prepiecť.",
             "fior di latte · prosciutto cotto · šampióny · petržlen",
             12.40m,
-            "olive"),
+            "olive",
+            Tags: "klasika"),
         new(
             "capricciosa",
             "Capricciosa",
@@ -56,11 +61,36 @@ public static class MenuCatalog
             "fior di latte · šunka · artičoky · olivy · šampióny",
             13.20m,
             "tomato",
-            Featured: true),
+            Featured: true,
+            Tags: "klasika"),
     ];
 
     public static PizzaItem? Find(string slug) =>
         All.FirstOrDefault(p => p.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase));
 
     public static IEnumerable<PizzaItem> Featured => All.Where(p => p.Featured);
+
+    public static IEnumerable<PizzaItem> Filter(string? query, string? tag)
+    {
+        IEnumerable<PizzaItem> items = All;
+
+        if (!string.IsNullOrWhiteSpace(tag))
+        {
+            var needle = tag.Trim();
+            items = items.Where(p => p.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Any(t => t.Equals(needle, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            var q = query.Trim();
+            items = items.Where(p =>
+                p.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                p.Tagline.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                p.Ingredients.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return items;
+    }
 }
