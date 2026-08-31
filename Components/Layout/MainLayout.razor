@@ -127,7 +127,16 @@
             {
                 return;
             }
-            var snaps = System.Text.Json.JsonSerializer.Deserialize<CartSnap[]>(json) ?? [];
+            CartSnap[] snaps;
+            try
+            {
+                snaps = System.Text.Json.JsonSerializer.Deserialize<CartSnap[]>(json) ?? [];
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                snaps = [];
+            }
+
             var lines = CartMapper.Hydrate(snaps, await Oven.AllAsync());
             if (lines.Count > 0)
             {

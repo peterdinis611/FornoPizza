@@ -61,29 +61,5 @@ public sealed class MenuService(IDbContextFactory<FornoDbContext> factory) : IMe
         string? query,
         string? tag,
         CancellationToken cancellation = default) =>
-        Filter(await AllAsync(cancellation), query, tag);
-
-    public static IReadOnlyList<PizzaItem> Filter(IReadOnlyList<PizzaItem> items, string? query, string? tag)
-    {
-        IEnumerable<PizzaItem> result = items;
-        query = InputText.Query(query);
-        tag = InputText.Collapse(tag);
-
-        if (!string.IsNullOrWhiteSpace(tag))
-        {
-            result = result.Where(p => p.Tags.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Any(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)));
-        }
-
-        if (!string.IsNullOrWhiteSpace(query))
-        {
-            result = result.Where(p =>
-                p.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                p.Tagline.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                p.Ingredients.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(query, StringComparison.OrdinalIgnoreCase));
-        }
-
-        return result.ToList();
-    }
+        MenuFilter.Apply(await AllAsync(cancellation), query, tag);
 }

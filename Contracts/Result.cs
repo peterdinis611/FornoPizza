@@ -20,7 +20,7 @@ public sealed class Result
         new(errors.ToList());
 }
 
-public sealed class Result<T>
+public sealed class Result<T> where T : class
 {
     private Result(T? value, IReadOnlyList<FieldError> errors)
     {

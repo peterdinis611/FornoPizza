@@ -1,6 +1,6 @@
 @page "/objednavka"
 @inject CartService Cart
-@inject OrderService Orders
+@inject IOrderService Orders
 
 <PageTitle>Objednávka — Forno</PageTitle>
 <Seo Title="Objednávka — 800° Forno"
@@ -12,12 +12,12 @@
     <h1>Objednávka</h1>
 </section>
 
-@if (Submitted)
+@if (Submitted && Receipt is not null)
 {
     <div class="ticket">
         <p class="eyebrow">Pec prijala lístok</p>
-        <h2>Ďakujeme, @Name.</h2>
-        <p>Lístok č. @OrderId je zapísaný v peci. Platbu ešte neberieme — ozveme sa na telefón.</p>
+        <h2>Ďakujeme, @Receipt.Name.</h2>
+        <p>Lístok č. @Receipt.Id je zapísaný v peci. Platbu ešte neberieme — ozveme sa na telefón.</p>
         <a class="btn" href="/menu">Späť k menu</a>
     </div>
 }
@@ -29,21 +29,41 @@ else
 {
     <form class="checkout" @onsubmit="Submit" @onsubmit:preventDefault>
         <p class="sum">@Cart.Count ks · @Cart.Total.ToString("N2") €</p>
+        @if (!string.IsNullOrEmpty(FormError("cart")) || !string.IsNullOrEmpty(FormError("order")))
+        {
+            <p class="form-alert" role="alert">@(FormError("cart") ?? FormError("order"))</p>
+        }
         <label>
             Meno
-            <input @bind="Name" required maxlength="80" />
+            <input @bind="Name" required maxlength="80" aria-invalid="@Invalid("name")" />
+            @if (FormError("name") is { } nameErr)
+            {
+                <span class="field-error">@nameErr</span>
+            }
         </label>
         <label>
             Telefón
-            <input @bind="Phone" required maxlength="30" />
+            <input @bind="Phone" required maxlength="30" inputmode="tel" autocomplete="tel" aria-invalid="@Invalid("phone")" />
+            @if (FormError("phone") is { } phoneErr)
+            {
+                <span class="field-error">@phoneErr</span>
+            }
         </label>
         <label>
             Adresa
-            <input @bind="Address" required maxlength="160" />
+            <input @bind="Address" required maxlength="160" autocomplete="street-address" aria-invalid="@Invalid("address")" />
+            @if (FormError("address") is { } addressErr)
+            {
+                <span class="field-error">@addressErr</span>
+            }
         </label>
         <label>
             Poznámka
-            <textarea @bind="Note" rows="3" maxlength="240"></textarea>
+            <textarea @bind="Note" rows="3" maxlength="240" aria-invalid="@Invalid("note")"></textarea>
+            @if (FormError("note") is { } noteErr)
+            {
+                <span class="field-error">@noteErr</span>
+            }
         </label>
         <button class="btn tomato" type="submit">Odoslať objednávku</button>
     </form>
@@ -55,17 +75,26 @@ else
     private string Address { get; set; } = "";
     private string Note { get; set; } = "";
     private bool Submitted { get; set; }
-    private int OrderId { get; set; }
+    private OrderReceipt? Receipt { get; set; }
+    private IReadOnlyList<FieldError> Errors { get; set; } = [];
+
+    private string? FormError(string field) =>
+        Errors.FirstOrDefault(e => e.Field.Equals(field, StringComparison.OrdinalIgnoreCase))?.Message;
+
+    private string Invalid(string field) =>
+        FormError(field) is null ? "false" : "true";
 
     private async Task Submit()
     {
-        if (Cart.IsEmpty || string.IsNullOrWhiteSpace(Name))
+        var result = await Orders.PlaceAsync(new PlaceOrderRequest(Name, Phone, Address, Note, Cart.Lines));
+        if (!result.IsSuccess || result.Value is null)
         {
+            Errors = result.Errors;
             return;
         }
 
-        var order = await Orders.PlaceAsync(Name, Phone, Address, Note, Cart.Lines);
-        OrderId = order.Id;
+        Receipt = result.Value;
+        Errors = [];
         Cart.Clear();
         Submitted = true;
     }

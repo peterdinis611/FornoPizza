@@ -1,6 +1,6 @@
 @page "/menu"
 @inject NavigationManager Nav
-@inject MenuService Oven
+@inject IMenuService Oven
 @inject CartService Cart
 @inject IJSRuntime JS
 @implements IDisposable
@@ -124,7 +124,7 @@
     private IReadOnlyList<PizzaItem> All { get; set; } = [];
     private string Search { get; set; } = "";
 
-    private IReadOnlyList<PizzaItem> Visible => MenuService.Filter(All, Search, Tag);
+    private IReadOnlyList<PizzaItem> Visible => MenuFilter.Apply(All, Search, Tag);
 
     private bool IsFiltered =>
         !string.IsNullOrWhiteSpace(Search) || !string.IsNullOrWhiteSpace(Tag);

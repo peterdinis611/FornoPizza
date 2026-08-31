@@ -1,8 +1,8 @@
 ﻿@page "/"
 @inject IJSRuntime JS
 @inject CartService Cart
-@inject MenuService Menu
-@inject SubscriberService Subscribers
+@inject IMenuService Menu
+@inject ISubscriberService Subscribers
 @inject NavigationManager Nav
 @implements IAsyncDisposable
 
@@ -240,7 +240,11 @@
             <form class="letter-form" @onsubmit="Subscribe" @onsubmit:preventDefault>
                 <label>
                     E-mail
-                    <input type="email" @bind="Email" required maxlength="120" placeholder="vas@email.sk" />
+                    <input type="email" @bind="Email" required maxlength="120" placeholder="vas@email.sk" aria-invalid="@(SubscribeError is null ? "false" : "true")" />
+                    @if (!string.IsNullOrEmpty(SubscribeError))
+                    {
+                        <span class="field-error">@SubscribeError</span>
+                    }
                 </label>
                 <button class="btn tomato" type="submit">Zapísať</button>
             </form>
@@ -282,6 +286,7 @@
     private string Query { get; set; } = "";
     private string Email { get; set; } = "";
     private bool Subscribed { get; set; }
+    private string? SubscribeError { get; set; }
 
     private string JsonLd
     {
@@ -309,12 +314,15 @@
 
     private async Task Subscribe()
     {
-        if (string.IsNullOrWhiteSpace(Email))
+        SubscribeError = null;
+        var result = await Subscribers.AddAsync(Email);
+        if (result.IsSuccess)
         {
+            Subscribed = true;
             return;
         }
 
-        Subscribed = await Subscribers.AddAsync(Email);
+        SubscribeError = result["email"] ?? result.Errors.FirstOrDefault()?.Message;
     }
 
     protected override async Task OnInitializedAsync()

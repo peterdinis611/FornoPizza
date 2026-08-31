@@ -1,6 +1,6 @@
 @page "/menu/{Slug}"
 @inject CartService Cart
-@inject MenuService Menu
+@inject IMenuService Menu
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @implements IAsyncDisposable
@@ -561,7 +561,7 @@ else
             }
         }
 
-        qty = Math.Clamp(qty, 1, 12);
+        qty = CartRules.ClampQty(qty);
         var same = ExtraIds.Count == ids.Count
             && OvenExtras.Same(ExtraIds, ids)
             && Quantity == qty;
