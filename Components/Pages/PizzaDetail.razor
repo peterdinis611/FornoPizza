@@ -144,20 +144,18 @@ else
                             <span>@Quantity</span>
                             <button type="button" @onclick="More" aria-label="Viac">+</button>
                         </div>
+                        <button class="btn" type="button" @onclick="OpenMise">
+                            Ešte na list
+                            @if (ExtraIds.Count > 0)
+                            {
+                                <span class="leaf-mise-count">@ExtraIds.Count</span>
+                            }
+                        </button>
                         <button class="btn tomato" type="button" data-magnetic @onclick="Add">
                             @(InCart ? "Pridať ďalšiu" : "Do košíka")
                         </button>
                     </div>
-                    <div class="leaf-more">
-                        <button class="leaf-mise-open" type="button" @onclick="OpenMise">
-                            Ešte na list
-                            @if (ExtraIds.Count > 0)
-                            {
-                                <i>@ExtraIds.Count</i>
-                            }
-                        </button>
-                        <a class="leaf-back" href="/menu">Späť k listom</a>
-                    </div>
+                    <a class="leaf-back" href="/menu">Späť k listom</a>
                 </div>
                 @if (JustAdded)
                 {
@@ -272,33 +270,37 @@ else
             </button>
         </aside>
 
-        <dialog class="mise" @ref="_mise">
-            <div class="mise-peel">
-                <header class="mise-head">
-                    <p class="eyebrow">Mise</p>
-                    <h2>Čo ešte unesie pec</h2>
-                    <button class="mise-close" type="button" @onclick="CloseMise" aria-label="Zavrieť">×</button>
-                </header>
-                <p class="mise-lede">Kliknite — vec dopadne na list. Pec unesie ešte @(RemainExtras == 1 ? "1 vec" : $"{RemainExtras} vecí").</p>
-                <ol class="mise-board">
-                    @foreach (var extra in OvenExtras.All)
-                    {
-                        var on = HasExtra(extra.Id);
-                        <li class="@(on ? "is-on" : null)">
-                            <button type="button" disabled="@(!on && ExtraIds.Count >= OvenExtras.MaxOnLeaf)" @onclick="() => ToggleExtra(extra.Id)">
-                                <span class="mise-swatch" style="--swatch: @extra.Swatch"></span>
-                                <span class="mise-copy">
-                                    <strong>@extra.Name</strong>
-                                    <em>@extra.Note</em>
-                                </span>
-                                <span class="mise-price">+ @extra.Price.ToString("N2") €</span>
-                                <span class="mise-flag">@(on ? "Na liste" : "Pridať")</span>
-                            </button>
-                        </li>
-                    }
-                </ol>
+        @if (MiseOpen)
+        {
+            <div class="mise-layer" role="dialog" aria-modal="true" aria-labelledby="mise-title">
+                <button type="button" class="mise-ghost" @onclick="CloseMise" aria-label="Zavrieť prílohy"></button>
+                <aside class="mise-peel">
+                    <header class="mise-head">
+                        <p class="eyebrow">Prílohy</p>
+                        <h2 id="mise-title">Čo ešte unesie pec</h2>
+                        <button class="mise-close" type="button" @onclick="CloseMise" aria-label="Zavrieť">×</button>
+                    </header>
+                    <p class="mise-lede">Kliknite — vec dopadne na list. Pec unesie ešte @(RemainExtras == 1 ? "1 vec" : $"{RemainExtras} vecí").</p>
+                    <ol class="mise-board">
+                        @foreach (var extra in OvenExtras.All)
+                        {
+                            var on = HasExtra(extra.Id);
+                            <li class="@(on ? "is-on" : null)">
+                                <button type="button" disabled="@(!on && ExtraIds.Count >= OvenExtras.MaxOnLeaf)" @onclick="() => ToggleExtra(extra.Id)">
+                                    <span class="mise-swatch" style="--swatch: @extra.Swatch"></span>
+                                    <span class="mise-copy">
+                                        <strong>@extra.Name</strong>
+                                        <em>@extra.Note</em>
+                                    </span>
+                                    <span class="mise-price">+ @extra.Price.ToString("N2") €</span>
+                                    <span class="mise-flag">@(on ? "Na liste" : "Pridať")</span>
+                                </button>
+                            </li>
+                        }
+                    </ol>
+                </aside>
             </div>
-        </dialog>
+        }
     </article>
 }
 
@@ -310,7 +312,6 @@ else
     private HttpContext? Http { get; set; }
 
     private ElementReference _root;
-    private ElementReference _mise;
     private PizzaItem? Pizza { get; set; }
     private PizzaLeaf Leaf { get; set; } = PizzaLeaves.For("");
     private IReadOnlyList<PizzaItem> Others { get; set; } = [];
@@ -324,6 +325,7 @@ else
     private string _mountedSlug = "";
     private string _paramSlug = "";
     private bool JustAdded { get; set; }
+    private bool MiseOpen { get; set; }
 
     private decimal ExtraTotal => OvenExtras.Sum(ExtraIds);
 
@@ -378,6 +380,7 @@ else
             Quantity = 1;
             ExtraIds.Clear();
             _freshExtra = null;
+            MiseOpen = false;
             _paramSlug = Slug;
             _mounted = false;
         }
@@ -473,27 +476,9 @@ else
     private bool HasExtra(string id) =>
         ExtraIds.Contains(id, StringComparer.OrdinalIgnoreCase);
 
-    private async Task OpenMise()
-    {
-        try
-        {
-            await JS.InvokeVoidAsync("FornoMotion.openMise", _mise);
-        }
-        catch (Exception)
-        {
-        }
-    }
+    private void OpenMise() => MiseOpen = true;
 
-    private async Task CloseMise()
-    {
-        try
-        {
-            await JS.InvokeVoidAsync("FornoMotion.closeMise", _mise);
-        }
-        catch (Exception)
-        {
-        }
-    }
+    private void CloseMise() => MiseOpen = false;
 
     private async Task ToggleExtra(string id)
     {

@@ -861,6 +861,17 @@ html[data-theme="dark"] .theme-icon-moon {
   min-width: 10.5rem;
 }
 
+.leaf-mise-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.2rem;
+  margin-left: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
 .leaf-back {
   font-size: 0.68rem;
   letter-spacing: 0.18em;
@@ -1319,24 +1330,21 @@ html.motion-done .leaf-kiln .oven-pie {
   color: var(--tomato) !important;
 }
 
-dialog.mise {
+.mise-layer {
   position: fixed;
-  inset: 0 0 0 auto;
-  width: min(34rem, 100vw);
-  height: 100%;
-  max-height: none;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  background: transparent;
-  color: inherit;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 1fr min(34rem, 100vw);
 }
 
-dialog.mise::backdrop {
+.mise-ghost {
+  margin: 0;
+  padding: 0;
+  border: 0;
   background:
-    radial-gradient(ellipse at 18% 42%, transparent 36%, rgba(12, 9, 8, 0.28) 100%);
+    radial-gradient(ellipse at 18% 42%, transparent 36%, rgba(12, 9, 8, 0.32) 100%);
+  cursor: pointer;
 }
 
 .mise-peel {
@@ -1347,6 +1355,18 @@ dialog.mise::backdrop {
   color: var(--char);
   border-left: 1px solid var(--line);
   box-shadow: -28px 0 70px rgba(12, 9, 8, 0.28);
+  animation: mise-slide 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes mise-slide {
+  from {
+    opacity: 0.2;
+    transform: translateX(3.2rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .mise-head {
@@ -3259,8 +3279,12 @@ html.kiln-naving #kiln-nav {
     display: none;
   }
 
-  dialog.mise {
-    width: 100%;
+  .mise-layer {
+    grid-template-columns: 1fr;
+  }
+
+  .mise-ghost {
+    display: none;
   }
 }
 
@@ -3330,7 +3354,8 @@ html.kiln-naving #kiln-nav {
 
   .kiln-boot-ring,
   .kiln-boot-pie,
-  #kiln-nav svg {
+  #kiln-nav svg,
+  .mise-peel {
     animation: none;
   }
 
