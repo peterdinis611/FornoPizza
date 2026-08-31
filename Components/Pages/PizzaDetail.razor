@@ -16,7 +16,9 @@ else
     <article class="detail">
         <p class="eyebrow">@Pizza.Tagline</p>
         <div class="detail-grid">
-            <div class="hero-disc tone-@Pizza.Tone" aria-hidden="true"></div>
+            <div class="hero-disc">
+                <PizzaMark Slug="@Pizza.Slug" MarkId="@($"detail-{Pizza.Slug}")" />
+            </div>
             <div>
                 <h1>@Pizza.Name</h1>
                 <p class="lede">@Pizza.Description</p>

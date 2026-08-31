@@ -22,7 +22,6 @@
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/scopedcss/Components/Layout/ReconnectModal.razor.rz.scp.css
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/scopedcss/bundle/Forno.styles.css
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/scopedcss/projectbundle/Forno.bundle.scp.css
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-t9r7x5nm2c-t9r7x5nm2c.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/l62se73p50-{0}-3i6a6ibhrd-3i6a6ibhrd.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/8f2mwxqik3-{0}-cyz5k529gx-cyz5k529gx.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/t55jn6iqd9-{0}-ax6tuj8tun-ax6tuj8tun.gz
@@ -39,3 +38,5 @@
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/Forno.pdb
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/Forno.genruntimeconfig.cache
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/ref/Forno.dll
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/Forno.sourcelink.json
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-hljsf2mhgn-hljsf2mhgn.gz

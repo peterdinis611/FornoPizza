@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "HPHlXK2XIvg=",
+  "dgSpecHash": "BelY5dwKw5c=",
   "success": true,
   "projectFilePath": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
   "expectedPackageFiles": [
-    "/Users/peterdinis/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.3/microsoft.aspnetcore.app.internal.assets.10.0.3.nupkg.sha512"
+    "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/b8e1f5e254054b863be5630f9106d67d/nuget/microsoft.aspnetcore.app.internal.assets/10.0.3/microsoft.aspnetcore.app.internal.assets.10.0.3.nupkg.sha512"
   ],
   "logs": []
 }

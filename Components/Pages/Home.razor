@@ -2,36 +2,113 @@
 
 <PageTitle>Forno — pec</PageTitle>
 
-<section class="hero">
-    <p class="eyebrow animate-rise">Neapolská pec · 800 stupňov</p>
-    <h1 class="hero-title animate-rise delay-1">
-        Forno
-        <span class="hero-temp">800°</span>
-    </h1>
-    <p class="lede animate-rise delay-2">
-        Pizza z múky, dymu a času. Objednajte si ju ešte kým je kôra chrumkavá.
-    </p>
-    <a class="btn tomato animate-rise delay-3" href="/menu">Otvoriť menu</a>
+<section class="hero-stage">
+    <div class="hero-copy">
+        <p class="eyebrow animate-rise">Neapolská pec · 800 stupňov</p>
+        <h1 class="hero-title animate-rise delay-1">Forno</h1>
+        <p class="lede animate-rise delay-2">
+            Pizza z múky, dymu a času. Objednajte si ju ešte kým je kôra chrumkavá.
+        </p>
+        <div class="hero-actions animate-rise delay-3">
+            <a class="btn tomato" href="/menu">Otvoriť menu</a>
+            <a class="btn" href="#pec">Ako pecie</a>
+        </div>
+        <dl class="hearth-stats animate-rise delay-3">
+            <div>
+                <dt>800°</dt>
+                <dd>teplota peci</dd>
+            </div>
+            <div>
+                <dt>90s</dt>
+                <dd>v ohni</dd>
+            </div>
+            <div>
+                <dt>48h</dt>
+                <dd>kvasenie</dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="oven-mouth animate-rise delay-1">
+        <span class="ember" style="--x: 18%; --delay: 0s"></span>
+        <span class="ember" style="--x: 42%; --delay: 1.1s"></span>
+        <span class="ember" style="--x: 61%; --delay: 0.4s"></span>
+        <span class="ember" style="--x: 77%; --delay: 1.8s"></span>
+        <span class="ember" style="--x: 33%; --delay: 2.4s"></span>
+        <div class="oven-soot"></div>
+        <svg class="heat-ring" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+                <path id="heat-path" d="M100,100 m-90,0 a90,90 0 1,1 180,0 a90,90 0 1,1 -180,0" fill="none" />
+            </defs>
+            <text>
+                <textPath href="#heat-path">800° · FORNO · NEAPOLSKÁ PEC · 800° · FORNO · NEAPOLSKÁ PEC · </textPath>
+            </text>
+        </svg>
+        <div class="oven-pie">
+            <PizzaMark Slug="margherita" MarkId="hero" />
+        </div>
+        <span class="oven-seal">90 sekúnd</span>
+    </div>
 </section>
 
-<section class="featured">
-    <header class="section-head">
+<div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+        @for (var i = 0; i < 2; i++)
+        {
+            <span>800° · San Marzano · drevo buka · 48 hodín kvasenia · fior di latte · Bardejov · 90 sekúnd · neapolská pec · olivový olej · </span>
+        }
+    </div>
+</div>
+
+<section class="featured-spread" id="dnes">
+    <header class="spread-head">
+        <p class="eyebrow">List dňa</p>
         <h2>Dnes v peci</h2>
         <a href="/menu">Celé menu →</a>
     </header>
-    <ol class="manifesto">
-        @foreach (var pizza in MenuCatalog.Featured)
+    <ol class="fire-board">
+        @foreach (var (pizza, i) in MenuCatalog.Featured.Select((p, i) => (p, i)))
         {
-            <li class="manifesto-row">
+            <li class="fire-card @(i == 0 ? "fire-card-lead" : "fire-card-side") animate-rise" style="animation-delay: @(140 + i * 110)ms">
                 <a href="/menu/@pizza.Slug">
-                    <span class="disc tone-@pizza.Tone" aria-hidden="true"></span>
+                    <span class="fire-num">@((i + 1).ToString("00"))</span>
+                    <PizzaMark Slug="@pizza.Slug" MarkId="@($"feat-{pizza.Slug}")" />
                     <span class="row-copy">
                         <strong>@pizza.Name</strong>
                         <em>@pizza.Tagline</em>
+                        @if (i == 0)
+                        {
+                            <span class="ingredients">@pizza.Ingredients</span>
+                        }
                     </span>
                     <span class="price">@pizza.Price.ToString("N2") €</span>
                 </a>
             </li>
         }
     </ol>
+</section>
+
+<section class="oven-band" id="pec">
+    <p class="eyebrow">Pec</p>
+    <h2>Hovorí až pri osemsto stupňoch</h2>
+    <p class="oven-lede">
+        Žiadny plyn, žiadny spech. Bukové drevo, cesto z dvoch dní a kôra, ktorá praská ešte na stole.
+    </p>
+    <ul class="pillars">
+        <li>
+            <span>01</span>
+            <strong>Drevo</strong>
+            <em>Buk z okolia. Oheň, ktorý vonia a neponáhľa sa.</em>
+        </li>
+        <li>
+            <span>02</span>
+            <strong>Cesto</strong>
+            <em>Múka, voda, soľ. Štyridsaťosem hodín, kým ide do pece.</em>
+        </li>
+        <li>
+            <span>03</span>
+            <strong>Oheň</strong>
+            <em>Osemsto stupňov. Deväťdesiat sekúnd. Potom už len kôra.</em>
+        </li>
+    </ul>
 </section>

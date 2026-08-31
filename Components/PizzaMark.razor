@@ -1,0 +1,110 @@
+<div class="pie-mark" data-slug="@Slug" aria-hidden="true">
+    <svg viewBox="0 0 200 200" focusable="false">
+        <defs>
+            <radialGradient id="crust-@Gid" cx="46%" cy="40%" r="62%">
+                <stop offset="0%" stop-color="#f0c57a" />
+                <stop offset="62%" stop-color="#d9a04e" />
+                <stop offset="86%" stop-color="#c07a32" />
+                <stop offset="100%" stop-color="#8a4e1c" />
+            </radialGradient>
+            <radialGradient id="sauce-@Gid" cx="48%" cy="46%" r="58%">
+                <stop offset="0%" stop-color="#e24a28" />
+                <stop offset="55%" stop-color="#c23018" />
+                <stop offset="100%" stop-color="#8a160c" />
+            </radialGradient>
+            <radialGradient id="oil-@Gid" cx="38%" cy="32%" r="40%">
+                <stop offset="0%" stop-color="#fff8ee" stop-opacity="0.45" />
+                <stop offset="100%" stop-color="#fff8ee" stop-opacity="0" />
+            </radialGradient>
+        </defs>
+
+        <circle cx="100" cy="100" r="97" fill="url(#crust-@Gid)" />
+        <circle cx="100" cy="100" r="96" fill="none" stroke="#6b3a16" stroke-width="2.2" opacity="0.35" />
+
+        <ellipse cx="38" cy="28" rx="7" ry="4" fill="#5a3214" opacity="0.35" transform="rotate(-28 38 28)" />
+        <ellipse cx="168" cy="46" rx="8" ry="3.5" fill="#4a2810" opacity="0.4" transform="rotate(22 168 46)" />
+        <ellipse cx="22" cy="118" rx="6" ry="3" fill="#5a3214" opacity="0.3" />
+        <ellipse cx="154" cy="168" rx="7" ry="3.2" fill="#4a2810" opacity="0.38" transform="rotate(-18 154 168)" />
+        <ellipse cx="78" cy="186" rx="6" ry="2.8" fill="#5a3214" opacity="0.32" />
+        <ellipse cx="186" cy="108" rx="5" ry="2.6" fill="#4a2810" opacity="0.28" />
+
+        <circle cx="100" cy="100" r="76" fill="url(#sauce-@Gid)" />
+        <circle cx="92" cy="94" r="70" fill="#c23018" opacity="0.18" />
+
+        @Mozzarella
+
+        @if (Slug == "diavola")
+        {
+            @Salami(72, 78, 16)
+            @Salami(118, 70, 14)
+            @Salami(128, 112, 17)
+            @Salami(78, 124, 15)
+            @Salami(104, 96, 13)
+            @Salami(58, 102, 12)
+            <rect x="90" y="64" width="5" height="2" fill="#8a1c0e" transform="rotate(22 92 65)" />
+            <rect x="140" y="90" width="4" height="2" fill="#8a1c0e" transform="rotate(-30 142 91)" />
+            <rect x="70" y="88" width="5" height="2" fill="#6b1408" transform="rotate(50 72 89)" />
+            @Basil(148, 78, 20)
+            @Basil(56, 70, -40)
+        }
+        else if (Slug == "capricciosa")
+        {
+            <ellipse cx="70" cy="86" rx="18" ry="8" fill="#d8a090" opacity="0.92" transform="rotate(-28 70 86)" />
+            <ellipse cx="124" cy="78" rx="16" ry="7" fill="#c48878" opacity="0.9" transform="rotate(18 124 78)" />
+            <ellipse cx="108" cy="128" rx="17" ry="7.5" fill="#d8a090" opacity="0.88" transform="rotate(-8 108 128)" />
+            <ellipse cx="64" cy="118" rx="11" ry="8" fill="#c4b48a" />
+            <ellipse cx="66" cy="116" rx="7" ry="5" fill="#a89068" />
+            <ellipse cx="138" cy="118" rx="10" ry="7.5" fill="#c4b48a" />
+            <ellipse cx="139" cy="116" rx="6" ry="4.5" fill="#a89068" />
+            <circle cx="96" cy="74" r="7" fill="#1c1612" />
+            <circle cx="96" cy="74" r="3.2" fill="#3a4a2c" />
+            <circle cx="142" cy="92" r="6.2" fill="#1c1612" />
+            <circle cx="142" cy="92" r="2.8" fill="#3a4a2c" />
+            <circle cx="80" cy="138" r="6.5" fill="#1c1612" />
+            <circle cx="80" cy="138" r="3" fill="#3a4a2c" />
+            <path d="M118 96c6-10 16-12 18-4-8 4-12 10-18 4z" fill="#6b7a48" />
+            @Basil(52, 96, -18)
+            @Basil(150, 70, 30)
+        }
+        else
+        {
+            @Basil(64, 72, -24)
+            @Basil(128, 64, 18)
+            @Basil(146, 112, 50)
+            @Basil(78, 132, -8)
+            @Basil(108, 96, 12)
+        }
+
+        <circle cx="100" cy="100" r="76" fill="url(#oil-@Gid)" />
+    </svg>
+</div>
+
+@code {
+    [Parameter] public string Slug { get; set; } = "margherita";
+    [Parameter] public string MarkId { get; set; } = "pie";
+
+    private string Gid => MarkId;
+
+    private RenderFragment Mozzarella => @<text>
+        <ellipse cx="78" cy="86" rx="24" ry="17" fill="#fff6de" opacity="0.94" transform="rotate(-18 78 86)" />
+        <ellipse cx="118" cy="80" rx="20" ry="15" fill="#f4e4c4" opacity="0.9" transform="rotate(12 118 80)" />
+        <ellipse cx="124" cy="118" rx="22" ry="16" fill="#fff8ee" opacity="0.88" transform="rotate(-8 124 118)" />
+        <ellipse cx="82" cy="122" rx="18" ry="13" fill="#f0dcb0" opacity="0.9" transform="rotate(16 82 122)" />
+        <ellipse cx="100" cy="100" rx="16" ry="12" fill="#fff6de" opacity="0.72" />
+        <ellipse cx="58" cy="100" rx="12" ry="9" fill="#fff8ee" opacity="0.8" transform="rotate(-30 58 100)" />
+    </text>;
+
+    private RenderFragment Salami(double cx, double cy, double r) => @<text>
+        <circle cx="@cx" cy="@cy" r="@r" fill="#9a2418" />
+        <circle cx="@cx" cy="@cy" r="@(r * 0.62)" fill="#c44832" opacity="0.9" />
+        <circle cx="@(cx - r * 0.22)" cy="@(cy - r * 0.18)" r="@(r * 0.16)" fill="#6b140c" opacity="0.45" />
+        <circle cx="@(cx + r * 0.18)" cy="@(cy + r * 0.2)" r="@(r * 0.12)" fill="#6b140c" opacity="0.35" />
+    </text>;
+
+    private RenderFragment Basil(double cx, double cy, double rot) => @<text>
+        <g transform="translate(@cx @cy) rotate(@rot)">
+            <path d="M0 0c8-16 22-20 28-6-10 6-20 12-28 6z" fill="#3a4a2c" />
+            <path d="M4 -2c6-8 14-10 18-3" fill="none" stroke="#24301c" stroke-width="0.8" opacity="0.55" />
+        </g>
+    </text>;
+}
