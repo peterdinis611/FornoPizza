@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject CartService Cart
+@inject MenuService Oven
+@inject IJSRuntime JS
 @implements IDisposable
 
 <a class="skip" href="#obsah">Preskočiť na obsah</a>
@@ -78,9 +80,119 @@
 </div>
 
 @code {
+    private bool _cartReady;
+    private bool _hydrating;
+
     protected override void OnInitialized() => Cart.Changed += OnCartChanged;
 
-    private void OnCartChanged() => InvokeAsync(StateHasChanged);
+    private void OnCartChanged() => InvokeAsync(async () =>
+    {
+        StateHasChanged();
+        await PersistCart();
+    });
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_cartReady)
+        {
+            return;
+        }
+
+        try
+        {
+            await HydrateCart();
+            _cartReady = true;
+            await PersistCart();
+        }
+        catch (InvalidOperationException)
+        {
+            /* prerender — JS ešte nie je */
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (JSException)
+        {
+            _cartReady = true;
+        }
+    }
+
+    private async Task HydrateCart()
+    {
+        _hydrating = true;
+        try
+        {
+            var json = await JS.InvokeAsync<string>("FornoCart.load");
+            if (!Cart.IsEmpty)
+            {
+                return;
+            }
+            CartSnap[] snaps;
+            try
+            {
+                snaps = System.Text.Json.JsonSerializer.Deserialize<CartSnap[]>(json) ?? [];
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                snaps = [];
+            }
+
+            if (snaps.Length == 0)
+            {
+                return;
+            }
+
+            var menu = await Oven.AllAsync();
+            var lines = new List<CartLine>();
+            foreach (var snap in snaps)
+            {
+                if (string.IsNullOrWhiteSpace(snap.Slug))
+                {
+                    continue;
+                }
+
+                var pizza = menu.FirstOrDefault(p =>
+                    p.Slug.Equals(snap.Slug, StringComparison.OrdinalIgnoreCase));
+                if (pizza is null)
+                {
+                    continue;
+                }
+
+                lines.Add(new CartLine
+                {
+                    Pizza = pizza,
+                    Quantity = Math.Clamp(snap.Quantity, 1, 12),
+                    ExtraIds = OvenExtras.Normalize(snap.Extras)
+                });
+            }
+
+            if (lines.Count > 0)
+            {
+                Cart.Replace(lines);
+            }
+        }
+        finally
+        {
+            _hydrating = false;
+        }
+    }
+
+    private async Task PersistCart()
+    {
+        if (!_cartReady || _hydrating)
+        {
+            return;
+        }
+
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(Cart.Snapshot());
+            await JS.InvokeVoidAsync("FornoCart.save", json);
+        }
+        catch (Exception)
+        {
+        }
+    }
 
     public void Dispose() => Cart.Changed -= OnCartChanged;
 }

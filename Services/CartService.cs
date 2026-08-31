@@ -71,5 +71,20 @@ public sealed class CartService
         Notify();
     }
 
+    public IReadOnlyList<CartSnap> Snapshot() =>
+        _lines
+            .Select(line => new CartSnap(
+                line.Pizza.Slug,
+                line.Quantity,
+                line.ExtraIds.ToArray()))
+            .ToList();
+
+    public void Replace(IEnumerable<CartLine> lines)
+    {
+        _lines.Clear();
+        _lines.AddRange(lines);
+        Notify();
+    }
+
     private void Notify() => Changed?.Invoke();
 }

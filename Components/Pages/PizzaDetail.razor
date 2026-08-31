@@ -49,7 +49,7 @@ else
                         </text>
                     </svg>
                     <div class="oven-pie">
-                        <PizzaMark Slug="@Pizza.Slug" MarkId="@($"leaf-{Pizza.Slug}")" Extras="ExtraIds" FreshId="@_freshExtra" />
+                        <PizzaMark Slug="@Pizza.Slug" MarkId="@($"leaf-{Pizza.Slug}")" Extras="ShownExtras" FreshId="@_freshExtra" />
                     </div>
                     <div class="kiln-door kiln-door-a" aria-hidden="true"></div>
                     <div class="kiln-door kiln-door-b" aria-hidden="true"></div>
@@ -322,10 +322,13 @@ else
     private string? _freshExtra;
     private bool _ready;
     private bool _mounted;
+    private bool _restoreLeaf;
     private string _mountedSlug = "";
     private string _paramSlug = "";
     private bool JustAdded { get; set; }
     private bool MiseOpen { get; set; }
+
+    private string[] ShownExtras => ExtraIds.ToArray();
 
     private decimal ExtraTotal => OvenExtras.Sum(ExtraIds);
 
@@ -381,6 +384,7 @@ else
             ExtraIds.Clear();
             _freshExtra = null;
             MiseOpen = false;
+            _restoreLeaf = true;
             _paramSlug = Slug;
             _mounted = false;
         }
@@ -425,6 +429,31 @@ else
             return;
         }
 
+        if (_restoreLeaf)
+        {
+            try
+            {
+                var changed = await RestoreLeaf();
+                _restoreLeaf = false;
+                if (changed)
+                {
+                    return;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return;
+            }
+            catch (JSDisconnectedException)
+            {
+                return;
+            }
+            catch (JSException)
+            {
+                _restoreLeaf = false;
+            }
+        }
+
         if (!firstRender && _mounted && _mountedSlug == Slug)
         {
             try
@@ -458,9 +487,17 @@ else
         }
     }
 
-    private void Less() => Quantity = Math.Max(1, Quantity - 1);
+    private async Task Less()
+    {
+        Quantity = Math.Max(1, Quantity - 1);
+        await RememberLeaf();
+    }
 
-    private void More() => Quantity = Math.Min(12, Quantity + 1);
+    private async Task More()
+    {
+        Quantity = Math.Min(12, Quantity + 1);
+        await RememberLeaf();
+    }
 
     private void Add()
     {
@@ -494,6 +531,7 @@ else
 
             ExtraIds.RemoveAll(x => x.Equals(id, StringComparison.OrdinalIgnoreCase));
             _freshExtra = null;
+            await RememberLeaf();
             return;
         }
 
@@ -504,6 +542,53 @@ else
 
         ExtraIds.Add(id);
         _freshExtra = id;
+        await RememberLeaf();
+    }
+
+    private async Task<bool> RestoreLeaf()
+    {
+        var saved = await JS.InvokeAsync<string[]>("FornoCart.leafGet", Slug);
+        var qty = await JS.InvokeAsync<int>("FornoCart.leafQty", Slug);
+        var ids = OvenExtras.Normalize(saved);
+        if (ids.Count == 0)
+        {
+            var line = Cart.Lines.LastOrDefault(l =>
+                l.Pizza.Slug.Equals(Slug, StringComparison.OrdinalIgnoreCase));
+            ids = OvenExtras.Normalize(line?.ExtraIds);
+            if (line is not null && qty == 1)
+            {
+                qty = line.Quantity;
+            }
+        }
+
+        qty = Math.Clamp(qty, 1, 12);
+        var same = ExtraIds.Count == ids.Count
+            && OvenExtras.Same(ExtraIds, ids)
+            && Quantity == qty;
+        if (same)
+        {
+            return false;
+        }
+
+        ExtraIds.Clear();
+        ExtraIds.AddRange(ids);
+        Quantity = qty;
+        StateHasChanged();
+        return true;
+    }
+
+    private async Task RememberLeaf()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("FornoCart.leafSet", Slug, ExtraIds.ToArray(), Quantity);
+        }
+        catch (InvalidOperationException)
+        {
+        }
+        catch (JSException)
+        {
+        }
     }
 
     private static IEnumerable<string> Stamps(PizzaItem pizza)
