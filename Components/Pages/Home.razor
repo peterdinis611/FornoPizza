@@ -96,13 +96,7 @@
     </aside>
 
     <section class="shop-find" data-scroll>
-        <form class="find-form" @onsubmit="Find" @onsubmit:preventDefault>
-            <label>
-                Hľadať v peci
-                <input type="search" name="q" @bind="Query" placeholder="Margherita, bazalka, pikantná…" autocomplete="off" />
-            </label>
-            <button class="btn tomato" type="submit">Hľadať</button>
-        </form>
+        <OvenSearch Items="MenuItems" Variant="home" />
         <nav class="tag-row" aria-label="Kategórie">
             <a href="/menu?tag=klasika">Klasika</a>
             <a href="/menu?tag=pikant">Pikantné</a>
@@ -283,7 +277,7 @@
     private ElementReference _root;
     private bool _mounted;
     private IReadOnlyList<PizzaItem> Featured { get; set; } = [];
-    private string Query { get; set; } = "";
+    private IReadOnlyList<PizzaItem> MenuItems { get; set; } = [];
     private string Email { get; set; } = "";
     private bool Subscribed { get; set; }
     private string? SubscribeError { get; set; }
@@ -304,14 +298,6 @@
 
     private void Add(PizzaItem pizza) => Cart.Add(pizza);
 
-    private void Find()
-    {
-        var url = string.IsNullOrWhiteSpace(Query)
-            ? "/menu"
-            : $"/menu?q={Uri.EscapeDataString(Query.Trim())}";
-        Nav.NavigateTo(url);
-    }
-
     private async Task Subscribe()
     {
         SubscribeError = null;
@@ -328,6 +314,7 @@
     protected override async Task OnInitializedAsync()
     {
         Featured = await Menu.FeaturedAsync();
+        MenuItems = await Menu.AllAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

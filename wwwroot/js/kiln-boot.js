@@ -1,25 +1,69 @@
 (() => {
-  const DELAY = 520;
+  const MIN_SHOW = 720;
+  const NAV_DELAY = 180;
   const root = document.documentElement;
   const boot = document.getElementById("kiln-boot");
   const nav = document.getElementById("kiln-nav");
-  let shown = false;
+  let shown = root.classList.contains("kiln-booting");
+  let shownAt = shown ? Date.now() : 0;
   let navTimer = 0;
+  let hiding = false;
 
-  const timer = window.setTimeout(() => {
-    if (root.dataset.forno === "ready") {
+  function showBoot() {
+    if (shown || root.dataset.forno === "ready" || !boot) {
       return;
     }
-    shown = true;
-    root.classList.add("kiln-booting");
-    if (boot) {
-      boot.setAttribute("aria-hidden", "false");
-      boot.setAttribute("aria-busy", "true");
-    }
-  }, DELAY);
 
-  function hideBoot() {
-    window.clearTimeout(timer);
+    shown = true;
+    shownAt = Date.now();
+    root.classList.add("kiln-booting");
+    boot.setAttribute("aria-hidden", "false");
+    boot.setAttribute("aria-busy", "true");
+  }
+
+  function syncBootAria() {
+    if (!boot || !shown) {
+      return;
+    }
+
+    boot.setAttribute("aria-hidden", "false");
+    boot.setAttribute("aria-busy", "true");
+  }
+
+  if (boot) {
+    if (shown) {
+      syncBootAria();
+    } else {
+      showBoot();
+    }
+  } else {
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+        if (!shown) {
+          showBoot();
+        } else {
+          syncBootAria();
+        }
+      },
+      { once: true }
+    );
+  }
+
+  async function hideBoot() {
+    if (hiding) {
+      return;
+    }
+
+    hiding = true;
+
+    if (shown) {
+      const wait = Math.max(0, MIN_SHOW - (Date.now() - shownAt));
+      if (wait) {
+        await new Promise((resolve) => window.setTimeout(resolve, wait));
+      }
+    }
+
     root.dataset.forno = "ready";
     root.classList.remove("kiln-booting");
 
@@ -44,7 +88,7 @@
     navTimer = window.setTimeout(() => {
       root.classList.add("kiln-naving");
       nav?.setAttribute("aria-hidden", "false");
-    }, 420);
+    }, NAV_DELAY);
   }
 
   function navOff() {
@@ -70,7 +114,7 @@
   async function start() {
     const blazor = window.Blazor;
     if (!blazor || typeof blazor.start !== "function") {
-      hideBoot();
+      await hideBoot();
       return;
     }
 
@@ -80,7 +124,7 @@
       /* prerendered page remains usable */
     }
 
-    hideBoot();
+    await hideBoot();
     listenNav(window.Blazor);
   }
 

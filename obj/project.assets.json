@@ -2422,7 +2422,7 @@
     ]
   },
   "packageFolders": {
-    "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/b8e1f5e254054b863be5630f9106d67d/nuget": {}
+    "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/020ecc969422cabcee0ab711e76057e7/nuget": {}
   },
   "project": {
     "version": "1.0.0",
@@ -2430,7 +2430,7 @@
       "projectUniqueName": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
       "projectName": "Forno",
       "projectPath": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
-      "packagesPath": "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/b8e1f5e254054b863be5630f9106d67d/nuget",
+      "packagesPath": "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/020ecc969422cabcee0ab711e76057e7/nuget",
       "outputPath": "/Users/peterdinis/Desktop/work/forno/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [

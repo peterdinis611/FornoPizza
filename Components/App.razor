@@ -40,14 +40,19 @@
         margin: 0;
         background: #f3ead8;
         color: #1c1612;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
         transition: opacity 0.5s ease, visibility 0.5s ease;
       }
       html[data-theme="dark"] #kiln-boot {
         background: #16110e;
         color: #f4ebe0;
+      }
+      html:not(.kiln-booting) #kiln-boot {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
       }
       html.kiln-booting #kiln-boot {
         opacity: 1;
@@ -122,6 +127,9 @@
       }
     </style>
     <script>
+        document.documentElement.classList.add("kiln-booting");
+    </script>
+    <script>
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             document.documentElement.classList.add('has-motion');
             window.setTimeout(function () {
@@ -134,11 +142,7 @@
 </head>
 
 <body>
-    <div class="ember-cursor" aria-hidden="true">
-        <span class="ember-cursor-ring"></span>
-        <span class="ember-cursor-core"></span>
-    </div>
-    <div id="kiln-boot" aria-hidden="true" aria-busy="false" role="status">
+    <div id="kiln-boot" aria-hidden="false" aria-busy="true" role="status">
         <div class="kiln-boot-stage">
             <div class="kiln-boot-mouth">
                 <span class="kiln-boot-glow"></span>
@@ -167,6 +171,10 @@
             <p class="kiln-boot-copy">Pec sa rozohrieva</p>
         </div>
     </div>
+    <div class="ember-cursor" aria-hidden="true">
+        <span class="ember-cursor-ring"></span>
+        <span class="ember-cursor-core"></span>
+    </div>
     <div id="kiln-nav" aria-hidden="true">
         <svg viewBox="0 0 200 200" aria-hidden="true">
             <circle cx="100" cy="100" r="97" fill="#d9a04e" />
@@ -179,8 +187,10 @@
     <Routes @rendermode="PageRenderMode" />
     <ReconnectModal />
     <script src="@Assets["lib/anime.umd.min.js"]"></script>
+    <script src="@Assets["lib/fuse.min.js"]"></script>
     <script src="@Assets["js/theme.js"]"></script>
     <script src="@Assets["js/forno-cart.js"]"></script>
+    <script src="@Assets["js/forno-search.js"]"></script>
     <script src="@Assets["js/forno-motion.js"]"></script>
     <script src="@Assets["_framework/blazor.web.js"]" autostart="false"></script>
     <script src="@Assets["js/kiln-boot.js"]"></script>

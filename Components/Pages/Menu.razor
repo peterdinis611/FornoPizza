@@ -35,28 +35,26 @@
     </header>
 
     <div class="ledger-tools">
-        <form class="find-form" @onsubmit="CommitSearch" @onsubmit:preventDefault>
-            <label>
-                Hľadať v peci
-                <input type="search" @bind="Search" @bind:event="oninput" placeholder="Margherita, bazalka, pikantná…" autocomplete="off" />
-            </label>
-            <button class="btn tomato" type="submit" data-magnetic>Hľadať</button>
-        </form>
+        <OvenSearch Items="All"
+                    Tag="@Tag"
+                    InitialQuery="@(Q ?? "")"
+                    SyncUrl="true"
+                    SlugsChanged="OnSearchSlugs" />
         <nav class="tag-row menu-tags" aria-label="Kategórie">
-            <a class="@(string.IsNullOrWhiteSpace(Tag) ? "is-on" : null)" href="@TagHref(null)">Všetko</a>
-            <a class="@(Tag == "klasika" ? "is-on" : null)" href="@TagHref("klasika")">Klasika</a>
-            <a class="@(Tag == "pikant" ? "is-on" : null)" href="@TagHref("pikant")">Pikantné</a>
-            <a class="@(Tag == "bez-masa" ? "is-on" : null)" href="@TagHref("bez-masa")">Bez mäsa</a>
-            <a class="@(Tag == "syry" ? "is-on" : null)" href="@TagHref("syry")">Syry</a>
+            <a class="@(string.IsNullOrWhiteSpace(Tag) ? "is-on" : null)" href="@TagHref(null, SearchQuery)">Všetko</a>
+            <a class="@(Tag == "klasika" ? "is-on" : null)" href="@TagHref("klasika", SearchQuery)">Klasika</a>
+            <a class="@(Tag == "pikant" ? "is-on" : null)" href="@TagHref("pikant", SearchQuery)">Pikantné</a>
+            <a class="@(Tag == "bez-masa" ? "is-on" : null)" href="@TagHref("bez-masa", SearchQuery)">Bez mäsa</a>
+            <a class="@(Tag == "syry" ? "is-on" : null)" href="@TagHref("syry", SearchQuery)">Syry</a>
         </nav>
     </div>
 
     @if (IsFiltered)
     {
         <p class="ledger-filter">
-            @if (!string.IsNullOrWhiteSpace(Search))
+            @if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
-                <span>Hľadanie: @Search</span>
+                <span>Hľadanie: @SearchQuery</span>
             }
             @if (!string.IsNullOrWhiteSpace(Tag))
             {
@@ -122,12 +120,31 @@
     private bool _mounted;
     private string _mountedTag = "\u0000";
     private IReadOnlyList<PizzaItem> All { get; set; } = [];
-    private string Search { get; set; } = "";
+    private string SearchQuery { get; set; } = "";
+    private IReadOnlyList<string> SearchSlugs { get; set; } = [];
 
-    private IReadOnlyList<PizzaItem> Visible => MenuFilter.Apply(All, Search, Tag);
+    private IReadOnlyList<PizzaItem> Visible
+    {
+        get
+        {
+            if (SearchSlugs.Count == 0)
+            {
+                return [];
+            }
+
+            var order = SearchSlugs
+                .Select((slug, index) => (slug, index))
+                .ToDictionary(pair => pair.slug, pair => pair.index, StringComparer.OrdinalIgnoreCase);
+
+            return All
+                .Where(pizza => order.ContainsKey(pizza.Slug))
+                .OrderBy(pizza => order[pizza.Slug])
+                .ToList();
+        }
+    }
 
     private bool IsFiltered =>
-        !string.IsNullOrWhiteSpace(Search) || !string.IsNullOrWhiteSpace(Tag);
+        !string.IsNullOrWhiteSpace(SearchQuery) || !string.IsNullOrWhiteSpace(Tag);
 
     private string MenuJson
     {
@@ -154,7 +171,16 @@
     protected override async Task OnParametersSetAsync()
     {
         All = await Oven.AllAsync();
-        Search = Q ?? "";
+        SearchQuery = Q ?? "";
+        SearchSlugs = MenuFilter.Apply(All, SearchQuery, Tag)
+            .Select(pizza => pizza.Slug)
+            .ToList();
+    }
+
+    private Task OnSearchSlugs(IReadOnlyList<string> slugs)
+    {
+        SearchSlugs = slugs;
+        return InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -177,14 +203,9 @@
         }
     }
 
-    private void CommitSearch()
-    {
-        Nav.NavigateTo(TagHref(Tag, Search));
-    }
-
     private string TagHref(string? tag, string? query = null)
     {
-        var q = (query ?? Search).Trim();
+        var q = (query ?? SearchQuery).Trim();
         if (string.IsNullOrEmpty(tag) && string.IsNullOrEmpty(q))
         {
             return "/menu";

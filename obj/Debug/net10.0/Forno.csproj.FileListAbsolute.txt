@@ -155,9 +155,11 @@
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/runtimes/win-x64/native/e_sqlite3.dll
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/runtimes/win-x86/native/e_sqlite3.dll
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/Forno.csproj.Up2Date
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/s1m60x97vi-{0}-b9rqdy4emq-b9rqdy4emq.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5coqme1f7f-{0}-nla9dvqbfl-nla9dvqbfl.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/rxvq20yamv-{0}-nla9dvqbfl-nla9dvqbfl.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5ag4qpjjrt-{0}-j2g45r0nh4-j2g45r0nh4.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/12nutl04a2-{0}-1lk40b7ufg-1lk40b7ufg.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-vg7l83witi-vg7l83witi.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-exz5h6wp6x-exz5h6wp6x.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/i6k47hmaly-{0}-h0jeqvv9h2-h0jeqvv9h2.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/69gq8c8otz-{0}-ryg0doguet-ryg0doguet.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/s1m60x97vi-{0}-a71tswua6c-a71tswua6c.gz

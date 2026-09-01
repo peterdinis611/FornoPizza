@@ -2065,6 +2065,223 @@ html.motion-done .leaf-kiln .oven-pie {
   text-transform: uppercase;
 }
 
+.oven-find {
+  position: relative;
+  z-index: 12;
+}
+
+.oven-find-form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 0.55rem 0.85rem;
+  align-items: end;
+  padding: 0.35rem 0 0.15rem;
+  border-bottom: 1px solid var(--line);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.oven-find.is-open .oven-find-form,
+.oven-find-form:focus-within {
+  border-bottom-color: var(--tomato);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--tomato) 10%, transparent);
+}
+
+.oven-find-icon {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-bottom: 0.62rem;
+  color: var(--tomato);
+}
+
+.oven-find-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.oven-find-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.oven-find-input {
+  grid-column: 2;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.55rem 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--char);
+}
+
+.oven-find-input::placeholder {
+  color: color-mix(in srgb, var(--ash) 72%, transparent);
+  font-weight: 600;
+}
+
+.oven-find-input:focus {
+  outline: none;
+}
+
+.oven-find-clear {
+  grid-column: 3;
+  align-self: center;
+  margin-bottom: 0.35rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  background: none;
+  color: var(--ash);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.oven-find-clear:hover {
+  color: var(--tomato);
+}
+
+.oven-find-go {
+  grid-column: 4;
+  min-height: 2.65rem;
+  padding-inline: 1rem;
+  font-size: 0.72rem;
+}
+
+.oven-find-panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  padding: 0.85rem 0.95rem 0.95rem;
+  background: var(--cream);
+  color: #1c1612;
+  border: 1px solid color-mix(in srgb, var(--char) 12%, transparent);
+  box-shadow:
+    0 22px 44px rgba(18, 14, 12, 0.16),
+    inset 0 0 0 1px rgba(255, 248, 238, 0.45);
+  transform: rotate(-0.6deg);
+  animation: oven-find-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.oven-find-kicker {
+  margin: 0 0 0.55rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6b6358;
+}
+
+.oven-find-hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.oven-find-hit {
+  display: grid;
+  grid-template-columns: 0.85rem minmax(0, 1fr) auto;
+  gap: 0.7rem 0.85rem;
+  align-items: center;
+  padding: 0.55rem 0.35rem;
+  border-top: 1px dashed rgba(28, 22, 18, 0.14);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.oven-find-hit:first-child {
+  border-top: 0;
+}
+
+.oven-find-hit.is-active,
+.oven-find-hit:hover {
+  background: color-mix(in srgb, var(--tomato) 8%, transparent);
+  transform: translateX(4px);
+}
+
+.oven-find-tone {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(28, 22, 18, 0.12);
+}
+
+.oven-find-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.oven-find-copy strong {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+
+.oven-find-copy em {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.86rem;
+  color: #6b6358;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oven-find-price {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #c23018;
+  white-space: nowrap;
+}
+
+.oven-find-miss {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: #6b6358;
+}
+
+.oven-find-home .oven-find-form {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+}
+
+.oven-find-menu .oven-find-panel {
+  max-width: 36rem;
+}
+
+@keyframes oven-find-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) rotate(-1.4deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(-0.6deg);
+  }
+}
+
 .peel-board {
   list-style: none;
   margin: 0;
@@ -3619,6 +3836,7 @@ html.kiln-naving #kiln-nav {
   .shop-find,
   .find-form,
   .letter-form,
+  .oven-find-form,
   .delivery-sheet,
   .voices,
   .shop-foot-grid,
@@ -3697,6 +3915,21 @@ html.kiln-naving #kiln-nav {
 
   .slip-off {
     justify-self: start;
+  }
+
+  .oven-find-go {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+
+  .oven-find-clear {
+    grid-column: 3;
+  }
+
+  .oven-find-panel {
+    position: static;
+    margin-top: 0.65rem;
+    transform: none;
   }
 
   .slip-stamp {

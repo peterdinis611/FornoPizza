@@ -1,0 +1,342 @@
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@implements IAsyncDisposable
+
+<div class="oven-find @VariantClass @(PanelOpen ? "is-open" : null)" @ref="_root">
+    <form class="oven-find-form" role="search" @onsubmit="Submit" @onsubmit:preventDefault>
+        <span class="oven-find-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+                <circle cx="11" cy="11" r="6.2" />
+                <path d="M16.2 16.2 21 21" />
+            </svg>
+        </span>
+        <label class="oven-find-label" for="@_inputId">@Label</label>
+        <input id="@_inputId"
+               class="oven-find-input"
+               type="search"
+               value="@Query"
+               placeholder="@Placeholder"
+               autocomplete="off"
+               autocapitalize="off"
+               spellcheck="false"
+               aria-expanded="@PanelOpen"
+               aria-controls="@_panelId"
+               aria-autocomplete="list"
+               aria-activedescendant="@ActiveOptionId"
+               @oninput="OnInput"
+               @onkeydown="OnKeyDown"
+               @onfocus="OnFocus"
+               @onblur="OnBlur" />
+        @if (!string.IsNullOrWhiteSpace(Query))
+        {
+            <button type="button" class="oven-find-clear" aria-label="Vymazať hľadanie" @onmousedown="Clear" @onmousedown:preventDefault>×</button>
+        }
+        <button class="btn tomato oven-find-go" type="submit" data-magnetic>@SubmitLabel</button>
+    </form>
+
+    @if (PanelOpen)
+    {
+        <div class="oven-find-panel" id="@_panelId" role="listbox" aria-label="Návrhy z pece">
+            @if (Hits.Count > 0)
+            {
+                <p class="oven-find-kicker">@Hits.Count @(Hits.Count == 1 ? "list" : "listy") v peci</p>
+                <ul class="oven-find-hits">
+                    @for (var i = 0; i < Hits.Count; i++)
+                    {
+                        var hit = Hits[i];
+                        var active = i == _active;
+                        <li id="@OptionId(i)"
+                            class="oven-find-hit @(active ? "is-active" : null)"
+                            role="option"
+                            aria-selected="@active"
+                            @onmousedown="() => Pick(hit.Slug)"
+                            @onmousedown:preventDefault>
+                            <span class="oven-find-tone tone-@hit.Tone" aria-hidden="true"></span>
+                            <span class="oven-find-copy">
+                                <strong>@hit.Name</strong>
+                                <em>@hit.Tagline</em>
+                            </span>
+                            <span class="oven-find-price">@hit.Price €</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else if (!string.IsNullOrWhiteSpace(Query) && Query.Trim().Length >= 2)
+            {
+                <p class="oven-find-miss">V peci to nenašli. Skúste iný list alebo prísadu.</p>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private sealed record SearchHit(string Slug, string Name, string Tagline, string Price, string Tone);
+
+    [Parameter]
+    public IReadOnlyList<PizzaItem> Items { get; set; } = [];
+
+    [Parameter]
+    public string? Tag { get; set; }
+
+    [Parameter]
+    public string InitialQuery { get; set; } = "";
+
+    [Parameter]
+    public string Label { get; set; } = "Hľadať v peci";
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Margherita, bazalka, pikantná…";
+
+    [Parameter]
+    public string SubmitLabel { get; set; } = "Hľadať";
+
+    [Parameter]
+    public string Variant { get; set; } = "menu";
+
+    [Parameter]
+    public bool SyncUrl { get; set; }
+
+    [Parameter]
+    public EventCallback<IReadOnlyList<string>> SlugsChanged { get; set; }
+
+    private ElementReference _root;
+    private readonly string _inputId = $"oven-find-{Guid.NewGuid():N}";
+    private readonly string _panelId = $"oven-find-panel-{Guid.NewGuid():N}";
+    private string Query { get; set; } = "";
+    private IReadOnlyList<SearchHit> Hits { get; set; } = [];
+    private IReadOnlyList<string> _slugs = [];
+    private bool _ready;
+    private bool _focused;
+    private bool _suppressBlur;
+    private int _active = -1;
+    private string _loadedKey = "";
+    private string _lastUrl = "";
+    private CancellationTokenSource? _debounce;
+
+    private string VariantClass => Variant switch
+    {
+        "home" => "oven-find-home",
+        _ => "oven-find-menu"
+    };
+
+    private bool PanelOpen =>
+        _focused && (!string.IsNullOrWhiteSpace(Query) || Hits.Count > 0);
+
+    private string? ActiveOptionId =>
+        _active >= 0 && _active < Hits.Count ? OptionId(_active) : null;
+
+    private string OptionId(int index) => $"{_panelId}-opt-{index}";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Query = InitialQuery ?? "";
+
+        var key = $"{Items.Count}|{Tag}";
+        if (!_ready || key != _loadedKey)
+        {
+            await LoadIndex();
+            _loadedKey = key;
+        }
+
+        await RunSearch(Query, pushUrl: false);
+    }
+
+    private async Task LoadIndex()
+    {
+        if (Items.Count == 0)
+        {
+            _ready = false;
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoSearch.load", MenuSearchIndex.ToJson(Items));
+            _ready = true;
+        }
+        catch (Exception)
+        {
+            _ready = false;
+        }
+    }
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        Query = e.Value?.ToString() ?? "";
+        _active = -1;
+        await DebouncedSearch();
+    }
+
+    private async Task DebouncedSearch()
+    {
+        _debounce?.Cancel();
+        _debounce = new CancellationTokenSource();
+        var token = _debounce.Token;
+
+        try
+        {
+            await Task.Delay(120, token);
+            await RunSearch(Query, pushUrl: SyncUrl);
+        }
+        catch (TaskCanceledException)
+        {
+        }
+    }
+
+    private async Task RunSearch(string query, bool pushUrl)
+    {
+        if (!_ready)
+        {
+            await LoadIndex();
+        }
+
+        IReadOnlyList<string> slugs;
+        try
+        {
+            slugs = await JS.InvokeAsync<string[]>("FornoSearch.query", query, Tag ?? "");
+        }
+        catch (Exception)
+        {
+            slugs = Items.Select(item => item.Slug).ToList();
+        }
+
+        _slugs = slugs;
+        await SlugsChanged.InvokeAsync(slugs);
+
+        try
+        {
+            var hits = await JS.InvokeAsync<SearchHit[]>("FornoSearch.suggest", query, Tag ?? "", 6);
+            Hits = hits ?? [];
+        }
+        catch (Exception)
+        {
+            Hits = [];
+        }
+
+        if (pushUrl)
+        {
+            var url = BuildUrl(query);
+            if (!url.Equals(_lastUrl, StringComparison.Ordinal))
+            {
+                _lastUrl = url;
+                Nav.NavigateTo(url, replace: true);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task Submit()
+    {
+        _suppressBlur = true;
+        if (_active >= 0 && _active < Hits.Count)
+        {
+            await Pick(Hits[_active].Slug);
+            return;
+        }
+
+        if (NavigateMode)
+        {
+            Nav.NavigateTo(BuildUrl(Query));
+            return;
+        }
+
+        await RunSearch(Query, pushUrl: SyncUrl);
+        _focused = false;
+        _suppressBlur = false;
+    }
+
+    private Task Pick(string slug)
+    {
+        _suppressBlur = true;
+        Nav.NavigateTo($"/menu/{slug}");
+        _focused = false;
+        _suppressBlur = false;
+        return Task.CompletedTask;
+    }
+
+    private async Task Clear()
+    {
+        Query = "";
+        _active = -1;
+        await RunSearch("", pushUrl: SyncUrl);
+    }
+
+    private void OnFocus()
+    {
+        _focused = true;
+    }
+
+    private void OnBlur()
+    {
+        if (_suppressBlur)
+        {
+            return;
+        }
+
+        _focused = false;
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Hits.Count == 0)
+        {
+            if (e.Key is "Escape")
+            {
+                _focused = false;
+            }
+
+            return;
+        }
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                _active = Math.Min(Hits.Count - 1, _active + 1);
+                break;
+            case "ArrowUp":
+                _active = Math.Max(0, _active - 1);
+                break;
+            case "Escape":
+                _focused = false;
+                _active = -1;
+                break;
+            default:
+                return;
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private bool NavigateMode => Variant.Equals("home", StringComparison.OrdinalIgnoreCase);
+
+    private string BuildUrl(string? query = null)
+    {
+        var q = (query ?? Query).Trim();
+        var tag = Tag?.Trim();
+
+        if (string.IsNullOrEmpty(tag) && string.IsNullOrEmpty(q))
+        {
+            return "/menu";
+        }
+
+        if (string.IsNullOrEmpty(tag))
+        {
+            return $"/menu?q={Uri.EscapeDataString(q)}";
+        }
+
+        if (string.IsNullOrEmpty(q))
+        {
+            return $"/menu?tag={tag}";
+        }
+
+        return $"/menu?tag={tag}&q={Uri.EscapeDataString(q)}";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _debounce?.Cancel();
+        _debounce?.Dispose();
+        await Task.CompletedTask;
+    }
+}
