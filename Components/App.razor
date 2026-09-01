@@ -1,9 +1,20 @@
 ﻿<!DOCTYPE html>
-<html lang="sk">
+<html lang="sk" class="kiln-booting">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <style>
+      html.kiln-booting {
+        overflow: hidden;
+      }
+      html:not([data-forno="ready"]) #kiln-boot,
+      html.kiln-booting #kiln-boot {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+    </style>
     <meta name="theme-color" content="#f3ead8" />
     <meta name="color-scheme" content="light dark" />
     <meta name="author" content="800° Forno" />
@@ -49,15 +60,10 @@
         background: #16110e;
         color: #f4ebe0;
       }
-      html:not(.kiln-booting) #kiln-boot {
+      html[data-forno="ready"]:not(.kiln-booting) #kiln-boot {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-      }
-      html.kiln-booting #kiln-boot {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
       }
       #kiln-boot.is-out {
         opacity: 0;
@@ -126,9 +132,6 @@
         .kiln-boot-ring, .kiln-boot-pie { animation: none; }
       }
     </style>
-    <script>
-        document.documentElement.classList.add("kiln-booting");
-    </script>
     <script>
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             document.documentElement.classList.add('has-motion');

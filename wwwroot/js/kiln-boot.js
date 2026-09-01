@@ -4,19 +4,28 @@
   const root = document.documentElement;
   const boot = document.getElementById("kiln-boot");
   const nav = document.getElementById("kiln-nav");
-  let shown = root.classList.contains("kiln-booting");
-  let shownAt = shown ? Date.now() : 0;
+  const navStarted =
+    typeof performance !== "undefined" && performance.timeOrigin
+      ? performance.timeOrigin
+      : Date.now();
+  let shown =
+    root.classList.contains("kiln-booting") || root.dataset.forno !== "ready";
+  let shownAt = shown ? navStarted : 0;
   let navTimer = 0;
   let hiding = false;
 
   function showBoot() {
-    if (shown || root.dataset.forno === "ready" || !boot) {
+    if (root.dataset.forno === "ready" || !boot) {
       return;
     }
 
     shown = true;
-    shownAt = Date.now();
+    if (!shownAt) {
+      shownAt = Date.now();
+    }
+
     root.classList.add("kiln-booting");
+    boot.classList.remove("is-out");
     boot.setAttribute("aria-hidden", "false");
     boot.setAttribute("aria-busy", "true");
   }
@@ -31,20 +40,14 @@
   }
 
   if (boot) {
-    if (shown) {
-      syncBootAria();
-    } else {
-      showBoot();
-    }
+    showBoot();
+    syncBootAria();
   } else {
     document.addEventListener(
       "DOMContentLoaded",
       () => {
-        if (!shown) {
-          showBoot();
-        } else {
-          syncBootAria();
-        }
+        showBoot();
+        syncBootAria();
       },
       { once: true }
     );
@@ -75,7 +78,7 @@
     boot.setAttribute("aria-hidden", "true");
 
     if (!shown) {
-      boot.remove();
+      boot.classList.add("is-out");
       return;
     }
 
@@ -127,6 +130,22 @@
     await hideBoot();
     listenNav(window.Blazor);
   }
+
+  window.addEventListener(
+    "pageshow",
+    (event) => {
+      if (!event.persisted || root.dataset.forno !== "ready") {
+        return;
+      }
+
+      delete root.dataset.forno;
+      shown = true;
+      shownAt = Date.now();
+      hiding = false;
+      showBoot();
+    },
+    { passive: true }
+  );
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", start, { once: true });

@@ -1,4 +1,4 @@
-@page "/kosik"
+@page "/cart"
 @inject CartService Cart
 @inject IJSRuntime JS
 @implements IDisposable
@@ -10,6 +10,8 @@
      NoIndex="true" />
 
 <article class="slip" @ref="_root">
+    <span class="slip-watermark" aria-hidden="true">800°</span>
+
     <header class="slip-mast">
         <p class="eyebrow slip-kicker">Ešte pred pecou</p>
         <h1 aria-label="Košík">
@@ -42,49 +44,63 @@
     else
     {
         <div class="slip-sheet">
-            <ol class="slip-lines">
-                @for (var i = 0; i < Cart.Lines.Count; i++)
-                {
-                    var line = Cart.Lines[i];
-                    var mark = $"cart-{i}-{line.Pizza.Slug}";
-                    <li class="slip-line">
-                        <span class="slip-no">@((i + 1).ToString("00"))</span>
-                        <a class="slip-pie" href="/menu/@line.Pizza.Slug" aria-hidden="true" tabindex="-1">
-                            <PizzaMark Slug="@line.Pizza.Slug" MarkId="@mark" Extras="@line.ExtraIds" />
-                        </a>
-                        <div class="slip-copy">
-                            <a href="/menu/@line.Pizza.Slug"><strong>@line.Pizza.Name</strong></a>
-                            <p>@line.UnitTotal.ToString("N2") € / ks</p>
-                            @if (line.ExtraIds.Count > 0)
-                            {
-                                <ul class="slip-chips">
-                                    @foreach (var extra in line.ExtraIds)
-                                    {
-                                        var item = OvenExtras.Find(extra);
-                                        if (item is not null)
+            <div class="slip-board">
+                <div class="slip-cols" aria-hidden="true">
+                    <span>List</span>
+                    <span>Kusy</span>
+                    <span>Suma</span>
+                </div>
+                <ol class="slip-lines">
+                    @for (var i = 0; i < Cart.Lines.Count; i++)
+                    {
+                        var line = Cart.Lines[i];
+                        var mark = $"cart-{i}-{line.Pizza.Slug}";
+                        <li class="slip-line" @key="line.Key" style="--tilt: @((i % 2 == 0 ? -0.7 : 0.55).ToString(System.Globalization.CultureInfo.InvariantCulture))deg">
+                            <span class="slip-no">@((i + 1).ToString("00"))</span>
+                            <div class="slip-pie-stage">
+                                <span class="slip-pie-ring" aria-hidden="true"></span>
+                                <a class="slip-pie" href="/menu/@line.Pizza.Slug" aria-hidden="true" tabindex="-1">
+                                    <PizzaMark Slug="@line.Pizza.Slug" MarkId="@mark" Extras="@line.ExtraIds" />
+                                </a>
+                            </div>
+                            <div class="slip-copy">
+                                <a href="/menu/@line.Pizza.Slug"><strong>@line.Pizza.Name</strong></a>
+                                <em>@line.Pizza.Tagline</em>
+                                <p>@line.UnitTotal.ToString("N2") € / ks</p>
+                                @if (line.ExtraIds.Count > 0)
+                                {
+                                    <ul class="slip-chips">
+                                        @foreach (var extra in line.ExtraIds)
                                         {
-                                            <li>@item.Name</li>
+                                            var item = OvenExtras.Find(extra);
+                                            if (item is not null)
+                                            {
+                                                <li>@item.Name</li>
+                                            }
                                         }
-                                    }
-                                </ul>
-                            }
-                        </div>
-                        <div class="qty-step slip-qty" aria-label="Kusy">
-                            <button type="button" @onclick="() => Less(line.Key, line.Quantity)" aria-label="Menej">−</button>
-                            <span>@line.Quantity</span>
-                            <button type="button" @onclick="() => More(line.Key, line.Quantity)" aria-label="Viac">+</button>
-                        </div>
-                        <span class="slip-sum">@line.LineTotal.ToString("N2") €</span>
-                        <button type="button" class="slip-off" @onclick="() => Cart.Remove(line.Key)">Z listu</button>
-                    </li>
-                }
-            </ol>
+                                    </ul>
+                                }
+                            </div>
+                            <div class="slip-act">
+                                <div class="qty-step slip-qty" aria-label="Kusy">
+                                    <button type="button" @onclick="() => Less(line.Key, line.Quantity)" aria-label="@(line.Quantity == 1 ? "Odstrániť z košíka" : "Menej")">−</button>
+                                    <span aria-live="polite">@line.Quantity</span>
+                                    <button type="button" @onclick="() => More(line.Key, line.Quantity)" aria-label="Viac">+</button>
+                                </div>
+                                <span class="slip-sum">@line.LineTotal.ToString("N2") €</span>
+                                <button type="button" class="slip-off" @onclick="() => Remove(line.Key)">Odstrániť</button>
+                            </div>
+                        </li>
+                    }
+                </ol>
+            </div>
 
             <aside class="slip-stub" data-tilt>
+                <span class="slip-stub-tear" aria-hidden="true"></span>
                 <p class="slip-stub-kicker">Uhlíková kópia · Bardejov</p>
                 <p class="slip-stub-label">Spolu</p>
                 <strong class="slip-total">@Cart.Total.ToString("N2") €</strong>
-                <dl>
+                <dl class="slip-meta">
                     <div>
                         <dt>Kusy</dt>
                         <dd>@Cart.Count</dd>
@@ -94,15 +110,24 @@
                         <dd>@Cart.Lines.Count</dd>
                     </div>
                 </dl>
-                <div class="slip-heat" style="--heat: @Heat.ToString(System.Globalization.CultureInfo.InvariantCulture)">
-                    <i></i>
+                <div class="slip-heat-wrap">
+                    <div class="slip-heat" style="--heat: @Heat.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        <i></i>
+                        <span class="slip-heat-mark" style="--at: @ShipMark.ToString(System.Globalization.CultureInfo.InvariantCulture)">12 €</span>
+                        <span class="slip-heat-mark is-free" style="--at: 1">22 €</span>
+                    </div>
+                    <p class="slip-heat-note">@HeatNote</p>
                 </div>
-                <p class="slip-heat-note">@HeatNote</p>
-                <a class="btn tomato" href="/objednavka" data-magnetic>K objednávke</a>
+                <a class="btn tomato slip-go" href="/checkout" data-magnetic>K objednávke</a>
                 <a class="slip-more" href="/menu">Ešte list</a>
                 <p class="slip-pay">Zatiaľ bez platby a účtu</p>
             </aside>
         </div>
+
+        <blockquote class="slip-quote">
+            <p>Košík nie je sklad. Je to lístok, ktorý ešte nešiel do ohňa.</p>
+            <footer>Zápis z pece · pred objednávkou</footer>
+        </blockquote>
     }
 </article>
 
@@ -115,6 +140,8 @@
     private bool _empty = true;
 
     private decimal Heat => Math.Clamp(Cart.Total / FreeFrom, 0, 1);
+
+    private decimal ShipMark => ShipFrom / FreeFrom;
 
     private string HeatNote
     {
@@ -157,18 +184,11 @@
         }
     }
 
-    private void Less(string key, int quantity)
-    {
-        if (quantity > 1)
-        {
-            Cart.SetQuantity(key, quantity - 1);
-        }
-    }
+    private void Less(string key, int quantity) => Cart.SetQuantity(key, quantity - 1);
 
-    private void More(string key, int quantity)
-    {
-        Cart.SetQuantity(key, quantity + 1);
-    }
+    private void More(string key, int quantity) => Cart.SetQuantity(key, quantity + 1);
+
+    private void Remove(string key) => Cart.Remove(key);
 
     public void Dispose() => Cart.Changed -= OnChanged;
 

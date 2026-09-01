@@ -16,7 +16,7 @@
             <nav class="nav">
                 <NavLink href="/" Match="NavLinkMatch.All">Pec</NavLink>
                 <NavLink href="/menu">Menu</NavLink>
-                <NavLink href="/kosik" class="nav-cart">
+                <NavLink href="/cart" class="nav-cart">
                     Košík
                     @if (Cart.Count > 0)
                     {
@@ -51,7 +51,7 @@
                 <h3>Obchod</h3>
                 <a href="/">Dnes v peci</a>
                 <a href="/menu">Menu</a>
-                <a href="/kosik">Košík</a>
+                <a href="/cart">Košík</a>
                 <a href="/#faq">Otázky</a>
             </div>
             <div>
@@ -151,7 +151,7 @@
 
     private async Task PersistCart()
     {
-        if (!_cartReady || _hydrating)
+        if (_hydrating)
         {
             return;
         }

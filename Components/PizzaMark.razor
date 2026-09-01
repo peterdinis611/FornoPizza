@@ -1,3 +1,5 @@
+@using System.Globalization
+
 <div class="pie-mark" data-slug="@Slug" aria-hidden="true">
     <svg viewBox="0 0 200 200" focusable="false">
         <defs>
@@ -203,18 +205,21 @@
     </text>;
 
     private RenderFragment Salami(double cx, double cy, double r) => @<text>
-        <circle cx="@cx" cy="@cy" r="@r" fill="#9a2418" />
-        <circle cx="@cx" cy="@cy" r="@(r * 0.62)" fill="#c44832" opacity="0.9" />
-        <circle cx="@(cx - r * 0.22)" cy="@(cy - r * 0.18)" r="@(r * 0.16)" fill="#6b140c" opacity="0.45" />
-        <circle cx="@(cx + r * 0.18)" cy="@(cy + r * 0.2)" r="@(r * 0.12)" fill="#6b140c" opacity="0.35" />
+        <circle cx="@Svg(cx)" cy="@Svg(cy)" r="@Svg(r)" fill="#9a2418" />
+        <circle cx="@Svg(cx)" cy="@Svg(cy)" r="@Svg(r * 0.62)" fill="#c44832" opacity="0.9" />
+        <circle cx="@Svg(cx - r * 0.22)" cy="@Svg(cy - r * 0.18)" r="@Svg(r * 0.16)" fill="#6b140c" opacity="0.45" />
+        <circle cx="@Svg(cx + r * 0.18)" cy="@Svg(cy + r * 0.2)" r="@Svg(r * 0.12)" fill="#6b140c" opacity="0.35" />
     </text>;
 
     private RenderFragment Basil(double cx, double cy, double rot) => @<text>
-        <g transform="translate(@cx @cy) rotate(@rot)">
+        <g transform="translate(@Svg(cx) @Svg(cy)) rotate(@Svg(rot))">
             <path d="M0 0c8-16 22-20 28-6-10 6-20 12-28 6z" fill="#3a4a2c" />
             <path d="M4 -2c6-8 14-10 18-3" fill="none" stroke="#24301c" stroke-width="0.8" opacity="0.55" />
         </g>
     </text>;
+
+    private static string Svg(double value) =>
+        value.ToString(CultureInfo.InvariantCulture);
 
     private bool Has(string id) =>
         Extras.Contains(id, StringComparer.OrdinalIgnoreCase);

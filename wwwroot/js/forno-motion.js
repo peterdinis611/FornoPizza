@@ -502,9 +502,24 @@
     if (stub) {
       intro.add(
         stub,
-        { opacity: [0, 1], rotate: [8, 1.8], y: [24, 0], duration: 920, ease: "out(4)" },
+        { opacity: [0, 1], rotate: [8, 1.4], y: [24, 0], duration: 920, ease: "out(4)" },
         fresh === false ? 80 : 360
       );
+    }
+
+    const heat = root.querySelector(".slip-heat i");
+    if (heat && window.anime) {
+      const target = parseFloat(getComputedStyle(heat.parentElement).getPropertyValue("--heat")) || 0;
+      intro.add(
+        heat,
+        { width: ["0%", `${target * 100}%`], duration: 1100, ease: "out(4)" },
+        fresh === false ? 120 : 520
+      );
+    }
+
+    const quote = root.querySelector(".slip-quote");
+    if (quote) {
+      intro.add(quote, { opacity: [0, 1], y: [18, 0], duration: 760, ease: "out(3)" }, 640);
     }
 
     homeCleanups.push(() => intro.revert());

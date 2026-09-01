@@ -35,17 +35,19 @@
     </header>
 
     <div class="ledger-tools">
-        <OvenSearch Items="All"
-                    Tag="@Tag"
-                    InitialQuery="@(Q ?? "")"
+        <OvenSearch @ref="_search"
+                    @key="_searchKey"
+                    Items="All"
+                    Tag="@ActiveTag"
+                    InitialQuery="@SearchQuery"
                     SyncUrl="true"
                     SlugsChanged="OnSearchSlugs" />
         <nav class="tag-row menu-tags" aria-label="Kategórie">
-            <a class="@(string.IsNullOrWhiteSpace(Tag) ? "is-on" : null)" href="@TagHref(null, SearchQuery)">Všetko</a>
-            <a class="@(Tag == "klasika" ? "is-on" : null)" href="@TagHref("klasika", SearchQuery)">Klasika</a>
-            <a class="@(Tag == "pikant" ? "is-on" : null)" href="@TagHref("pikant", SearchQuery)">Pikantné</a>
-            <a class="@(Tag == "bez-masa" ? "is-on" : null)" href="@TagHref("bez-masa", SearchQuery)">Bez mäsa</a>
-            <a class="@(Tag == "syry" ? "is-on" : null)" href="@TagHref("syry", SearchQuery)">Syry</a>
+            <button type="button" class="@TagClass(null)" @onclick="() => SetTag(null)">Všetko</button>
+            <button type="button" class="@TagClass("klasika")" @onclick='() => SetTag("klasika")'>Klasika</button>
+            <button type="button" class="@TagClass("pikant")" @onclick='() => SetTag("pikant")'>Pikantné</button>
+            <button type="button" class="@TagClass("bez-masa")" @onclick='() => SetTag("bez-masa")'>Bez mäsa</button>
+            <button type="button" class="@TagClass("syry")" @onclick='() => SetTag("syry")'>Syry</button>
         </nav>
     </div>
 
@@ -56,11 +58,11 @@
             {
                 <span>Hľadanie: @SearchQuery</span>
             }
-            @if (!string.IsNullOrWhiteSpace(Tag))
+            @if (!string.IsNullOrWhiteSpace(ActiveTag))
             {
                 <span>Kategória: @TagLabel</span>
             }
-            <a href="/menu">Zobraziť všetko</a>
+            <button type="button" class="ledger-filter-clear" @onclick="ClearFilters">Zobraziť všetko</button>
         </p>
     }
 
@@ -117,10 +119,13 @@
     public string? Tag { get; set; }
 
     private ElementReference _root;
+    private OvenSearch? _search;
     private bool _mounted;
-    private string _mountedTag = "\u0000";
+    private string _urlKey = "";
+    private int _searchKey;
     private IReadOnlyList<PizzaItem> All { get; set; } = [];
     private string SearchQuery { get; set; } = "";
+    private string? ActiveTag { get; set; }
     private IReadOnlyList<string> SearchSlugs { get; set; } = [];
 
     private IReadOnlyList<PizzaItem> Visible
@@ -144,7 +149,7 @@
     }
 
     private bool IsFiltered =>
-        !string.IsNullOrWhiteSpace(SearchQuery) || !string.IsNullOrWhiteSpace(Tag);
+        !string.IsNullOrWhiteSpace(SearchQuery) || !string.IsNullOrWhiteSpace(ActiveTag);
 
     private string MenuJson
     {
@@ -157,22 +162,40 @@
         }
     }
 
-    private string TagLabel => Tag switch
+    private string TagLabel => ActiveTag switch
     {
         "klasika" => "Klasika",
         "pikant" => "Pikantné",
         "bez-masa" => "Bez mäsa",
         "syry" => "Syry",
-        _ => Tag ?? ""
+        _ => ActiveTag ?? ""
     };
 
     protected override void OnInitialized() => Cart.Changed += OnCartChanged;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
         All = await Oven.AllAsync();
+        SyncFromUrl();
+    }
+
+    protected override void OnParametersSet()
+    {
+        var key = $"{Q}|{Tag}";
+        if (key == _urlKey || All.Count == 0)
+        {
+            return;
+        }
+
+        SyncFromUrl();
+    }
+
+    private void SyncFromUrl()
+    {
         SearchQuery = Q ?? "";
-        SearchSlugs = MenuFilter.Apply(All, SearchQuery, Tag)
+        ActiveTag = string.IsNullOrWhiteSpace(Tag) ? null : Tag;
+        _urlKey = $"{SearchQuery}|{ActiveTag}";
+        SearchSlugs = MenuFilter.Apply(All, SearchQuery, ActiveTag)
             .Select(pizza => pizza.Slug)
             .ToList();
     }
@@ -180,32 +203,56 @@
     private Task OnSearchSlugs(IReadOnlyList<string> slugs)
     {
         SearchSlugs = slugs;
+        SearchQuery = _search?.CurrentQuery ?? SearchQuery;
         return InvokeAsync(StateHasChanged);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task SetTag(string? tag)
     {
-        var tagKey = Tag ?? "";
-        if (!firstRender && _mounted && tagKey == _mountedTag)
+        var next = string.IsNullOrWhiteSpace(tag) ? null : tag;
+        if (string.Equals(ActiveTag, next, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
-        _mountedTag = tagKey;
+        ActiveTag = next;
+        _urlKey = $"{SearchQuery}|{ActiveTag}";
+        await PushFilterUrlAsync();
+    }
 
+    private async Task ClearFilters()
+    {
+        ActiveTag = null;
+        SearchQuery = "";
+        _urlKey = "|";
+        _searchKey++;
+        await PushFilterUrlAsync();
+        SearchSlugs = All.Select(pizza => pizza.Slug).ToList();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task PushFilterUrlAsync()
+    {
+        var url = BuildFilterUrl(ActiveTag, SearchQuery);
         try
         {
-            await JS.InvokeVoidAsync("FornoMotion.mountMenu", _root, firstRender || !_mounted);
-            _mounted = true;
+            await JS.InvokeVoidAsync("FornoNav.replace", url);
         }
         catch (Exception)
         {
+            Nav.NavigateTo(url, replace: true);
         }
     }
 
-    private string TagHref(string? tag, string? query = null)
+    private string? TagClass(string? tag) =>
+        string.Equals(ActiveTag, tag, StringComparison.OrdinalIgnoreCase)
+        || (tag is null && string.IsNullOrWhiteSpace(ActiveTag))
+            ? "is-on"
+            : null;
+
+    private static string BuildFilterUrl(string? tag, string query)
     {
-        var q = (query ?? SearchQuery).Trim();
+        var q = query.Trim();
         if (string.IsNullOrEmpty(tag) && string.IsNullOrEmpty(q))
         {
             return "/menu";
@@ -222,6 +269,23 @@
         }
 
         return $"/menu?tag={tag}&q={Uri.EscapeDataString(q)}";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender && _mounted)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoMotion.mountMenu", _root, firstRender);
+            _mounted = true;
+        }
+        catch (Exception)
+        {
+        }
     }
 
     private static IEnumerable<string> Stamps(PizzaItem pizza)

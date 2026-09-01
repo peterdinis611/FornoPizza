@@ -158,8 +158,8 @@
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5coqme1f7f-{0}-nla9dvqbfl-nla9dvqbfl.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/rxvq20yamv-{0}-nla9dvqbfl-nla9dvqbfl.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5ag4qpjjrt-{0}-j2g45r0nh4-j2g45r0nh4.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/12nutl04a2-{0}-1lk40b7ufg-1lk40b7ufg.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-exz5h6wp6x-exz5h6wp6x.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/i6k47hmaly-{0}-h0jeqvv9h2-h0jeqvv9h2.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/69gq8c8otz-{0}-ryg0doguet-ryg0doguet.gz
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/s1m60x97vi-{0}-a71tswua6c-a71tswua6c.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/12nutl04a2-{0}-m4888bp9ti-m4888bp9ti.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/i6k47hmaly-{0}-33an6o3p9t-33an6o3p9t.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/s1m60x97vi-{0}-kgouwsood7-kgouwsood7.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-r1oh7x4116-r1oh7x4116.gz

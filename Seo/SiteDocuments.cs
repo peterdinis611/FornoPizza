@@ -22,8 +22,8 @@ public static class SiteDocuments
         User-agent: *
         Allow: /
 
-        Disallow: /kosik
-        Disallow: /objednavka
+        Disallow: /cart
+        Disallow: /checkout
         Disallow: /Error
         Disallow: /not-found
         Disallow: /kiln-status

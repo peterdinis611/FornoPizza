@@ -88,4 +88,14 @@
       }));
     },
   };
+
+  window.FornoNav = {
+    replace(path) {
+      const next = path.startsWith("/") ? path : `/${path}`;
+      const current = `${location.pathname}${location.search}`;
+      if (current !== next) {
+        history.replaceState(null, "", next);
+      }
+    },
+  };
 })();

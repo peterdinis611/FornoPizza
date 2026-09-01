@@ -99,6 +99,8 @@
     [Parameter]
     public EventCallback<IReadOnlyList<string>> SlugsChanged { get; set; }
 
+    public string CurrentQuery => Query;
+
     private ElementReference _root;
     private readonly string _inputId = $"oven-find-{Guid.NewGuid():N}";
     private readonly string _panelId = $"oven-find-panel-{Guid.NewGuid():N}";
@@ -219,7 +221,14 @@
             if (!url.Equals(_lastUrl, StringComparison.Ordinal))
             {
                 _lastUrl = url;
-                Nav.NavigateTo(url, replace: true);
+                try
+                {
+                    await JS.InvokeVoidAsync("FornoNav.replace", url);
+                }
+                catch (Exception)
+                {
+                    Nav.NavigateTo(url, replace: true);
+                }
             }
         }
 
