@@ -1,6 +1,7 @@
 @page "/cart"
 @inject CartService Cart
 @inject IJSRuntime JS
+@using Forno.Domain
 @implements IDisposable
 @implements IAsyncDisposable
 
@@ -51,11 +52,14 @@
                     <span>Suma</span>
                 </div>
                 <ol class="slip-lines">
-                    @for (var i = 0; i < Cart.Lines.Count; i++)
+                    @foreach (var entry in Cart.Lines.Select((line, index) => (line, index)))
                     {
-                        var line = Cart.Lines[i];
+                        var line = entry.line;
+                        var i = entry.index;
+                        var lineKey = line.Key;
+                        var lineQty = line.Quantity;
                         var mark = $"cart-{i}-{line.Pizza.Slug}";
-                        <li class="slip-line" @key="line.Key" style="--tilt: @((i % 2 == 0 ? -0.7 : 0.55).ToString(System.Globalization.CultureInfo.InvariantCulture))deg">
+                        <li class="slip-line" @key="lineKey" style="--tilt: @((i % 2 == 0 ? -0.7 : 0.55).ToString(System.Globalization.CultureInfo.InvariantCulture))deg">
                             <span class="slip-no">@((i + 1).ToString("00"))</span>
                             <div class="slip-pie-stage">
                                 <span class="slip-pie-ring" aria-hidden="true"></span>
@@ -83,12 +87,12 @@
                             </div>
                             <div class="slip-act">
                                 <div class="qty-step slip-qty" aria-label="Kusy">
-                                    <button type="button" @onclick="() => Less(line.Key, line.Quantity)" aria-label="@(line.Quantity == 1 ? "Odstrániť z košíka" : "Menej")">−</button>
-                                    <span aria-live="polite">@line.Quantity</span>
-                                    <button type="button" @onclick="() => More(line.Key, line.Quantity)" aria-label="Viac">+</button>
+                                    <button type="button" @onclick="@(() => Less(lineKey, lineQty))" @onclick:stopPropagation="true" aria-label="@(lineQty == 1 ? "Odstrániť z košíka" : "Menej")">−</button>
+                                    <span aria-live="polite">@lineQty</span>
+                                    <button type="button" @onclick="@(() => More(lineKey, lineQty))" @onclick:stopPropagation="true" aria-label="Viac">+</button>
                                 </div>
                                 <span class="slip-sum">@line.LineTotal.ToString("N2") €</span>
-                                <button type="button" class="slip-off" @onclick="() => Remove(line.Key)">Odstrániť</button>
+                                <button type="button" class="slip-off" @onclick="@(() => Remove(lineKey))" @onclick:stopPropagation="true">Odstrániť</button>
                             </div>
                         </li>
                     }
@@ -113,8 +117,8 @@
                 <div class="slip-heat-wrap">
                     <div class="slip-heat" style="--heat: @Heat.ToString(System.Globalization.CultureInfo.InvariantCulture)">
                         <i></i>
-                        <span class="slip-heat-mark" style="--at: @ShipMark.ToString(System.Globalization.CultureInfo.InvariantCulture)">12 €</span>
-                        <span class="slip-heat-mark is-free" style="--at: 1">22 €</span>
+                        <span class="slip-heat-mark" style="--at: @ShipMark.ToString(System.Globalization.CultureInfo.InvariantCulture)">@OvenCommerce.ShipMinimum.ToString("N0") €</span>
+                        <span class="slip-heat-mark is-free" style="--at: 1">@OvenCommerce.FreeShipMinimum.ToString("N0") €</span>
                     </div>
                     <p class="slip-heat-note">@HeatNote</p>
                 </div>
@@ -132,32 +136,29 @@
 </article>
 
 @code {
-    private const decimal ShipFrom = 12m;
-    private const decimal FreeFrom = 22m;
-
     private ElementReference _root;
     private bool _mounted;
     private bool _empty = true;
 
-    private decimal Heat => Math.Clamp(Cart.Total / FreeFrom, 0, 1);
+    private decimal Heat => Math.Clamp(Cart.Total / OvenCommerce.FreeShipMinimum, 0, 1);
 
-    private decimal ShipMark => ShipFrom / FreeFrom;
+    private decimal ShipMark => OvenCommerce.ShipMinimum / OvenCommerce.FreeShipMinimum;
 
     private string HeatNote
     {
         get
         {
-            if (Cart.Total >= FreeFrom)
+            if (Cart.Total >= OvenCommerce.FreeShipMinimum)
             {
                 return "Rozvoz zadarmo. Pec to unesie.";
             }
 
-            if (Cart.Total >= ShipFrom)
+            if (Cart.Total >= OvenCommerce.ShipMinimum)
             {
-                return $"Rozvoz. Ešte {(FreeFrom - Cart.Total).ToString("N2")} € do voľného.";
+                return $"Rozvoz. Ešte {(OvenCommerce.FreeShipMinimum - Cart.Total).ToString("N2")} € do voľného.";
             }
 
-            return $"Ešte {(ShipFrom - Cart.Total).ToString("N2")} € do rozvozu. Alebo výdaj pri peci.";
+            return $"Ešte {(OvenCommerce.ShipMinimum - Cart.Total).ToString("N2")} € do rozvozu. Alebo výdaj pri peci.";
         }
     }
 
@@ -184,7 +185,16 @@
         }
     }
 
-    private void Less(string key, int quantity) => Cart.SetQuantity(key, quantity - 1);
+    private void Less(string key, int quantity)
+    {
+        if (quantity <= 1)
+        {
+            Cart.Remove(key);
+            return;
+        }
+
+        Cart.SetQuantity(key, quantity - 1);
+    }
 
     private void More(string key, int quantity) => Cart.SetQuantity(key, quantity + 1);
 

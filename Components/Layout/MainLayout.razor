@@ -138,10 +138,12 @@
             }
 
             var lines = CartMapper.Hydrate(snaps, await Oven.AllAsync());
-            if (lines.Count > 0)
+            if (!Cart.IsEmpty || lines.Count == 0)
             {
-                Cart.Replace(lines);
+                return;
             }
+
+            Cart.Replace(lines);
         }
         finally
         {

@@ -22,6 +22,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ISubscriberService, SubscriberService>();
 

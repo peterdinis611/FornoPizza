@@ -3,6 +3,7 @@
 @inject IMenuService Menu
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@using Forno.Domain
 @implements IAsyncDisposable
 
 @if (!_ready)
@@ -162,6 +163,25 @@ else
                     <p class="leaf-notice" aria-live="polite">
                         V košíku. <a href="/cart">Otvoriť košík</a>
                     </p>
+                }
+                @if (Pairs.Count > 0)
+                {
+                    <div class="leaf-pairs leaf-fade">
+                        <p class="eyebrow">K @Pizza.Name ľudia pridávajú</p>
+                        <div class="chip-row">
+                            @foreach (var extra in Pairs)
+                            {
+                                var on = HasExtra(extra.Id);
+                                <button type="button" class="note-chip @(on ? "is-on" : null)" @onclick="() => ToggleExtra(extra.Id)">
+                                    @extra.Name
+                                    @if (!on)
+                                    {
+                                        <span class="leaf-pair-price">+@extra.Price.ToString("N2") €</span>
+                                    }
+                                </button>
+                            }
+                        </div>
+                    </div>
                 }
                 <p class="leaf-allergy leaf-fade">Alergény: @AllergyLine</p>
             </div>
@@ -340,6 +360,12 @@ else
 
     private IEnumerable<OvenExtra> PickedExtras =>
         ExtraIds.Select(OvenExtras.Find).OfType<OvenExtra>();
+
+    private IReadOnlyList<OvenExtra> Pairs =>
+        PizzaRecommendations.For(Slug)
+            .Select(OvenExtras.Find)
+            .OfType<OvenExtra>()
+            .ToList();
 
     private string AllergyLine
     {

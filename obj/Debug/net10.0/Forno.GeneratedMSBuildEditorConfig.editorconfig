@@ -54,6 +54,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/peterdinis/Desktop/work/forno/Components/Pages/KilnDay.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9LaWxuRGF5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/peterdinis/Desktop/work/forno/Components/Pages/Kosik.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Lb3Npay5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

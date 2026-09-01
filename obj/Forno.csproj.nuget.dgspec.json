@@ -10,7 +10,7 @@
         "projectUniqueName": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
         "projectName": "Forno",
         "projectPath": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
-        "packagesPath": "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/020ecc969422cabcee0ab711e76057e7/nuget",
+        "packagesPath": "/Users/peterdinis/.nuget/packages/",
         "outputPath": "/Users/peterdinis/Desktop/work/forno/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [

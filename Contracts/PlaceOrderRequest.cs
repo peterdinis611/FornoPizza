@@ -1,3 +1,4 @@
+using Forno.Domain;
 using Forno.Models;
 
 namespace Forno.Contracts;
@@ -7,4 +8,5 @@ public sealed record PlaceOrderRequest(
     string Phone,
     string Address,
     string Note,
-    IReadOnlyList<CartLine> Lines);
+    IReadOnlyList<CartLine> Lines,
+    FulfillmentMode Fulfillment = FulfillmentMode.Delivery);

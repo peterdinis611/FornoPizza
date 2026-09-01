@@ -1,6 +1,7 @@
 @page "/checkout"
 @inject CartService Cart
 @inject IOrderService Orders
+@using Forno.Domain
 
 <PageTitle>Objednávka — Forno</PageTitle>
 <Seo Title="Objednávka — 800° Forno"
@@ -29,10 +30,25 @@ else
 {
     <form class="checkout" @onsubmit="Submit" @onsubmit:preventDefault>
         <p class="sum">@Cart.Count ks · @Cart.Total.ToString("N2") €</p>
-        @if (!string.IsNullOrEmpty(FormError("cart")) || !string.IsNullOrEmpty(FormError("order")))
+        @if (!string.IsNullOrEmpty(FormError("cart")) || !string.IsNullOrEmpty(FormError("order")) || !string.IsNullOrEmpty(FormError("fulfillment")))
         {
-            <p class="form-alert" role="alert">@(FormError("cart") ?? FormError("order"))</p>
+            <p class="form-alert" role="alert">@(FormError("cart") ?? FormError("fulfillment") ?? FormError("order"))</p>
         }
+
+        <fieldset class="fulfill-toggle">
+            <legend>Spôsob</legend>
+            <div class="fulfill-row">
+                <button type="button" class="@FulfillClass(FulfillmentMode.Pickup)" @onclick="() => SetFulfillment(FulfillmentMode.Pickup)">
+                    Výdaj pri peci
+                    <span>15–20 min</span>
+                </button>
+                <button type="button" class="@FulfillClass(FulfillmentMode.Delivery)" @onclick="() => SetFulfillment(FulfillmentMode.Delivery)">
+                    Rozvoz
+                    <span>od @OvenCommerce.ShipMinimum.ToString("N0") € · zadarmo @OvenCommerce.FreeShipMinimum.ToString("N0") €</span>
+                </button>
+            </div>
+        </fieldset>
+
         <label>
             Meno
             <input @bind="Name" required maxlength="80" aria-invalid="@Invalid("name")" />
@@ -49,17 +65,37 @@ else
                 <span class="field-error">@phoneErr</span>
             }
         </label>
-        <label>
-            Adresa
-            <input @bind="Address" required maxlength="160" autocomplete="street-address" aria-invalid="@Invalid("address")" />
-            @if (FormError("address") is { } addressErr)
-            {
-                <span class="field-error">@addressErr</span>
-            }
-        </label>
+        @if (Fulfillment == FulfillmentMode.Delivery)
+        {
+            <label>
+                Adresa doručenia
+                <input @bind="Address" required maxlength="160" autocomplete="street-address" aria-invalid="@Invalid("address")" />
+                @if (FormError("address") is { } addressErr)
+                {
+                    <span class="field-error">@addressErr</span>
+                }
+            </label>
+        }
+        else
+        {
+            <p class="fulfill-note">Vyzdvihnete pri peci v Bardejove. Adresa netreba.</p>
+        }
+
+        <div class="note-chips">
+            <span class="note-chips-label">Alergie / preferencie</span>
+            <div class="chip-row">
+                @foreach (var chip in OrderNoteChips.All)
+                {
+                    <button type="button" class="note-chip @(SelectedChips.Contains(chip) ? "is-on" : null)" @onclick="() => ToggleChip(chip)">
+                        @chip
+                    </button>
+                }
+            </div>
+        </div>
+
         <label>
             Poznámka
-            <textarea @bind="Note" rows="3" maxlength="240" aria-invalid="@Invalid("note")"></textarea>
+            <textarea @bind="NoteExtra" rows="3" maxlength="240" placeholder="Ešte niečo pre pec…" aria-invalid="@Invalid("note")"></textarea>
             @if (FormError("note") is { } noteErr)
             {
                 <span class="field-error">@noteErr</span>
@@ -73,20 +109,47 @@ else
     private string Name { get; set; } = "";
     private string Phone { get; set; } = "";
     private string Address { get; set; } = "";
-    private string Note { get; set; } = "";
+    private string NoteExtra { get; set; } = "";
+    private FulfillmentMode Fulfillment { get; set; } = FulfillmentMode.Delivery;
+    private HashSet<string> SelectedChips { get; } = new(StringComparer.Ordinal);
     private bool Submitted { get; set; }
     private OrderReceipt? Receipt { get; set; }
     private IReadOnlyList<FieldError> Errors { get; set; } = [];
 
     private string? FormError(string field) =>
-        Errors.FirstOrDefault(e => e.Field.Equals(field, StringComparison.OrdinalIgnoreCase))?.Message;
+        Errors.FirstOrDefault(error => error.Field.Equals(field, StringComparison.OrdinalIgnoreCase))?.Message;
 
     private string Invalid(string field) =>
         FormError(field) is null ? "false" : "true";
 
+    private string FulfillClass(FulfillmentMode mode) =>
+        Fulfillment == mode ? "fulfill-opt is-on" : "fulfill-opt";
+
+    private void SetFulfillment(FulfillmentMode mode) => Fulfillment = mode;
+
+    private void ToggleChip(string chip)
+    {
+        if (!SelectedChips.Add(chip))
+        {
+            SelectedChips.Remove(chip);
+        }
+    }
+
     private async Task Submit()
     {
-        var result = await Orders.PlaceAsync(new PlaceOrderRequest(Name, Phone, Address, Note, Cart.Lines));
+        var note = OrderNoteChips.Merge(SelectedChips, NoteExtra);
+        var address = Fulfillment == FulfillmentMode.Pickup
+            ? OvenCommerce.PickupAddress
+            : Address;
+
+        var result = await Orders.PlaceAsync(new PlaceOrderRequest(
+            Name,
+            Phone,
+            address,
+            note,
+            Cart.Lines,
+            Fulfillment));
+
         if (!result.IsSuccess || result.Value is null)
         {
             Errors = result.Errors;

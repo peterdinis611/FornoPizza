@@ -2,6 +2,7 @@
 @inject IJSRuntime JS
 @inject CartService Cart
 @inject IMenuService Menu
+@inject IShopService Shop
 @inject ISubscriberService Subscribers
 @inject NavigationManager Nav
 @implements IAsyncDisposable
@@ -112,20 +113,21 @@
             <a href="/menu">Celé menu →</a>
         </header>
         <ol class="fire-board">
-            @foreach (var (pizza, i) in Featured.Select((p, i) => (p, i)))
+            @foreach (var (pizza, i) in TodaySpread.Select((p, i) => (p, i)))
             {
-                <li class="fire-card @(i == 0 ? "fire-card-lead" : "fire-card-side")" data-scroll data-tilt>
+                var isLead = i == 0 && DaySpecial is not null && pizza.Slug == DaySpecial.Slug;
+                <li class="fire-card @(isLead ? "fire-card-lead" : "fire-card-side")" data-scroll data-tilt>
                     <a href="/menu/@pizza.Slug">
                         <span class="fire-num">@((i + 1).ToString("00"))</span>
-                        @if (i == 0)
+                        @if (isLead)
                         {
-                            <span class="fire-stamp">Najviac z peci</span>
+                            <span class="fire-stamp">List dňa</span>
                         }
                         <PizzaMark Slug="@pizza.Slug" MarkId="@($"feat-{pizza.Slug}")" />
                         <span class="row-copy">
                             <strong>@pizza.Name</strong>
                             <em>@pizza.Tagline</em>
-                            @if (i == 0)
+                            @if (isLead)
                             {
                                 <span class="ingredients">@pizza.Ingredients</span>
                             }
@@ -276,7 +278,8 @@
 @code {
     private ElementReference _root;
     private bool _mounted;
-    private IReadOnlyList<PizzaItem> Featured { get; set; } = [];
+    private IReadOnlyList<PizzaItem> TodaySpread { get; set; } = [];
+    private PizzaItem? DaySpecial { get; set; }
     private IReadOnlyList<PizzaItem> MenuItems { get; set; } = [];
     private string Email { get; set; } = "";
     private bool Subscribed { get; set; }
@@ -313,7 +316,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Featured = await Menu.FeaturedAsync();
+        DaySpecial = await Shop.DaySpecialAsync();
+        var featured = await Menu.FeaturedAsync();
+        var spread = new List<PizzaItem>();
+        if (DaySpecial is not null)
+        {
+            spread.Add(DaySpecial);
+        }
+
+        spread.AddRange(featured.Where(pizza =>
+            DaySpecial is null || !pizza.Slug.Equals(DaySpecial.Slug, StringComparison.OrdinalIgnoreCase)));
+        TodaySpread = spread;
         MenuItems = await Menu.AllAsync();
     }
 

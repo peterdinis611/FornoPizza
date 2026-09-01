@@ -1644,6 +1644,158 @@ html.motion-done .leaf-kiln .oven-pie {
   border-bottom-color: var(--tomato);
 }
 
+.fulfill-toggle {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.fulfill-toggle legend {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-bottom: 0.55rem;
+}
+
+.fulfill-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.fulfill-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--char) 22%, transparent);
+  background: color-mix(in srgb, var(--flour) 55%, transparent);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--char);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.fulfill-opt span {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--ash);
+}
+
+.fulfill-opt.is-on {
+  border-color: var(--tomato);
+  background: color-mix(in srgb, var(--tomato) 8%, transparent);
+  color: var(--tomato);
+}
+
+.fulfill-opt.is-on span {
+  color: color-mix(in srgb, var(--tomato) 75%, var(--ash));
+}
+
+.fulfill-note {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+  font-size: 0.95rem;
+}
+
+.note-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.note-chips-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.note-chip {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--char) 25%, transparent);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--char);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.note-chip.is-on {
+  border-color: var(--tomato);
+  background: color-mix(in srgb, var(--tomato) 8%, transparent);
+  color: var(--tomato);
+}
+
+.leaf-pairs {
+  margin-top: 1.25rem;
+}
+
+.leaf-pairs .eyebrow {
+  margin-bottom: 0.55rem;
+}
+
+.leaf-pair-price {
+  margin-left: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--ash);
+}
+
+.kiln-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 28rem;
+  margin-top: 2rem;
+}
+
+.kiln-admin label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.kiln-admin select {
+  border: 0;
+  border-bottom: 1px solid var(--char);
+  background: transparent;
+  padding: 0.55rem 0;
+  font-size: 1rem;
+  color: var(--char);
+}
+
+.kiln-admin-hint {
+  margin-top: 1.5rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--ash);
+  font-size: 0.9rem;
+}
+
+.kiln-admin-hint code {
+  font-family: ui-monospace, monospace;
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
 .sum,
 .empty {
   font-family: var(--font-body);
@@ -4481,6 +4633,10 @@ html.kiln-naving #kiln-nav {
 
   .checkout {
     max-width: none;
+  }
+
+  .fulfill-row {
+    grid-template-columns: 1fr;
   }
 
   .find-form,

@@ -9,6 +9,7 @@ public sealed class FornoDbContext(DbContextOptions<FornoDbContext> options) : D
     public DbSet<OvenOrder> Orders => Set<OvenOrder>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
     public DbSet<Subscriber> Subscribers => Set<Subscriber>();
+    public DbSet<OvenSetting> Settings => Set<OvenSetting>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -33,6 +34,7 @@ public sealed class FornoDbContext(DbContextOptions<FornoDbContext> options) : D
             entity.Property(o => o.Phone).HasMaxLength(OvenLimits.PhoneMax).IsRequired();
             entity.Property(o => o.Address).HasMaxLength(OvenLimits.AddressMax).IsRequired();
             entity.Property(o => o.Note).HasMaxLength(OvenLimits.NoteMax);
+            entity.Property(o => o.Fulfillment).HasMaxLength(16).IsRequired();
             entity.Property(o => o.Status).HasMaxLength(24).IsRequired();
             entity.Property(o => o.Total).HasPrecision(8, 2);
             entity.HasMany(o => o.Lines)
@@ -56,6 +58,14 @@ public sealed class FornoDbContext(DbContextOptions<FornoDbContext> options) : D
             entity.ToTable("subscribers");
             entity.HasIndex(s => s.Email).IsUnique();
             entity.Property(s => s.Email).HasMaxLength(OvenLimits.EmailMax).IsRequired();
+        });
+
+        model.Entity<OvenSetting>(entity =>
+        {
+            entity.ToTable("oven_settings");
+            entity.HasIndex(s => s.Key).IsUnique();
+            entity.Property(s => s.Key).HasMaxLength(48).IsRequired();
+            entity.Property(s => s.Value).HasMaxLength(160).IsRequired();
         });
     }
 }

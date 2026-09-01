@@ -33,6 +33,7 @@ public static class OrderMapper
             Phone = PhoneRules.Normalize(request.Phone),
             Address = InputText.Address(request.Address),
             Note = InputText.Note(request.Note),
+            Fulfillment = request.Fulfillment.ToString().ToLowerInvariant(),
             Status = OrderStatus.Accepted,
             Lines = [.. lines],
             Total = lines.Sum(line => line.UnitPrice * line.Quantity)

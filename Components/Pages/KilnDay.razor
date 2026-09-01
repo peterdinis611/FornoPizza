@@ -1,0 +1,75 @@
+@page "/kiln/day"
+@inject IShopService Shop
+@inject IMenuService Menu
+
+<PageTitle>List dňa — pec</PageTitle>
+<Seo Title="List dňa — administrácia"
+     Description="Nastavenie listu dňa v peci 800° Forno."
+     NoIndex="true" />
+
+<section class="page-head">
+    <p class="eyebrow">Administrácia</p>
+    <h1>List dňa</h1>
+    <p class="lede">Jeden riadok v SQLite. Menu a úvodná stránka berú odtiaľto.</p>
+</section>
+
+@if (Saved)
+{
+    <p class="leaf-notice" role="status">Uložené. Pec vie, čo je dnes vpredu.</p>
+}
+
+<form class="kiln-admin" @onsubmit="Save" @onsubmit:preventDefault>
+    <label>
+        List v peci
+        <select @bind="SelectedSlug" aria-invalid="@Invalid("slug")">
+            @foreach (var pizza in Pizzas)
+            {
+                <option value="@pizza.Slug">@pizza.Name — @pizza.Tagline</option>
+            }
+        </select>
+        @if (FormError("slug") is { } slugErr)
+        {
+            <span class="field-error">@slugErr</span>
+        }
+    </label>
+    <button class="btn tomato" type="submit">Uložiť list dňa</button>
+</form>
+
+<p class="kiln-admin-hint">Kľúč v DB: <code>oven_settings.day_special</code></p>
+
+@code {
+    private IReadOnlyList<PizzaItem> Pizzas { get; set; } = [];
+    private string SelectedSlug { get; set; } = "margherita";
+    private bool Saved { get; set; }
+    private IReadOnlyList<FieldError> Errors { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Pizzas = await Menu.AllAsync();
+        var day = await Shop.DaySpecialAsync();
+        if (day is not null)
+        {
+            SelectedSlug = day.Slug;
+        }
+    }
+
+    private string? FormError(string field) =>
+        Errors.FirstOrDefault(error => error.Field.Equals(field, StringComparison.OrdinalIgnoreCase))?.Message;
+
+    private string Invalid(string field) =>
+        FormError(field) is null ? "false" : "true";
+
+    private async Task Save()
+    {
+        Saved = false;
+        var result = await Shop.SetDaySpecialAsync(SelectedSlug);
+        if (!result.IsSuccess)
+        {
+            Errors = result.Errors;
+            return;
+        }
+
+        Errors = [];
+        Saved = true;
+    }
+}

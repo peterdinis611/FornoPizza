@@ -20,10 +20,14 @@ public static class CheckoutValidator
             errors.Add(new FieldError("phone", "Zadajte slovenský telefón, napr. 0905 123 456."));
         }
 
-        var address = InputText.Address(request.Address);
-        if (address.Length < OvenLimits.AddressMin || !InputText.HasLetter(address))
+        var isDelivery = request.Fulfillment == FulfillmentMode.Delivery;
+        if (isDelivery)
         {
-            errors.Add(new FieldError("address", "Zadajte adresu doručenia."));
+            var address = InputText.Address(request.Address);
+            if (address.Length < OvenLimits.AddressMin || !InputText.HasLetter(address))
+            {
+                errors.Add(new FieldError("address", "Zadajte adresu doručenia."));
+            }
         }
 
         if ((request.Note ?? "").Trim().Length > OvenLimits.NoteMax)
@@ -40,6 +44,15 @@ public static class CheckoutValidator
         if (request.Lines.Any(line => line.Quantity < OvenLimits.QtyMin))
         {
             errors.Add(new FieldError("cart", "Každý list musí mať aspoň jeden kus."));
+        }
+
+        var total = CartRules.Total(request.Lines);
+        if (isDelivery && total < OvenCommerce.ShipMinimum)
+        {
+            var gap = OvenCommerce.ShipMinimum - total;
+            errors.Add(new FieldError(
+                "fulfillment",
+                $"Rozvoz je od {OvenCommerce.ShipMinimum:N0} €. Ešte {gap:N2} € alebo výdaj pri peci."));
         }
 
         return errors;

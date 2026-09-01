@@ -1,6 +1,7 @@
 @page "/menu"
 @inject NavigationManager Nav
 @inject IMenuService Oven
+@inject IShopService Shop
 @inject CartService Cart
 @inject IJSRuntime JS
 @implements IDisposable
@@ -73,23 +74,24 @@
     else
     {
         <ol class="peel-board">
-            @foreach (var (pizza, i) in Visible.Select((p, i) => (p, i)))
+            @foreach (var (pizza, i) in BoardItems.Select((p, i) => (p, i)))
             {
-                <li class="@(i == 0 ? "peel-lead" : "peel-row")" data-tilt>
+                var isLead = IsDayLead(pizza);
+                <li class="@(isLead ? "peel-lead" : "peel-row")" data-tilt>
                     <a href="/menu/@pizza.Slug">
-                        @if (i != 0)
+                        @if (!isLead)
                         {
                             <span class="index">@((i + 1).ToString("00"))</span>
                         }
                         <PizzaMark Slug="@pizza.Slug" MarkId="@($"menu-{pizza.Slug}")" />
                         <span class="row-copy">
-                            @if (i == 0)
+                            @if (isLead)
                             {
                                 <span class="fire-stamp">List dňa</span>
                             }
                             <strong>@pizza.Name</strong>
                             <em>@pizza.Tagline</em>
-                            @if (i == 0)
+                            @if (isLead)
                             {
                                 <span class="ingredients">@pizza.Ingredients</span>
                             }
@@ -124,6 +126,7 @@
     private string _urlKey = "";
     private int _searchKey;
     private IReadOnlyList<PizzaItem> All { get; set; } = [];
+    private string? DaySpecialSlug { get; set; }
     private string SearchQuery { get; set; } = "";
     private string? ActiveTag { get; set; }
     private IReadOnlyList<string> SearchSlugs { get; set; } = [];
@@ -138,6 +141,7 @@
             }
 
             var order = SearchSlugs
+                .Where(slug => !string.IsNullOrWhiteSpace(slug))
                 .Select((slug, index) => (slug, index))
                 .ToDictionary(pair => pair.slug, pair => pair.index, StringComparer.OrdinalIgnoreCase);
 
@@ -147,6 +151,32 @@
                 .ToList();
         }
     }
+
+    private IReadOnlyList<PizzaItem> BoardItems
+    {
+        get
+        {
+            var list = Visible;
+            if (IsFiltered || string.IsNullOrWhiteSpace(DaySpecialSlug))
+            {
+                return list;
+            }
+
+            var special = list.FirstOrDefault(pizza =>
+                pizza.Slug.Equals(DaySpecialSlug, StringComparison.OrdinalIgnoreCase));
+            if (special is null)
+            {
+                return list;
+            }
+
+            return [special, ..list.Where(pizza => !pizza.Slug.Equals(DaySpecialSlug, StringComparison.OrdinalIgnoreCase))];
+        }
+    }
+
+    private bool IsDayLead(PizzaItem pizza) =>
+        !IsFiltered
+        && !string.IsNullOrWhiteSpace(DaySpecialSlug)
+        && pizza.Slug.Equals(DaySpecialSlug, StringComparison.OrdinalIgnoreCase);
 
     private bool IsFiltered =>
         !string.IsNullOrWhiteSpace(SearchQuery) || !string.IsNullOrWhiteSpace(ActiveTag);
@@ -176,6 +206,8 @@
     protected override async Task OnInitializedAsync()
     {
         All = await Oven.AllAsync();
+        var day = await Shop.DaySpecialAsync();
+        DaySpecialSlug = day?.Slug;
         SyncFromUrl();
     }
 

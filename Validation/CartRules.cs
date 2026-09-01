@@ -13,4 +13,7 @@ public static class CartRules
 
     public static IReadOnlyList<string> Extras(IEnumerable<string>? ids) =>
         OvenExtras.Normalize(ids);
+
+    public static decimal Total(IEnumerable<CartLine>? lines) =>
+        (lines ?? []).Sum(line => line.LineTotal);
 }
