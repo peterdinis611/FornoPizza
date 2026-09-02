@@ -21,6 +21,7 @@ builder.Services.AddDbContextFactory<FornoDbContext>(options =>
 
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.Section));
 builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.Section));
+builder.Services.Configure<AdminOptions>(builder.Configuration.GetSection(AdminOptions.Section));
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -33,6 +34,7 @@ builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();
 builder.Services.AddScoped<ISubscriberService, SubscriberService>();
 
 var app = builder.Build();

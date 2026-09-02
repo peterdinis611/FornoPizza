@@ -1,0 +1,133 @@
+@page "/admin/orders/{Id:int}"
+@layout AdminLayout
+@inject IAdminOrderService Orders
+@using Forno.Domain
+
+<PageTitle>Objednávka #@Id — Admin</PageTitle>
+<Seo Title="Objednávka — Admin" Description="Detail objednávky." NoIndex="true" />
+
+@if (_missing)
+{
+    <p class="admin-muted">Lístok #@Id v peci nie je. <a href="/admin/orders">Späť</a></p>
+}
+else if (_order is null)
+{
+    <p class="admin-muted">Načítavam…</p>
+}
+else
+{
+    <section class="admin-head">
+        <p class="eyebrow"><a href="/admin/orders">← Objednávky</a></p>
+        <h1>Lístok #@_order.Id.ToString("000")</h1>
+        <span class="admin-stamp @StampClass(_order.Status)">@OrderStatus.Label(_order.Status)</span>
+    </section>
+
+    @if (_statusError is not null)
+    {
+        <p class="form-alert" role="alert">@_statusError</p>
+    }
+
+    <div class="admin-detail-grid">
+        <section class="admin-panel">
+            <header><p class="eyebrow">Zákazník</p></header>
+            <dl class="admin-dl">
+                <div><dt>Meno</dt><dd>@_order.Name</dd></div>
+                <div><dt>E-mail</dt><dd><a href="mailto:@_order.Email">@_order.Email</a></dd></div>
+                <div><dt>Telefón</dt><dd><a href="tel:@_order.Phone">@_order.Phone</a></dd></div>
+                <div><dt>Spôsob</dt><dd>@(_order.Fulfillment == "pickup" ? "Výdaj pri peci" : "Rozvoz")</dd></div>
+                <div><dt>Adresa</dt><dd>@_order.Address</dd></div>
+                @if (!string.IsNullOrWhiteSpace(_order.Note))
+                {
+                    <div><dt>Poznámka</dt><dd>@_order.Note</dd></div>
+                }
+                <div><dt>Čas</dt><dd>@_order.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd></div>
+                @if (!string.IsNullOrWhiteSpace(_order.StripeSessionId))
+                {
+                    <div><dt>Stripe</dt><dd class="admin-mono">@_order.StripeSessionId</dd></div>
+                }
+            </dl>
+        </section>
+
+        <section class="admin-panel">
+            <header><p class="eyebrow">Listy</p></header>
+            <ul class="admin-lines">
+                @foreach (var line in _order.Lines)
+                {
+                    <li>
+                        <strong>@line.Quantity× @line.PizzaName</strong>
+                        @if (!string.IsNullOrWhiteSpace(line.Extras))
+                        {
+                            <em>+ @line.Extras</em>
+                        }
+                        <span>@line.LineTotal.ToString("N2") €</span>
+                    </li>
+                }
+            </ul>
+            <p class="admin-total">Spolu <strong>@_order.Total.ToString("N2") €</strong></p>
+        </section>
+    </div>
+
+    <section class="admin-panel admin-actions">
+        <header><p class="eyebrow">Posunúť stav</p></header>
+        <div class="admin-action-row">
+            @foreach (var next in OrderStatus.Next(_order.Status))
+            {
+                <button type="button"
+                        class="btn @(next == OrderStatus.Cancelled ? "" : "tomato")"
+                        disabled="@_busy"
+                        @onclick="() => SetStatus(next)">
+                    → @OrderStatus.Label(next)
+                </button>
+            }
+            @if (OrderStatus.Next(_order.Status).Count == 0)
+            {
+                <p class="admin-muted">Konečný stav.</p>
+            }
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private AdminOrder? _order;
+    private bool _missing;
+    private bool _busy;
+    private string? _statusError;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _missing = false;
+        _statusError = null;
+        _order = await Orders.GetAsync(Id);
+        if (_order is null)
+        {
+            _missing = true;
+        }
+    }
+
+    private static string StampClass(string status) =>
+        $"is-{status.Replace('_', '-')}";
+
+    private async Task SetStatus(string status)
+    {
+        if (_busy || _order is null)
+        {
+            return;
+        }
+
+        _busy = true;
+        _statusError = null;
+        var result = await Orders.SetStatusAsync(_order.Id, status);
+        if (!result.IsSuccess)
+        {
+            _statusError = result["status"] ?? result["order"] ?? "Stav sa nepodarilo zmeniť.";
+            _busy = false;
+            return;
+        }
+
+        _order = await Orders.GetAsync(Id);
+        _busy = false;
+    }
+}

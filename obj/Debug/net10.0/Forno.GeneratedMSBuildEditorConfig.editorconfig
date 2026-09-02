@@ -38,8 +38,32 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9LaWxuRmF1bHQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/peterdinis/Desktop/work/forno/Components/Layout/AdminLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvQWRtaW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/peterdinis/Desktop/work/forno/Components/OvenSearch.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9PdmVuU2VhcmNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/peterdinis/Desktop/work/forno/Components/Pages/Admin/AdminDay.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9BZG1pbkRheS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/peterdinis/Desktop/work/forno/Components/Pages/Admin/AdminHome.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9BZG1pbkhvbWUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/peterdinis/Desktop/work/forno/Components/Pages/Admin/AdminMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9BZG1pbk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/peterdinis/Desktop/work/forno/Components/Pages/Admin/AdminOrderDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9BZG1pbk9yZGVyRGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/peterdinis/Desktop/work/forno/Components/Pages/Admin/AdminOrders.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9BZG1pbk9yZGVycy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/peterdinis/Desktop/work/forno/Components/Pages/Checkout.razor]
@@ -56,10 +80,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/peterdinis/Desktop/work/forno/Components/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/peterdinis/Desktop/work/forno/Components/Pages/KilnDay.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9LaWxuRGF5LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/peterdinis/Desktop/work/forno/Components/Pages/Kosik.razor]

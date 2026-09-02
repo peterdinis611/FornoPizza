@@ -53,6 +53,19 @@ stripe listen --forward-to localhost:5036/api/stripe/webhook
 - checkout s výdajom / rozvozom, chipmi alergií
 - Stripe Checkout (objednávka → platba → potvrdenie)
 - RabbitMQ kitchen tickets (`order.placed` / `order.paid`)
-- list dňa z DB (`/kiln/day`)
+- admin pece (`/admin`) — objednávky, stavy, list dňa, menu
+- list dňa z DB (`/admin/day`)
 
-Ďalšie veci (kuchyňa UI, účty, admin objednávok) neskôr.
+## Admin
+
+Otvorte `http://localhost:5036/admin`.
+
+Voliteľný PIN:
+
+```bash
+dotnet user-secrets set "Admin:Pin" "tajne"
+```
+
+Stavy objednávky: čaká platbu → zaplatená/prijatá → v peci → hotová → vydaná (alebo zrušená).
+
+Ďalšie veci (účty, notifikácie) neskôr.

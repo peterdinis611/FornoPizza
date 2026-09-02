@@ -94,9 +94,10 @@ else
     }
 
     private string FilterClass(string? status) =>
-        string.Equals(_filter, status, StringComparison.OrdinalIgnoreCase) || (_filter is null && status is null)
+        string.Equals(_filter, status, StringComparison.OrdinalIgnoreCase)
+        || (_filter is null && status is null)
             ? "is-on"
-            : null!;
+            : "";
 
     private static string StampClass(string status) =>
         $"is-{status.Replace('_', '-')}";
