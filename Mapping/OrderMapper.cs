@@ -32,9 +32,12 @@ public static class OrderMapper
         new()
         {
             CreatedAt = DateTimeOffset.UtcNow,
-            Name = InputText.Name(request.Name),
+            Name = NameRules.Normalize(request.Name),
+            Email = EmailRules.Normalize(request.Email),
             Phone = PhoneRules.Normalize(request.Phone),
-            Address = InputText.Address(request.Address),
+            Address = request.Fulfillment == FulfillmentMode.Pickup
+                ? OvenCommerce.PickupAddress
+                : AddressRules.Normalize(request.Address),
             Note = InputText.Note(request.Note),
             Fulfillment = request.Fulfillment.ToString().ToLowerInvariant(),
             Status = status,

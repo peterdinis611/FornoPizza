@@ -70,6 +70,7 @@ public sealed class StripePaymentService(
         var session = await sessionService.CreateAsync(new SessionCreateOptions
         {
             Mode = "payment",
+            CustomerEmail = string.IsNullOrWhiteSpace(order.Email) ? null : order.Email,
             LineItems = lineItems,
             SuccessUrl = $"{root}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
             CancelUrl = $"{root}/checkout?cancelled=1",

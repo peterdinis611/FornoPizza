@@ -14,4 +14,5 @@ public static class OvenLimits
     public const int QtyMin = 1;
     public const int QtyMax = 12;
     public const int ExtraMax = 6;
+    public const int CartLinesMax = 20;
 }

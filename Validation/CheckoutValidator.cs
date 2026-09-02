@@ -9,30 +9,45 @@ public static class CheckoutValidator
     {
         var errors = new List<FieldError>();
 
-        var name = InputText.Name(request.Name);
-        if (name.Length < OvenLimits.NameMin || !InputText.HasLetter(name))
+        if (!NameRules.IsValid(request.Name))
         {
-            errors.Add(new FieldError("name", "Zadajte meno (2–80 znakov)."));
+            errors.Add(new FieldError("name", "Zadajte celé meno (iba písmená, 2–80 znakov)."));
+        }
+
+        if (!EmailRules.IsValid(request.Email))
+        {
+            errors.Add(new FieldError("email", "Zadajte platný e-mail, napr. meno@email.sk."));
         }
 
         if (!PhoneRules.IsValid(request.Phone))
         {
-            errors.Add(new FieldError("phone", "Zadajte slovenský telefón, napr. 0905 123 456."));
+            errors.Add(new FieldError("phone", "Zadajte slovenský mobil, napr. 0905 123 456."));
+        }
+
+        if (!Enum.IsDefined(request.Fulfillment))
+        {
+            errors.Add(new FieldError("fulfillment", "Vyberte výdaj pri peci alebo rozvoz."));
         }
 
         var isDelivery = request.Fulfillment == FulfillmentMode.Delivery;
         if (isDelivery)
         {
-            var address = InputText.Address(request.Address);
-            if (address.Length < OvenLimits.AddressMin || !InputText.HasLetter(address))
+            if (!AddressRules.IsValid(request.Address))
             {
-                errors.Add(new FieldError("address", "Zadajte adresu doručenia."));
+                errors.Add(new FieldError(
+                    "address",
+                    "Zadajte adresu s ulicou a číslom domu, napr. Hlavná 12."));
             }
         }
-
-        if ((request.Note ?? "").Trim().Length > OvenLimits.NoteMax)
+        else if (request.Fulfillment == FulfillmentMode.Pickup)
         {
-            errors.Add(new FieldError("note", "Poznámka môže mať najviac 240 znakov."));
+            // pickup address is set server-side; ignore client garbage
+        }
+
+        var note = (request.Note ?? "").Trim();
+        if (note.Length > OvenLimits.NoteMax)
+        {
+            errors.Add(new FieldError("note", $"Poznámka môže mať najviac {OvenLimits.NoteMax} znakov."));
         }
 
         if (request.Lines is null || request.Lines.Count == 0)
@@ -41,12 +56,36 @@ public static class CheckoutValidator
             return errors;
         }
 
-        if (request.Lines.Any(line => line.Quantity < OvenLimits.QtyMin))
+        if (request.Lines.Count > OvenLimits.CartLinesMax)
         {
-            errors.Add(new FieldError("cart", "Každý list musí mať aspoň jeden kus."));
+            errors.Add(new FieldError("cart", $"V košíku môže byť najviac {OvenLimits.CartLinesMax} riadkov."));
+        }
+
+        foreach (var line in request.Lines)
+        {
+            if (line.Quantity < OvenLimits.QtyMin || line.Quantity > OvenLimits.QtyMax)
+            {
+                errors.Add(new FieldError(
+                    "cart",
+                    $"Každý list musí mať {OvenLimits.QtyMin}–{OvenLimits.QtyMax} ks."));
+                break;
+            }
+
+            if (line.ExtraIds is not null && line.ExtraIds.Count > OvenLimits.ExtraMax)
+            {
+                errors.Add(new FieldError(
+                    "cart",
+                    $"Na jeden list najviac {OvenLimits.ExtraMax} príloh."));
+                break;
+            }
         }
 
         var total = CartRules.Total(request.Lines);
+        if (total <= 0)
+        {
+            errors.Add(new FieldError("cart", "Suma objednávky nie je platná."));
+        }
+
         if (isDelivery && total < OvenCommerce.ShipMinimum)
         {
             var gap = OvenCommerce.ShipMinimum - total;

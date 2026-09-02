@@ -12,6 +12,7 @@ public sealed record OrderTicketMessage(
     DateTimeOffset CreatedAt,
     string Event,
     string Name,
+    string Email,
     string Phone,
     string Address,
     string Note,

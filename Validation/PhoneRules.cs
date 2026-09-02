@@ -5,7 +5,10 @@ namespace Forno.Validation;
 
 public static class PhoneRules
 {
-    private static readonly Regex Junk = new(@"[\s\-\.\(\)]", RegexOptions.Compiled);
+    private static readonly Regex Junk = new(@"[\s\-\.\(\)/]", RegexOptions.Compiled);
+
+    // SK mobil: +421 9xx xxx xxx
+    private static readonly Regex Mobile = new(@"^\+4219\d{8}$", RegexOptions.Compiled);
 
     public static string Normalize(string? value)
     {
@@ -33,8 +36,6 @@ public static class PhoneRules
     public static bool IsValid(string? value)
     {
         var phone = Normalize(value);
-        return phone.Length == 13
-            && phone.StartsWith("+421", StringComparison.Ordinal)
-            && phone[4..].All(char.IsDigit);
+        return Mobile.IsMatch(phone);
     }
 }

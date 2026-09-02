@@ -31,6 +31,7 @@ public sealed class FornoDbContext(DbContextOptions<FornoDbContext> options) : D
         {
             entity.ToTable("orders");
             entity.Property(o => o.Name).HasMaxLength(OvenLimits.NameMax).IsRequired();
+            entity.Property(o => o.Email).HasMaxLength(OvenLimits.EmailMax).IsRequired();
             entity.Property(o => o.Phone).HasMaxLength(OvenLimits.PhoneMax).IsRequired();
             entity.Property(o => o.Address).HasMaxLength(OvenLimits.AddressMax).IsRequired();
             entity.Property(o => o.Note).HasMaxLength(OvenLimits.NoteMax);

@@ -11,6 +11,7 @@ public static class OrderTicketMapper
             order.CreatedAt,
             eventName,
             order.Name,
+            order.Email,
             order.Phone,
             order.Address,
             order.Note,

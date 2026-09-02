@@ -5,6 +5,7 @@ namespace Forno.Contracts;
 
 public sealed record PlaceOrderRequest(
     string Name,
+    string Email,
     string Phone,
     string Address,
     string Note,

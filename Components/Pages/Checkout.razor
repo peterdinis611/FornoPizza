@@ -20,7 +20,7 @@
     <div class="ticket">
         <p class="eyebrow">Pec prijala lístok</p>
         <h2>Ďakujeme, @Receipt.Name.</h2>
-        <p>Lístok č. @Receipt.Id · @Receipt.Total.ToString("N2") € je zapísaný v peci. Ozveme sa na telefón.</p>
+        <p>Lístok č. @Receipt.Id · @Receipt.Total.ToString("N2") € je zapísaný v peci. Ozveme sa na telefón alebo e-mail.</p>
         <a class="btn" href="/menu">Späť k menu</a>
     </div>
 }
@@ -64,16 +64,45 @@ else
         </fieldset>
 
         <label>
-            Meno
-            <input @bind="Name" required maxlength="80" aria-invalid="@Invalid("name")" />
+            Meno a priezvisko
+            <input @bind="Name"
+                   @bind:event="oninput"
+                   required
+                   maxlength="@OvenLimits.NameMax"
+                   autocomplete="name"
+                   aria-invalid="@Invalid("name")" />
             @if (FormError("name") is { } nameErr)
             {
                 <span class="field-error">@nameErr</span>
             }
         </label>
         <label>
+            E-mail
+            <input @bind="Email"
+                   @bind:event="oninput"
+                   type="email"
+                   required
+                   maxlength="@OvenLimits.EmailMax"
+                   inputmode="email"
+                   autocomplete="email"
+                   placeholder="meno@email.sk"
+                   aria-invalid="@Invalid("email")" />
+            @if (FormError("email") is { } emailErr)
+            {
+                <span class="field-error">@emailErr</span>
+            }
+        </label>
+        <label>
             Telefón
-            <input @bind="Phone" required maxlength="30" inputmode="tel" autocomplete="tel" aria-invalid="@Invalid("phone")" />
+            <input @bind="Phone"
+                   @bind:event="oninput"
+                   type="tel"
+                   required
+                   maxlength="@OvenLimits.PhoneMax"
+                   inputmode="tel"
+                   autocomplete="tel"
+                   placeholder="0905 123 456"
+                   aria-invalid="@Invalid("phone")" />
             @if (FormError("phone") is { } phoneErr)
             {
                 <span class="field-error">@phoneErr</span>
@@ -83,7 +112,13 @@ else
         {
             <label>
                 Adresa doručenia
-                <input @bind="Address" required maxlength="160" autocomplete="street-address" aria-invalid="@Invalid("address")" />
+                <input @bind="Address"
+                       @bind:event="oninput"
+                       required
+                       maxlength="@OvenLimits.AddressMax"
+                       autocomplete="street-address"
+                       placeholder="Hlavná 12, Bardejov"
+                       aria-invalid="@Invalid("address")" />
                 @if (FormError("address") is { } addressErr)
                 {
                     <span class="field-error">@addressErr</span>
@@ -109,7 +144,12 @@ else
 
         <label>
             Poznámka
-            <textarea @bind="NoteExtra" rows="3" maxlength="240" placeholder="Ešte niečo pre pec…" aria-invalid="@Invalid("note")"></textarea>
+            <textarea @bind="NoteExtra"
+                      @bind:event="oninput"
+                      rows="3"
+                      maxlength="@OvenLimits.NoteMax"
+                      placeholder="Ešte niečo pre pec…"
+                      aria-invalid="@Invalid("note")"></textarea>
             @if (FormError("note") is { } noteErr)
             {
                 <span class="field-error">@noteErr</span>
@@ -130,6 +170,7 @@ else
     public bool Cancelled { get; set; }
 
     private string Name { get; set; } = "";
+    private string Email { get; set; } = "";
     private string Phone { get; set; } = "";
     private string Address { get; set; } = "";
     private string NoteExtra { get; set; } = "";
@@ -154,7 +195,13 @@ else
     private string FulfillClass(FulfillmentMode mode) =>
         Fulfillment == mode ? "fulfill-opt is-on" : "fulfill-opt";
 
-    private void SetFulfillment(FulfillmentMode mode) => Fulfillment = mode;
+    private void SetFulfillment(FulfillmentMode mode)
+    {
+        Fulfillment = mode;
+        Errors = Errors.Where(error =>
+            !error.Field.Equals("address", StringComparison.OrdinalIgnoreCase)
+            && !error.Field.Equals("fulfillment", StringComparison.OrdinalIgnoreCase)).ToList();
+    }
 
     private void ToggleChip(string chip)
     {
@@ -179,13 +226,24 @@ else
             ? OvenCommerce.PickupAddress
             : Address;
 
-        var result = await Orders.PlaceAsync(new PlaceOrderRequest(
+        var request = new PlaceOrderRequest(
             Name,
+            Email,
             Phone,
             address,
             note,
             Cart.Lines,
-            Fulfillment));
+            Fulfillment);
+
+        var local = CheckoutValidator.Validate(request);
+        if (local.Count > 0)
+        {
+            Errors = local;
+            _busy = false;
+            return;
+        }
+
+        var result = await Orders.PlaceAsync(request);
 
         if (!result.IsSuccess || result.Value is null)
         {
