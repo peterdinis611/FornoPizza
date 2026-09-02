@@ -25,7 +25,10 @@ public static class OrderMapper
         };
     }
 
-    public static OvenOrder ToOrder(PlaceOrderRequest request, IReadOnlyList<OrderLine> lines) =>
+    public static OvenOrder ToOrder(
+        PlaceOrderRequest request,
+        IReadOnlyList<OrderLine> lines,
+        string status = OrderStatus.Accepted) =>
         new()
         {
             CreatedAt = DateTimeOffset.UtcNow,
@@ -34,7 +37,7 @@ public static class OrderMapper
             Address = InputText.Address(request.Address),
             Note = InputText.Note(request.Note),
             Fulfillment = request.Fulfillment.ToString().ToLowerInvariant(),
-            Status = OrderStatus.Accepted,
+            Status = status,
             Lines = [.. lines],
             Total = lines.Sum(line => line.UnitPrice * line.Quantity)
         };

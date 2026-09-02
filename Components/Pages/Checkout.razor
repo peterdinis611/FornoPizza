@@ -1,38 +1,43 @@
 @page "/checkout"
 @inject CartService Cart
 @inject IOrderService Orders
+@inject IPaymentService Payments
+@inject NavigationManager Nav
 @using Forno.Domain
 
 <PageTitle>Objednávka — Forno</PageTitle>
 <Seo Title="Objednávka — 800° Forno"
-     Description="Objednávka z pece 800° Forno. Zatiaľ bez platby a bez účtu."
+     Description="Objednávka a platba kartou z pece 800° Forno. Bez účtu."
      NoIndex="true" />
 
 <section class="page-head">
-    <p class="eyebrow">Zatiaľ bez platby</p>
+    <p class="eyebrow">Platba kartou</p>
     <h1>Objednávka</h1>
 </section>
 
-@if (Submitted && Receipt is not null)
-{
-    <div class="ticket">
-        <p class="eyebrow">Pec prijala lístok</p>
-        <h2>Ďakujeme, @Receipt.Name.</h2>
-        <p>Lístok č. @Receipt.Id je zapísaný v peci. Platbu ešte neberieme — ozveme sa na telefón.</p>
-        <a class="btn" href="/menu">Späť k menu</a>
-    </div>
-}
-else if (Cart.IsEmpty)
+@if (Cart.IsEmpty)
 {
     <p class="empty">Najprv si vyberte pizzu. <a href="/menu">Menu</a></p>
 }
 else
 {
+    @if (Cancelled)
+    {
+        <p class="form-alert" role="status">Platba zrušená. Môžete skúsiť znova.</p>
+    }
+
+    @if (!Payments.IsEnabled)
+    {
+        <p class="form-alert" role="alert">
+            Stripe nie je nakonfigurovaný. Nastavte <code>Stripe:SecretKey</code> v user secrets alebo premenných prostredia.
+        </p>
+    }
+
     <form class="checkout" @onsubmit="Submit" @onsubmit:preventDefault>
         <p class="sum">@Cart.Count ks · @Cart.Total.ToString("N2") €</p>
-        @if (!string.IsNullOrEmpty(FormError("cart")) || !string.IsNullOrEmpty(FormError("order")) || !string.IsNullOrEmpty(FormError("fulfillment")))
+        @if (!string.IsNullOrEmpty(FormError("cart")) || !string.IsNullOrEmpty(FormError("order")) || !string.IsNullOrEmpty(FormError("fulfillment")) || !string.IsNullOrEmpty(FormError("payment")))
         {
-            <p class="form-alert" role="alert">@(FormError("cart") ?? FormError("fulfillment") ?? FormError("order"))</p>
+            <p class="form-alert" role="alert">@(FormError("cart") ?? FormError("fulfillment") ?? FormError("payment") ?? FormError("order"))</p>
         }
 
         <fieldset class="fulfill-toggle">
@@ -101,19 +106,24 @@ else
                 <span class="field-error">@noteErr</span>
             }
         </label>
-        <button class="btn tomato" type="submit">Odoslať objednávku</button>
+        <button class="btn tomato" type="submit" disabled="@(_busy || !Payments.IsEnabled)">
+            @(_busy ? "Pripravujeme platbu…" : "Zaplatiť a objednať")
+        </button>
+        <p class="fulfill-note">Platba cez Stripe. Karta, Apple Pay, Google Pay.</p>
     </form>
 }
 
 @code {
+    [SupplyParameterFromQuery]
+    public bool Cancelled { get; set; }
+
     private string Name { get; set; } = "";
     private string Phone { get; set; } = "";
     private string Address { get; set; } = "";
     private string NoteExtra { get; set; } = "";
     private FulfillmentMode Fulfillment { get; set; } = FulfillmentMode.Delivery;
     private HashSet<string> SelectedChips { get; } = new(StringComparer.Ordinal);
-    private bool Submitted { get; set; }
-    private OrderReceipt? Receipt { get; set; }
+    private bool _busy;
     private IReadOnlyList<FieldError> Errors { get; set; } = [];
 
     private string? FormError(string field) =>
@@ -137,6 +147,14 @@ else
 
     private async Task Submit()
     {
+        if (_busy || !Payments.IsEnabled)
+        {
+            return;
+        }
+
+        _busy = true;
+        Errors = [];
+
         var note = OrderNoteChips.Merge(SelectedChips, NoteExtra);
         var address = Fulfillment == FulfillmentMode.Pickup
             ? OvenCommerce.PickupAddress
@@ -153,12 +171,18 @@ else
         if (!result.IsSuccess || result.Value is null)
         {
             Errors = result.Errors;
+            _busy = false;
             return;
         }
 
-        Receipt = result.Value;
-        Errors = [];
-        Cart.Clear();
-        Submitted = true;
+        var session = await Payments.CreateCheckoutSessionAsync(result.Value.Id, Nav.BaseUri);
+        if (!session.IsSuccess || session.Value is null)
+        {
+            Errors = session.Errors;
+            _busy = false;
+            return;
+        }
+
+        Nav.NavigateTo(session.Value, forceLoad: true);
     }
 }

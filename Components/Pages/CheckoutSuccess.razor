@@ -1,0 +1,63 @@
+@page "/checkout/success"
+@inject IPaymentService Payments
+@inject CartService Cart
+@inject NavigationManager Nav
+
+<PageTitle>Platba prijatá — Forno</PageTitle>
+<Seo Title="Platba prijatá — 800° Forno"
+     Description="Potvrdenie platby objednávky z pece 800° Forno."
+     NoIndex="true" />
+
+@if (_busy)
+{
+    <p class="lede">Pec overuje platbu…</p>
+}
+else if (Receipt is not null)
+{
+    <div class="ticket">
+        <p class="eyebrow">Platba prijatá</p>
+        <h2>Ďakujeme, @Receipt.Name.</h2>
+        <p>Lístok č. @Receipt.Id · @Receipt.Total.ToString("N2") € je zapísaný v peci. Ozveme sa na telefón.</p>
+        <a class="btn" href="/menu">Späť k menu</a>
+    </div>
+}
+else
+{
+    <div class="ticket">
+        <p class="eyebrow">Platba</p>
+        <h2>Nepodarilo sa potvrdiť</h2>
+        <p class="form-alert" role="alert">@(_error ?? "Skúste znova alebo nás kontaktujte.")</p>
+        <a class="btn tomato" href="/checkout">Späť k objednávke</a>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "session_id")]
+    public string? SessionId { get; set; }
+
+    private bool _busy = true;
+    private OrderReceipt? Receipt { get; set; }
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SessionId))
+        {
+            _busy = false;
+            _error = "Chýba identifikátor platby.";
+            return;
+        }
+
+        var result = await Payments.ConfirmSessionAsync(SessionId);
+        _busy = false;
+
+        if (!result.IsSuccess || result.Value is null)
+        {
+            _error = result["payment"] ?? result["session"] ?? result["order"] ?? result.Errors.FirstOrDefault()?.Message;
+            return;
+        }
+
+        Receipt = result.Value;
+        Cart.Clear();
+    }
+}

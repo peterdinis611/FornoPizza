@@ -10,7 +10,7 @@
         "projectUniqueName": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
         "projectName": "Forno",
         "projectPath": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
-        "packagesPath": "/Users/peterdinis/.nuget/packages/",
+        "packagesPath": "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget",
         "outputPath": "/Users/peterdinis/Desktop/work/forno/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -59,6 +59,10 @@
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[10.0.11, )"
+            },
+            "Stripe.net": {
+              "target": "Package",
+              "version": "[52.4.1, )"
             }
           },
           "imports": [

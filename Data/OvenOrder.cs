@@ -11,6 +11,7 @@ public sealed class OvenOrder
     public string Fulfillment { get; set; } = "delivery";
     public decimal Total { get; set; }
     public string Status { get; set; } = Forno.Domain.OrderStatus.Accepted;
+    public string? StripeSessionId { get; set; }
 
     public List<OrderLine> Lines { get; set; } = [];
 }

@@ -36,6 +36,7 @@ public sealed class FornoDbContext(DbContextOptions<FornoDbContext> options) : D
             entity.Property(o => o.Note).HasMaxLength(OvenLimits.NoteMax);
             entity.Property(o => o.Fulfillment).HasMaxLength(16).IsRequired();
             entity.Property(o => o.Status).HasMaxLength(24).IsRequired();
+            entity.Property(o => o.StripeSessionId).HasMaxLength(255);
             entity.Property(o => o.Total).HasPrecision(8, 2);
             entity.HasMany(o => o.Lines)
                 .WithOne(l => l.Order)

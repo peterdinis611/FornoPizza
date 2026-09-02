@@ -1,12 +1,15 @@
 using Forno.Contracts;
 using Forno.Data;
+using Forno.Domain;
 using Forno.Mapping;
 using Forno.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Forno.Services;
 
-public sealed class OrderService(IDbContextFactory<FornoDbContext> factory) : IOrderService
+public sealed class OrderService(
+    IDbContextFactory<FornoDbContext> factory,
+    IPaymentService payment) : IOrderService
 {
     public async Task<Result<OrderReceipt>> PlaceAsync(
         PlaceOrderRequest request,
@@ -49,7 +52,8 @@ public sealed class OrderService(IDbContextFactory<FornoDbContext> factory) : IO
             return Result<OrderReceipt>.Fail("cart", "Košík je prázdny.");
         }
 
-        var order = OrderMapper.ToOrder(request, lines);
+        var status = payment.IsEnabled ? OrderStatus.PendingPayment : OrderStatus.Accepted;
+        var order = OrderMapper.ToOrder(request, lines, status);
         db.Orders.Add(order);
 
         try

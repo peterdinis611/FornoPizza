@@ -1,5 +1,6 @@
 using System.Globalization;
 using Forno.Components;
+using Forno.Configuration;
 using Forno.Data;
 using Forno.Seo;
 using Forno.Services;
@@ -17,12 +18,15 @@ Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 builder.Services.AddDbContextFactory<FornoDbContext>(options =>
     options.UseSqlite($"Data Source={dbPath}"));
 
+builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.Section));
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IShopService, ShopService>();
+builder.Services.AddScoped<IPaymentService, StripePaymentService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ISubscriberService, SubscriberService>();
 
@@ -55,6 +59,28 @@ app.MapGet("/sitemap.xml", async (HttpRequest request, IConfiguration config, IM
     var body = SiteDocuments.Sitemap(SiteDocuments.PublicBase(request, config), slugs);
     return Results.Text(body, "application/xml; charset=utf-8");
 });
+
+app.MapPost("/api/stripe/webhook", async (HttpRequest request, IPaymentService payments, CancellationToken cancellation) =>
+{
+    using var reader = new StreamReader(request.Body);
+    var json = await reader.ReadToEndAsync(cancellation);
+    var signature = request.Headers["Stripe-Signature"].ToString();
+    if (string.IsNullOrWhiteSpace(signature))
+    {
+        return Results.BadRequest();
+    }
+
+    try
+    {
+        await payments.HandleWebhookAsync(json, signature, cancellation);
+    }
+    catch (Stripe.StripeException)
+    {
+        return Results.BadRequest();
+    }
+
+    return Results.Ok();
+}).DisableAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
