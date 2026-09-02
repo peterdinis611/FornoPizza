@@ -14,6 +14,7 @@ namespace Forno.Services;
 public sealed class StripePaymentService(
     IOptions<StripeOptions> options,
     IDbContextFactory<FornoDbContext> factory,
+    IOrderBus bus,
     ILogger<StripePaymentService> logger) : IPaymentService
 {
     private readonly StripeOptions _options = options.Value;
@@ -175,7 +176,9 @@ public sealed class StripePaymentService(
         CancellationToken cancellation)
     {
         await using var db = await factory.CreateDbContextAsync(cancellation);
-        var order = await db.Orders.FirstOrDefaultAsync(o => o.Id == orderId, cancellation);
+        var order = await db.Orders
+            .Include(o => o.Lines)
+            .FirstOrDefaultAsync(o => o.Id == orderId, cancellation);
         if (order is null)
         {
             return Result<OrderReceipt>.Fail("order", "Objednávka sa nenašla.");
@@ -189,6 +192,8 @@ public sealed class StripePaymentService(
         order.Status = OrderStatus.Paid;
         order.StripeSessionId = sessionId;
         await db.SaveChangesAsync(cancellation);
+
+        await bus.PublishKitchenTicketAsync(order, OrderEvents.Paid, cancellation);
 
         return Result<OrderReceipt>.Ok(OrderMapper.ToReceipt(order));
     }

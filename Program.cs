@@ -20,9 +20,13 @@ builder.Services.AddDbContextFactory<FornoDbContext>(options =>
     options.UseSqlite($"Data Source={dbPath}"));
 
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.Section));
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(RabbitMqOptions.Section));
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSingleton<IOrderBus, RabbitMqOrderBus>();
+builder.Services.AddHostedService<KitchenTicketConsumer>();
 
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<IMenuService, MenuService>();

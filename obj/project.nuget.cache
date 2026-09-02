@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "mEQ6MuIIWTI=",
+  "dgSpecHash": "Q3aIWNH8Pj8=",
   "success": true,
   "projectFilePath": "/Users/peterdinis/Desktop/work/forno/Forno.csproj",
   "expectedPackageFiles": [
@@ -25,6 +25,7 @@
     "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget/microsoft.visualstudio.solutionpersistence/1.0.52/microsoft.visualstudio.solutionpersistence.1.0.52.nupkg.sha512",
     "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget/mono.texttemplating/3.0.0/mono.texttemplating.3.0.0.nupkg.sha512",
     "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget/newtonsoft.json/13.0.4/newtonsoft.json.13.0.4.nupkg.sha512",
+    "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget/rabbitmq.client/7.2.2/rabbitmq.client.7.2.2.nupkg.sha512",
     "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget/sqlitepclraw.bundle_e_sqlite3/2.1.12/sqlitepclraw.bundle_e_sqlite3.2.1.12.nupkg.sha512",
     "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget/sqlitepclraw.core/2.1.12/sqlitepclraw.core.2.1.12.nupkg.sha512",
     "/var/folders/xb/vrgmk5s507z8kxzn4b2c_3tr0000gn/T/cursor-sandbox-cache/5ce2542dd352c987e1bd82161ad2f18b/nuget/sqlitepclraw.lib.e_sqlite3/2.1.12/sqlitepclraw.lib.e_sqlite3.2.1.12.nupkg.sha512",

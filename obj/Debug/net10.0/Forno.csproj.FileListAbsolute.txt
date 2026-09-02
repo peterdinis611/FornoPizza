@@ -166,3 +166,4 @@
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/Stripe.net.dll
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/System.Configuration.ConfigurationManager.dll
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/System.Security.Cryptography.ProtectedData.dll
+/Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/RabbitMQ.Client.dll

@@ -10,7 +10,8 @@ namespace Forno.Services;
 
 public sealed class OrderService(
     IDbContextFactory<FornoDbContext> factory,
-    IPaymentService payment) : IOrderService
+    IPaymentService payment,
+    IOrderBus bus) : IOrderService
 {
     public async Task<Result<OrderReceipt>> PlaceAsync(
         PlaceOrderRequest request,
@@ -64,6 +65,11 @@ public sealed class OrderService(
         catch (DbUpdateException)
         {
             return Result<OrderReceipt>.Fail("order", "Lístok sa nepodarilo zapísať. Skúste znova.");
+        }
+
+        if (order.Status == OrderStatus.Accepted)
+        {
+            await bus.PublishKitchenTicketAsync(order, OrderEvents.Placed, cancellation);
         }
 
         return Result<OrderReceipt>.Ok(OrderMapper.ToReceipt(order));
