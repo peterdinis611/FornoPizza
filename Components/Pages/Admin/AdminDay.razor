@@ -1,0 +1,69 @@
+@page "/admin/day"
+@page "/kiln/day"
+@layout AdminLayout
+@inject IShopService Shop
+@inject IMenuService Menu
+
+<PageTitle>List dňa — Admin</PageTitle>
+<Seo Title="List dňa — Admin" Description="Nastavenie listu dňa." NoIndex="true" />
+
+<section class="admin-head">
+    <p class="eyebrow">Menu</p>
+    <h1>List dňa</h1>
+    <p class="lede">Jeden riadok v SQLite. Obchod berie odtiaľto.</p>
+</section>
+
+@if (_saved)
+{
+    <p class="leaf-notice" role="status">Uložené. Pec vie, čo je dnes vpredu.</p>
+}
+
+<form class="admin-form" @onsubmit="Save" @onsubmit:preventDefault>
+    <label>
+        List v peci
+        <select @bind="_slug" aria-invalid="@(_error is null ? "false" : "true")">
+            @foreach (var pizza in _pizzas)
+            {
+                <option value="@pizza.Slug">@pizza.Name — @pizza.Tagline · @pizza.Price.ToString("N2") €</option>
+            }
+        </select>
+        @if (_error is not null)
+        {
+            <span class="field-error">@_error</span>
+        }
+    </label>
+    <button class="btn tomato" type="submit">Uložiť list dňa</button>
+</form>
+
+<p class="admin-muted">Kľúč: <code>oven_settings.day_special</code></p>
+
+@code {
+    private IReadOnlyList<PizzaItem> _pizzas = [];
+    private string _slug = "margherita";
+    private bool _saved;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pizzas = await Menu.AllAsync();
+        var day = await Shop.DaySpecialAsync();
+        if (day is not null)
+        {
+            _slug = day.Slug;
+        }
+    }
+
+    private async Task Save()
+    {
+        _saved = false;
+        _error = null;
+        var result = await Shop.SetDaySpecialAsync(_slug);
+        if (!result.IsSuccess)
+        {
+            _error = result["slug"] ?? "Nepodarilo sa uložiť.";
+            return;
+        }
+
+        _saved = true;
+    }
+}

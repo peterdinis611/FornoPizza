@@ -1,0 +1,111 @@
+@page "/admin"
+@layout AdminLayout
+@inject IAdminOrderService Orders
+@inject IShopService Shop
+@using Forno.Domain
+
+<PageTitle>Admin — 800° Forno</PageTitle>
+<Seo Title="Admin — 800° Forno" Description="Riadenie pece." NoIndex="true" />
+
+<section class="admin-head">
+    <p class="eyebrow">Riadenie</p>
+    <h1>Pec dnes</h1>
+</section>
+
+@if (_stats is null)
+{
+    <p class="admin-muted">Načítavam…</p>
+}
+else
+{
+    <div class="admin-stats">
+        <article>
+            <span>Dnes</span>
+            <strong>@_stats.TodayCount</strong>
+            <em>objednávok</em>
+        </article>
+        <article>
+            <span>Tržba</span>
+            <strong>@_stats.TodayRevenue.ToString("N2") €</strong>
+            <em>bez zrušených</em>
+        </article>
+        <article>
+            <span>Kuchyňa</span>
+            <strong>@_stats.KitchenCount</strong>
+            <em>aktívnych</em>
+        </article>
+        <article>
+            <span>Platba</span>
+            <strong>@_stats.PendingPaymentCount</strong>
+            <em>čaká</em>
+        </article>
+    </div>
+
+    <div class="admin-panels">
+        <section class="admin-panel">
+            <header>
+                <p class="eyebrow">List dňa</p>
+                <a href="/admin/day">Upraviť →</a>
+            </header>
+            @if (_day is null)
+            {
+                <p class="admin-muted">Nie je nastavený.</p>
+            }
+            else
+            {
+                <p class="admin-day-name">@_day.Name</p>
+                <p class="admin-muted">@_day.Tagline · @_day.Price.ToString("N2") €</p>
+            }
+        </section>
+
+        <section class="admin-panel">
+            <header>
+                <p class="eyebrow">Kuchyňa</p>
+                <a href="/admin/orders">Všetky →</a>
+            </header>
+            @if (_kitchen.Count == 0)
+            {
+                <p class="admin-muted">Pec je prázdna.</p>
+            }
+            else
+            {
+                <ol class="admin-ticket-list">
+                    @foreach (var order in _kitchen)
+                    {
+                        <li>
+                            <a href="/admin/orders/@order.Id">
+                                <span class="admin-ticket-id">#@order.Id.ToString("000")</span>
+                                <span class="admin-stamp @StampClass(order.Status)">@OrderStatus.Label(order.Status)</span>
+                                <strong>@order.Name</strong>
+                                <em>@FulfillLabel(order.Fulfillment) · @order.Total.ToString("N2") €</em>
+                            </a>
+                        </li>
+                    }
+                </ol>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    private AdminStats? _stats;
+    private PizzaItem? _day;
+    private IReadOnlyList<AdminOrder> _kitchen = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _stats = await Orders.StatsAsync();
+        _day = await Shop.DaySpecialAsync();
+        var page = await Orders.ListAsync(take: 40);
+        _kitchen = page.Items
+            .Where(o => OrderStatus.IsKitchenActive(o.Status))
+            .Take(8)
+            .ToList();
+    }
+
+    private static string FulfillLabel(string fulfillment) =>
+        fulfillment.Equals("pickup", StringComparison.OrdinalIgnoreCase) ? "Výdaj" : "Rozvoz";
+
+    private static string StampClass(string status) =>
+        $"is-{status.Replace('_', '-')}";
+}

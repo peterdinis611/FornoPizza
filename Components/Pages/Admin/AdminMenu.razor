@@ -1,0 +1,56 @@
+@page "/admin/menu"
+@layout AdminLayout
+@inject IMenuService Menu
+@inject IShopService Shop
+
+<PageTitle>Menu — Admin</PageTitle>
+<Seo Title="Menu — Admin" Description="Prehľad listov v peci." NoIndex="true" />
+
+<section class="admin-head">
+    <p class="eyebrow">Katalóg</p>
+    <h1>Menu</h1>
+</section>
+
+@if (_items.Count == 0)
+{
+    <p class="admin-muted">Načítavam…</p>
+}
+else
+{
+    <ol class="admin-menu-board">
+        @foreach (var (pizza, i) in _items.Select((p, i) => (p, i)))
+        {
+            var isDay = _daySlug is not null
+                && pizza.Slug.Equals(_daySlug, StringComparison.OrdinalIgnoreCase);
+            <li class="@(isDay ? "is-day" : null)">
+                <span class="admin-menu-num">@((i + 1).ToString("00"))</span>
+                <div>
+                    <strong>@pizza.Name</strong>
+                    <em>@pizza.Tagline</em>
+                    <span class="admin-sub">@pizza.Ingredients</span>
+                    @if (isDay)
+                    {
+                        <span class="admin-stamp is-prijata">List dňa</span>
+                    }
+                    else if (pizza.Featured)
+                    {
+                        <span class="admin-stamp is-hotova">Featured</span>
+                    }
+                </div>
+                <span class="admin-menu-price">@pizza.Price.ToString("N2") €</span>
+                <a class="btn" href="/menu/@pizza.Slug" target="_blank" rel="noopener">Obchod</a>
+            </li>
+        }
+    </ol>
+}
+
+@code {
+    private IReadOnlyList<PizzaItem> _items = [];
+    private string? _daySlug;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _items = await Menu.AllAsync();
+        _daySlug = (await Shop.DaySpecialAsync())?.Slug;
+    }
+}

@@ -1,0 +1,114 @@
+@page "/admin/orders"
+@layout AdminLayout
+@inject IAdminOrderService Orders
+@using Forno.Domain
+
+<PageTitle>Objednávky — Admin</PageTitle>
+<Seo Title="Objednávky — Admin" Description="Objednávky pece." NoIndex="true" />
+
+<section class="admin-head">
+    <p class="eyebrow">Kuchyňa</p>
+    <h1>Objednávky</h1>
+</section>
+
+<nav class="admin-filters" aria-label="Filter stavov">
+    <button type="button" class="@FilterClass(null)" @onclick="() => SetFilter(null)">Všetko</button>
+    @foreach (var status in FilterStatuses)
+    {
+        <button type="button" class="@FilterClass(status)" @onclick="() => SetFilter(status)">
+            @OrderStatus.Label(status)
+        </button>
+    }
+</nav>
+
+@if (_loading)
+{
+    <p class="admin-muted">Načítavam lístky…</p>
+}
+else if (_items.Count == 0)
+{
+    <p class="admin-muted">Žiadne objednávky.</p>
+}
+else
+{
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Čas</th>
+                    <th>Meno</th>
+                    <th>Spôsob</th>
+                    <th>Stav</th>
+                    <th>Suma</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in _items)
+                {
+                    <tr @onclick="() => Open(order.Id)" @key="order.Id">
+                        <td><a href="/admin/orders/@order.Id">@order.Id.ToString("000")</a></td>
+                        <td>@order.CreatedAt.ToLocalTime().ToString("dd.MM. HH:mm")</td>
+                        <td>
+                            <strong>@order.Name</strong>
+                            <span class="admin-sub">@order.Phone</span>
+                        </td>
+                        <td>@(order.Fulfillment == "pickup" ? "Výdaj" : "Rozvoz")</td>
+                        <td><span class="admin-stamp @StampClass(order.Status)">@OrderStatus.Label(order.Status)</span></td>
+                        <td>@order.Total.ToString("N2") €</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    public string? Status { get; set; }
+
+    private static readonly string[] FilterStatuses =
+    [
+        OrderStatus.PendingPayment,
+        OrderStatus.Paid,
+        OrderStatus.Accepted,
+        OrderStatus.Baking,
+        OrderStatus.Ready,
+        OrderStatus.Done,
+        OrderStatus.Cancelled
+    ];
+
+    private IReadOnlyList<AdminOrder> _items = [];
+    private bool _loading = true;
+    private string? _filter;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _filter = string.IsNullOrWhiteSpace(Status) ? null : Status.Trim().ToLowerInvariant();
+        _loading = true;
+        var page = await Orders.ListAsync(_filter);
+        _items = page.Items;
+        _loading = false;
+    }
+
+    private string FilterClass(string? status) =>
+        string.Equals(_filter, status, StringComparison.OrdinalIgnoreCase) || (_filter is null && status is null)
+            ? "is-on"
+            : null!;
+
+    private static string StampClass(string status) =>
+        $"is-{status.Replace('_', '-')}";
+
+    private async Task SetFilter(string? status)
+    {
+        var url = string.IsNullOrWhiteSpace(status)
+            ? "/admin/orders"
+            : $"/admin/orders?status={Uri.EscapeDataString(status)}";
+        Nav.NavigateTo(url);
+        await Task.CompletedTask;
+    }
+
+    private void Open(int id) => Nav.NavigateTo($"/admin/orders/{id}");
+}

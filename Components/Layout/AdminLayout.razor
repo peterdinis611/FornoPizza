@@ -1,0 +1,140 @@
+@inherits LayoutComponentBase
+@inject Microsoft.Extensions.Options.IOptions<Forno.Configuration.AdminOptions> AdminOpts
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="admin-shell">
+    <aside class="admin-rail">
+        <a class="admin-brand" href="/admin">
+            <span>800°</span>
+            <strong>Pec</strong>
+            <em>riadenie</em>
+        </a>
+        <nav class="admin-nav" aria-label="Administrácia">
+            <NavLink href="/admin" Match="NavLinkMatch.All">Prehľad</NavLink>
+            <NavLink href="/admin/orders">Objednávky</NavLink>
+            <NavLink href="/admin/day">List dňa</NavLink>
+            <NavLink href="/admin/menu">Menu</NavLink>
+        </nav>
+        <div class="admin-rail-foot">
+            <a href="/">← Obchod</a>
+            @if (_unlocked && AdminOpts.Value.RequiresPin)
+            {
+                <button type="button" class="admin-lock" @onclick="Lock">Zamknúť</button>
+            }
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        @if (!_ready)
+        {
+            <p class="admin-muted">Otváram pec…</p>
+        }
+        else if (!_unlocked)
+        {
+            <section class="admin-gate">
+                <p class="eyebrow">Riadenie pece</p>
+                <h1>PIN</h1>
+                <p class="lede">Bez PIN-u pec nespustíš. Nastav <code>Admin:Pin</code> v secrets.</p>
+                <form class="admin-gate-form" @onsubmit="Unlock" @onsubmit:preventDefault>
+                    <label>
+                        Heslo pece
+                        <input type="password"
+                               @bind="_pin"
+                               autocomplete="current-password"
+                               maxlength="64"
+                               aria-invalid="@(_gateError is null ? "false" : "true")" />
+                    </label>
+                    @if (_gateError is not null)
+                    {
+                        <p class="field-error" role="alert">@_gateError</p>
+                    }
+                    <button class="btn tomato" type="submit">Odomknúť</button>
+                </form>
+            </section>
+        }
+        else
+        {
+            @if (!AdminOpts.Value.RequiresPin)
+            {
+                <p class="admin-banner" role="status">Admin je otvorený — nastavte <code>Admin:Pin</code> pred produkciou.</p>
+            }
+            @Body
+        }
+    </div>
+</div>
+
+@code {
+    private bool _ready;
+    private bool _unlocked;
+    private string _pin = "";
+    private string? _gateError;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _ready)
+        {
+            return;
+        }
+
+        try
+        {
+            if (!AdminOpts.Value.RequiresPin)
+            {
+                _unlocked = true;
+            }
+            else
+            {
+                _unlocked = await JS.InvokeAsync<bool>("FornoAdmin.isUnlocked");
+            }
+        }
+        catch (JSException)
+        {
+            _unlocked = !AdminOpts.Value.RequiresPin;
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
+
+        _ready = true;
+        StateHasChanged();
+    }
+
+    private async Task Unlock()
+    {
+        _gateError = null;
+        var expected = AdminOpts.Value.Pin.Trim();
+        if (!string.Equals(_pin.Trim(), expected, StringComparison.Ordinal))
+        {
+            _gateError = "Zlý PIN.";
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoAdmin.unlock");
+        }
+        catch (JSException)
+        {
+        }
+
+        _unlocked = true;
+        _pin = "";
+    }
+
+    private async Task Lock()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("FornoAdmin.lock");
+        }
+        catch (JSException)
+        {
+        }
+
+        _unlocked = false;
+    }
+
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+}
