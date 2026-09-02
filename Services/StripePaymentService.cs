@@ -2,6 +2,7 @@ using Forno.Configuration;
 using Forno.Contracts;
 using Forno.Data;
 using Forno.Domain;
+using Forno.Interfaces;
 using Forno.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -143,7 +144,7 @@ public sealed class StripePaymentService(
             signature,
             _options.WebhookSecret.Trim());
 
-        if (stripeEvent.Type != Events.CheckoutSessionCompleted)
+        if (stripeEvent.Type != "checkout.session.completed")
         {
             return;
         }

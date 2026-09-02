@@ -3,6 +3,7 @@ using Forno.Components;
 using Forno.Configuration;
 using Forno.Data;
 using Forno.Seo;
+using Forno.Interfaces;
 using Forno.Services;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,6 +1,6 @@
 using Forno.Contracts;
 
-namespace Forno.Services;
+namespace Forno.Interfaces;
 
 public interface IPaymentService
 {

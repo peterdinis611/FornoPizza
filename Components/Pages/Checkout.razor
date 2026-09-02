@@ -11,11 +11,20 @@
      NoIndex="true" />
 
 <section class="page-head">
-    <p class="eyebrow">Platba kartou</p>
+    <p class="eyebrow">@(Payments.IsEnabled ? "Platba kartou" : "Objednávka")</p>
     <h1>Objednávka</h1>
 </section>
 
-@if (Cart.IsEmpty)
+@if (Submitted && Receipt is not null)
+{
+    <div class="ticket">
+        <p class="eyebrow">Pec prijala lístok</p>
+        <h2>Ďakujeme, @Receipt.Name.</h2>
+        <p>Lístok č. @Receipt.Id · @Receipt.Total.ToString("N2") € je zapísaný v peci. Ozveme sa na telefón.</p>
+        <a class="btn" href="/menu">Späť k menu</a>
+    </div>
+}
+else if (Cart.IsEmpty)
 {
     <p class="empty">Najprv si vyberte pizzu. <a href="/menu">Menu</a></p>
 }
@@ -29,7 +38,7 @@ else
     @if (!Payments.IsEnabled)
     {
         <p class="form-alert" role="alert">
-            Stripe nie je nakonfigurovaný. Nastavte <code>Stripe:SecretKey</code> v user secrets alebo premenných prostredia.
+            Stripe nie je nakonfigurovaný — objednávka prebehne bez platby kartou.
         </p>
     }
 
@@ -106,10 +115,13 @@ else
                 <span class="field-error">@noteErr</span>
             }
         </label>
-        <button class="btn tomato" type="submit" disabled="@(_busy || !Payments.IsEnabled)">
-            @(_busy ? "Pripravujeme platbu…" : "Zaplatiť a objednať")
+        <button class="btn tomato" type="submit" disabled="@_busy">
+            @SubmitLabel
         </button>
-        <p class="fulfill-note">Platba cez Stripe. Karta, Apple Pay, Google Pay.</p>
+        @if (Payments.IsEnabled)
+        {
+            <p class="fulfill-note">Platba cez Stripe. Karta, Apple Pay, Google Pay.</p>
+        }
     </form>
 }
 
@@ -124,7 +136,14 @@ else
     private FulfillmentMode Fulfillment { get; set; } = FulfillmentMode.Delivery;
     private HashSet<string> SelectedChips { get; } = new(StringComparer.Ordinal);
     private bool _busy;
+    private bool Submitted { get; set; }
+    private OrderReceipt? Receipt { get; set; }
     private IReadOnlyList<FieldError> Errors { get; set; } = [];
+
+    private string SubmitLabel =>
+        _busy
+            ? (Payments.IsEnabled ? "Pripravujeme platbu…" : "Odosielame…")
+            : (Payments.IsEnabled ? "Zaplatiť a objednať" : "Odoslať objednávku");
 
     private string? FormError(string field) =>
         Errors.FirstOrDefault(error => error.Field.Equals(field, StringComparison.OrdinalIgnoreCase))?.Message;
@@ -147,7 +166,7 @@ else
 
     private async Task Submit()
     {
-        if (_busy || !Payments.IsEnabled)
+        if (_busy)
         {
             return;
         }
@@ -171,6 +190,15 @@ else
         if (!result.IsSuccess || result.Value is null)
         {
             Errors = result.Errors;
+            _busy = false;
+            return;
+        }
+
+        if (!Payments.IsEnabled)
+        {
+            Receipt = result.Value;
+            Cart.Clear();
+            Submitted = true;
             _busy = false;
             return;
         }

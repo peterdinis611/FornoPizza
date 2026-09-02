@@ -1,6 +1,6 @@
 using Forno.Models;
 
-namespace Forno.Services;
+namespace Forno.Interfaces;
 
 public interface IMenuService
 {
