@@ -1,0 +1,95 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div @ref="_host" class="admin-tanstack-host"></div>
+
+@if (_error is not null)
+{
+    <p class="form-alert" role="alert">@_error</p>
+}
+
+@code {
+    [Parameter]
+    public IReadOnlyList<AdminOrder> Orders { get; set; } = [];
+
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    private ElementReference _host;
+    private string? _tableId;
+    private string _dataKey = "";
+    private string? _error;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var key = $"{Orders.Count}:{string.Join(',', Orders.Select(o => o.Id))}:{PageSize}";
+        if (_tableId is not null && key == _dataKey)
+        {
+            return;
+        }
+
+        _dataKey = key;
+        var rows = Orders.Select(ToRow).ToArray();
+
+        try
+        {
+            if (_tableId is null)
+            {
+                _tableId = await JS.InvokeAsync<string>(
+                    "FornoAdminTable.mount",
+                    _host,
+                    new { rows, pageSize = PageSize });
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("FornoAdminTable.update", _tableId, rows);
+            }
+
+            _error = null;
+        }
+        catch (JSException)
+        {
+            _error = "TanStack tabuľka sa nenačítala.";
+        }
+        catch (InvalidOperationException)
+        {
+            /* prerender */
+        }
+    }
+
+    private static object ToRow(AdminOrder order) =>
+        new
+        {
+            id = order.Id,
+            createdAt = order.CreatedAt.ToLocalTime().ToString("o"),
+            name = order.Name,
+            phone = order.Phone,
+            email = order.Email,
+            fulfillment = order.Fulfillment,
+            status = order.Status,
+            statusLabel = Forno.Domain.OrderStatus.Label(order.Status),
+            total = order.Total,
+            search = $"{order.Id} {order.Name} {order.Phone} {order.Email} {order.Status} {Forno.Domain.OrderStatus.Label(order.Status)} {order.Fulfillment}"
+        };
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_tableId is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("FornoAdminTable.destroy", _tableId);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (JSException)
+        {
+        }
+
+        _tableId = null;
+    }
+}

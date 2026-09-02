@@ -1,0 +1,28 @@
+{
+  "name": "forno",
+  "version": "1.0.0",
+  "description": "Blazor e‑shop pre pizzeriu 800° Forno. Katalóg, košík, objednávka, Stripe a RabbitMQ lístky do kuchyne.",
+  "main": "index.js",
+  "scripts": {
+    "build:js": "esbuild wwwroot/js/forno-admin-table.src.js --bundle --format=iife --outfile=wwwroot/js/forno-admin-table.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterdinis611/FornoPizza.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/peterdinis611/FornoPizza/issues"
+  },
+  "homepage": "https://github.com/peterdinis611/FornoPizza#readme",
+  "dependencies": {
+    "@tanstack/table-core": "^8.21.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.9"
+  }
+}

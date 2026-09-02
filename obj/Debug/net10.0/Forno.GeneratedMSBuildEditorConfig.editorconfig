@@ -66,6 +66,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9BZG1pbk9yZGVycy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/peterdinis/Desktop/work/forno/Components/Pages/Admin/AdminOrdersTable.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9BZG1pbk9yZGVyc1RhYmxlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/peterdinis/Desktop/work/forno/Components/Pages/Checkout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9DaGVja291dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

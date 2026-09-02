@@ -165,6 +165,10 @@
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/System.Configuration.ConfigurationManager.dll
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/System.Security.Cryptography.ProtectedData.dll
 /Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/RabbitMQ.Client.dll
-/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-ww4ngbroip-ww4ngbroip.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/mdhv6vkfde-{0}-02e28tuctr-02e28tuctr.gz
 /Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/5ag4qpjjrt-{0}-03i2gvcmvl-03i2gvcmvl.gz
+/Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/package-lock.json
+/Users/peterdinis/Desktop/work/forno/bin/Debug/net10.0/package.json
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/e7ctsk7a9q-{0}-qjde4ul55r-qjde4ul55r.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/c2jmsiv5lg-{0}-j8ah9mrjqa-j8ah9mrjqa.gz
+/Users/peterdinis/Desktop/work/forno/obj/Debug/net10.0/compressed/ynct15cv2x-{0}-gbphi82pje-gbphi82pje.gz

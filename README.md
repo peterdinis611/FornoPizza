@@ -53,12 +53,18 @@ stripe listen --forward-to localhost:5036/api/stripe/webhook
 - checkout s výdajom / rozvozom, chipmi alergií
 - Stripe Checkout (objednávka → platba → potvrdenie)
 - RabbitMQ kitchen tickets (`order.placed` / `order.paid`)
-- admin pece (`/admin`) — objednávky, stavy, list dňa, menu
-- list dňa z DB (`/admin/day`)
+- admin pece (`/admin`) — objednávky (TanStack Table), stavy, list dňa, menu
 
 ## Admin
 
 Otvorte `http://localhost:5036/admin`.
+
+Objednávky používajú **TanStack Table** (`@tanstack/table-core`) — sortovanie, hľadanie, stránkovanie.
+
+```bash
+npm install
+npm run build:js
+```
 
 Voliteľný PIN:
 
